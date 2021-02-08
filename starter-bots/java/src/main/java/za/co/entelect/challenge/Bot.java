@@ -199,7 +199,7 @@ public class Bot {
         return gameState.map[nextPosition.x][nextPosition.y];
     }
 
-/*
+
     private Command digAndMoveTo(Position origin, Position destination) {
         Position nextPosition = resolveToPosition(origin,destination);
 
@@ -230,5 +230,5 @@ public class Bot {
         }
 
     }
-*/
+
 }
