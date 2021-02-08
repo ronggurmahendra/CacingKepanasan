@@ -202,11 +202,31 @@ public class Bot {
 
     private Command digAndMoveTo(Position origin, Position destination) {
         Position nextPosition = resolveToPosition(origin,destination);
-        Cell nextCell = findNextCellInPath(nextPosition);
 
-         MyWorm[] worms = gameState.myPlayer.worms;
-         for (int i = 0; i < worms.length; i++) {
-            
+        boolean canMove = true;
+        MyWorm[] worms = gameState.myPlayer.worms;
+        for (int i = 0; i < worms.length; i++) {
+            if (worms[i].position.equals(nextPosition)) {
+                canMove = false;
+            }
+        }
+
+        if (!isValidCoordinate(nextPosition.x, nextPosition.y)) {
+            canMove = false;
+        }
+
+        if (canMove) {
+            Cell nextCell = findNextCellInPath(nextPosition);
+//            Command cmd;
+            if (nextCell.type == CellType.DIRT) {
+                return new DigCommand(nextPosition.x,nextPosition.y);
+            } else if (nextCell.type == CellType.AIR) {
+                return new MoveCommand(nextPosition.x,nextPosition.y);
+            } else {
+                return new DoNothingCommand();
+            }
+        } else {
+            return new DoNothingCommand();
         }
 
 
