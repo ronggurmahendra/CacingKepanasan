@@ -181,15 +181,15 @@ public class Bot {
         int horizontalComponent = destination.x - origin.x;
 
         if (verticalComponent < 0) {
-            toPosition.y = origin.y + 1;
+            toPosition.y = origin.y - 1;
         } else if (verticalComponent > 0) {
-            toPosition.y = origin.y -1;
+            toPosition.y = origin.y + 1;
         }
 
         if (horizontalComponent < 0) {
-            toPosition.x = origin.x - 1;
-        } else if (horizontalComponent > 0) {
             toPosition.x = origin.x + 1;
+        } else if (horizontalComponent > 0) {
+            toPosition.x = origin.x - 1;
         }
 
         return toPosition;
