@@ -7,7 +7,7 @@ import za.co.entelect.challenge.enums.Direction;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+import java.io.*;
 public class Bot {
 
     private Random random;
@@ -51,11 +51,11 @@ public class Bot {
                 return new MoveCommand(tempPos.x, tempPos.y);
             }
 
-        }else if(getCurrentWorm(gameState).id == 2){
+        }else if(getCurrentWorm(gameState).id == 2){ //agent
             if(getCurrentWorm(gameState).bananaBomb.count>0){
                 return new DoNothingCommand();
             }
-        }else if(getCurrentWorm(gameState).id == 3){
+        }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
                 return new DoNothingCommand();
             }
