@@ -62,11 +62,13 @@ public class Bot {
         }else if(getCurrentWorm(gameState).id == 2){ // agent 
             //if(true){
             if(getCurrentWorm(gameState).bananaBomb.count>0){
-                return new DoNothingCommand();
+                return new ThrowBananaCommand(currentWorm.position.x, currentWorm.position.y);
+                //return new DoNothingCommand();
             }
         }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
-                return new DoNothingCommand();
+                return new ThrowSnowballCommand(currentWorm.position.x, currentWorm.position.y);
+                //return new DoNothingCommand();
             }
         }
         return new DoNothingCommand();
@@ -227,15 +229,12 @@ public class Bot {
 
         if (canMove) {
             Cell nextCell = findCell(nextPosition);
-            System.out.println(nextCell.x);
-            System.out.println(nextCell.y);
-            System.out.println(nextCell.type);
 //            Command cmd;
 
             if (nextCell.type == CellType.AIR) {
                 System.out.println(nextCell.type);
+                return new MoveCommand(nextPosition.x,nextPosition.y);
             } else if (nextCell.type == CellType.DIRT) {
-                System.out.println(nextCell.type);
                 return new DigCommand(nextPosition.x,nextPosition.y);
             } else {
                 return new DoNothingCommand();
