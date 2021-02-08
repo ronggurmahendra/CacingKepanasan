@@ -51,15 +51,9 @@ public class Bot {
                 return new ShootCommand(direction);
             }
             if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
-<<<<<<< Updated upstream
-                System.out.println("recognizing enemy tech and hunting");
-                //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
-                return digAndMoveTo(currentWorm.position,currentWorm.position,gameState.opponents[0].worms[2].position);
-=======
                 //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
                 //return new MoveCommand(tempPos.x, tempPos.y);
                 return digAndMoveTo(currentWorm.position, gameState.opponents[0].worms[2].position);
->>>>>>> Stashed changes
             }
 
         }else if(getCurrentWorm(gameState).id == 2){ // agent 
@@ -228,7 +222,8 @@ public class Bot {
         }
 
         if (canMove) {
-            Cell nextCell = findCell(nextPosition);
+            //Cell nextCell = findCell(nextPosition);
+            Cell nextCell = gameState.map[nextPosition.x][nextPosition.y];
             System.out.println(nextCell.x);
             System.out.println(nextCell.y);
             System.out.println(nextCell.type);
