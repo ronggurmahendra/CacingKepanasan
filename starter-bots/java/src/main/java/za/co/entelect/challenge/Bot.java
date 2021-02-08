@@ -72,6 +72,7 @@ public class Bot {
                 return new ThrowSnowballCommand(getCurrentWorm(gameState).position.x,getCurrentWorm(gameState).position.y);
             }
         }
+        System.out.println("is Doing Nothing");
         return new DoNothingCommand();
         /**
         Worm enemyWorm = getFirstWormInRange();
