@@ -141,4 +141,25 @@ public class Bot {
 
         return Direction.valueOf(builder.toString());
     }
+
+    private Position resolveToPosition(Position a, Position b) {
+        Position toPostion = new Position();
+
+        int verticalComponent = b.y - a.y;
+        int horizontalComponent = b.x - a.x;
+
+        if (verticalComponent < 0) {
+            toPostion.y = a.y + 1;
+        } else if (verticalComponent > 0) {
+            toPostion.y = a.y -1;
+        }
+
+        if (horizontalComponent < 0) {
+            toPostion.x = a.x - 1;
+        } else if (horizontalComponent > 0) {
+            toPostion.x = a.x + 1;
+        }
+
+        return toPostion;
+    }
 }
