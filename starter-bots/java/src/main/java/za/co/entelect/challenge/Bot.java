@@ -51,25 +51,25 @@ public class Bot {
                 return new ShootCommand(direction);
             }
             if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
-//<<<<<<< Updated upstream
+
+
                 System.out.println("recognizing enemy tech and hunting");
                 //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
-                //return digAndMoveTo(currentWorm.position,currentWorm.position,gameState.opponents[0].worms[2].position);
-//=======
-                //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
                 //return new MoveCommand(tempPos.x, tempPos.y);
-                return digAndMoveTo(currentWorm.position, opponent.worms[2].position);
-//>>>>>>> Stashed changes
+                return digAndMoveTo(currentWorm.position, gameState.opponents[0].worms[2].position);
+
             }
 
         }else if(getCurrentWorm(gameState).id == 2){ // agent 
             //if(true){
             if(getCurrentWorm(gameState).bananaBomb.count>0){
-                return new DoNothingCommand();
+                System.out.println("is eligible to throw bananaBomb");
+                return new ThrowBananaCommand(getCurrentWorm(gameState).position.x,getCurrentWorm(gameState).position.y);
             }
         }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
-                return new DoNothingCommand();
+                System.out.println("is eligible to throw SnowBall");
+                return new ThrowSnowballCommand(getCurrentWorm(gameState).position.x,getCurrentWorm(gameState).position.y);
             }
         }
         return new DoNothingCommand();
@@ -208,16 +208,16 @@ public class Bot {
     }
 
     private Cell findCell(Position nextPosition) {
-        return gameState.map[nextPosition.x][nextPosition.y];
+        return gameState.map[nextPosition.y][nextPosition.x];
     }
 
 
     private Command digAndMoveTo(Position origin, Position destination) {
         Position nextPosition = resolveToPosition(origin,destination);
-        System.out.println(nextPosition.x);
-        System.out.println(nextPosition.y);
-        boolean canMove = true;
+
         MyWorm[] worms = gameState.myPlayer.worms;
+        boolean canMove = true;
+
         for (int i = 0; i < worms.length; i++) {
             if (worms[i].position.equals(nextPosition)) {
                 canMove = false;
@@ -234,19 +234,19 @@ public class Bot {
             System.out.println(nextCell.y);
             System.out.println(nextCell.type);
 //            Command cmd;
+
             if (nextCell.type == CellType.AIR) {
                 System.out.println(nextCell.type);
-                return new MoveCommand(nextPosition.x,nextPosition.y);
             } else if (nextCell.type == CellType.DIRT) {
                 System.out.println(nextCell.type);
                 return new DigCommand(nextPosition.x,nextPosition.y);
             } else {
                 return new DoNothingCommand();
             }
-        } else {
-            return new DoNothingCommand();
         }
+        return new DoNothingCommand();
 
     }
+
 
 }
