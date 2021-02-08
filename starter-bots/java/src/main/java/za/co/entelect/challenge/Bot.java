@@ -51,15 +51,15 @@ public class Bot {
                 return new ShootCommand(direction);
             }
             if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
-<<<<<<< Updated upstream
+//<<<<<<< Updated upstream
                 System.out.println("recognizing enemy tech and hunting");
                 //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
-                return digAndMoveTo(currentWorm.position,currentWorm.position,gameState.opponents[0].worms[2].position);
-=======
+                //return digAndMoveTo(currentWorm.position,currentWorm.position,gameState.opponents[0].worms[2].position);
+//=======
                 //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
                 //return new MoveCommand(tempPos.x, tempPos.y);
-                return digAndMoveTo(currentWorm.position, gameState.opponents[0].worms[2].position);
->>>>>>> Stashed changes
+                return digAndMoveTo(currentWorm.position, opponent.worms[2].position);
+//>>>>>>> Stashed changes
             }
 
         }else if(getCurrentWorm(gameState).id == 2){ // agent 
@@ -214,7 +214,8 @@ public class Bot {
 
     private Command digAndMoveTo(Position origin, Position destination) {
         Position nextPosition = resolveToPosition(origin,destination);
-
+        System.out.println(nextPosition.x);
+        System.out.println(nextPosition.y);
         boolean canMove = true;
         MyWorm[] worms = gameState.myPlayer.worms;
         for (int i = 0; i < worms.length; i++) {
