@@ -11,7 +11,7 @@ public class ThrowSnowballCommand implements Command {
 
     @Override
     public String render() {
-        return String.format("banana %s %s", x, y);
+        return String.format("snowball %s %s", x, y);
     }
 
 }
