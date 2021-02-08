@@ -51,9 +51,15 @@ public class Bot {
                 return new ShootCommand(direction);
             }
             if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
+<<<<<<< Updated upstream
                 System.out.println("recognizing enemy tech and hunting");
                 //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
                 return digAndMoveTo(currentWorm.position,currentWorm.position,gameState.opponents[0].worms[2].position);
+=======
+                //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
+                //return new MoveCommand(tempPos.x, tempPos.y);
+                return digAndMoveTo(currentWorm.position, gameState.opponents[0].worms[2].position);
+>>>>>>> Stashed changes
             }
 
         }else if(getCurrentWorm(gameState).id == 2){ // agent 
@@ -201,7 +207,7 @@ public class Bot {
         return toPosition;
     }
 
-    private Cell findNextCellInPath(Position nextPosition) {
+    private Cell findCell(Position nextPosition) {
         return gameState.map[nextPosition.x][nextPosition.y];
     }
 
@@ -222,12 +228,17 @@ public class Bot {
         }
 
         if (canMove) {
-            Cell nextCell = findNextCellInPath(nextPosition);
+            Cell nextCell = findCell(nextPosition);
+            System.out.println(nextCell.x);
+            System.out.println(nextCell.y);
+            System.out.println(nextCell.type);
 //            Command cmd;
-            if (nextCell.type == CellType.DIRT) {
-                return new DigCommand(nextPosition.x,nextPosition.y);
-            } else if (nextCell.type == CellType.AIR) {
+            if (nextCell.type == CellType.AIR) {
+                System.out.println(nextCell.type);
                 return new MoveCommand(nextPosition.x,nextPosition.y);
+            } else if (nextCell.type == CellType.DIRT) {
+                System.out.println(nextCell.type);
+                return new DigCommand(nextPosition.x,nextPosition.y);
             } else {
                 return new DoNothingCommand();
             }
