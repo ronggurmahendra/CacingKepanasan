@@ -193,9 +193,9 @@ public class Bot {
         }
 
         if (horizontalComponent < 0) {
-            toPosition.x = origin.x + 1;
-        } else if (horizontalComponent > 0) {
             toPosition.x = origin.x - 1;
+        } else if (horizontalComponent > 0) {
+            toPosition.x = origin.x + 1;
         }
 
         return toPosition;
