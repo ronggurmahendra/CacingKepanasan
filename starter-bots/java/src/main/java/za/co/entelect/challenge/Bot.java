@@ -205,7 +205,7 @@ public class Bot {
     }
 
     private Cell findCell(Position nextPosition) {
-        return gameState.map[nextPosition.x][nextPosition.y];
+        return gameState.map[nextPosition.y][nextPosition.x];
     }
 
 
