@@ -142,28 +142,33 @@ public class Bot {
         return Direction.valueOf(builder.toString());
     }
 
-    private Position resolveToPosition(Position a, Position b) {
+    private Position resolveToPosition(Position origin, Position destination) {
         Position toPosition = new Position();
 
-        int verticalComponent = b.y - a.y;
-        int horizontalComponent = b.x - a.x;
+        int verticalComponent = destination.y - origin.y;
+        int horizontalComponent = destination.x - origin.x;
 
         if (verticalComponent < 0) {
-            toPosition.y = a.y + 1;
+            toPosition.y = origin.y + 1;
         } else if (verticalComponent > 0) {
-            toPosition.y = a.y -1;
+            toPosition.y = origin.y -1;
         }
 
         if (horizontalComponent < 0) {
-            toPosition.x = a.x - 1;
+            toPosition.x = origin.x - 1;
         } else if (horizontalComponent > 0) {
-            toPosition.x = a.x + 1;
+            toPosition.x = origin.x + 1;
         }
 
         return toPosition;
     }
 
     private Cell findNextCellInPath(Position origin, Position destination) {
+        Position nextPosition = resolveToPosition(origin,destination);
+        return gameState.map[nextPosition.x][nextPosition.y];
+    }
+
+    private Command digAndMoveTo(Position destination) {
 
     }
 }
