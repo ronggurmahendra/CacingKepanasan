@@ -18,7 +18,7 @@ public class Worm {
     @SerializedName("movementRange")
     public int movementRange;
 
-    @SerializedName("bananas")
+    @SerializedName("bananaBombs")
     public Bomb bananaBomb;
 
     @SerializedName("snowballs")

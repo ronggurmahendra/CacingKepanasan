@@ -31,7 +31,7 @@ public class Bot {
 
     
     public Position GetEnemyPos(int ID){
-        Worm Enemyworm = gameState.opponents[0].worms[ID];
+        Worm Enemyworm = gameState.opponents[0].worms[ID-1];
         if(Enemyworm.health > 0){
             return Enemyworm.position;
         }else{
@@ -52,6 +52,7 @@ public class Bot {
             }
 
         }else if(getCurrentWorm(gameState).id == 2){
+            //if(true){
             if(getCurrentWorm(gameState).bananaBomb.count>0){
                 return new DoNothingCommand();
             }
