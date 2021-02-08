@@ -202,7 +202,7 @@ public class Bot {
     }
 
     private Cell findCell(Position nextPosition) {
-        return gameState.map[nextPosition.x][nextPosition.y];
+        return gameState.map[nextPosition.y][nextPosition.x];
     }
 
 
@@ -222,8 +222,7 @@ public class Bot {
         }
 
         if (canMove) {
-            //Cell nextCell = findCell(nextPosition);
-            Cell nextCell = gameState.map[nextPosition.x][nextPosition.y];
+            Cell nextCell = findCell(nextPosition);
             System.out.println(nextCell.x);
             System.out.println(nextCell.y);
             System.out.println(nextCell.type);
