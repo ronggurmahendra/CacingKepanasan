@@ -29,8 +29,39 @@ public class Bot {
                 .get();
     }
 
-    public Command run() {
+    
+    public Position GetEnemyPos(int ID){
+        Worm Enemyworm = gameState.opponents[0].worms[ID];
+        if(Enemyworm.health > 0){
+            return Enemyworm.position;
+        }else{
+            return null;
+        }
+    }
 
+    public Command run(){
+        if(getCurrentWorm(gameState).id == 1){ //commander
+            Worm enemyWorm = getFirstWormInRange();
+            if (enemyWorm != null) {
+                Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                return new ShootCommand(direction);
+            }
+            if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
+                Position tempPos = resolveToPosition(currentWorm.position,GameState.opponents[0].worms[3].position);
+                return new MoveCommand(tempPos.x, tempPos.y);
+            }
+
+        }else if(getCurrentWorm(gameState).id == 2){
+            if(getCurrentWorm(gameState).bananaBombs.count>0){
+                return new DoNothingCommand();
+            }
+        }else if(getCurrentWorm(gameState).id == 3){
+            if(getCurrentWorm(gameState).snowball.count>0){
+                return new DoNothingCommand();
+            }
+        }
+        return new DoNothingCommand();
+        /**
         Worm enemyWorm = getFirstWormInRange();
         if (enemyWorm != null) {
             Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
@@ -48,6 +79,7 @@ public class Bot {
         }
 
         return new DoNothingCommand();
+        */
     }
 
     private Worm getFirstWormInRange() {
