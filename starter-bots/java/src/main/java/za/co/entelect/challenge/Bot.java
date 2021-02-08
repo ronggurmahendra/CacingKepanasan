@@ -31,8 +31,11 @@ public class Bot {
 
     
     public Position GetEnemyPos(int ID){
-        Worm Enemyworm = gameState.opponents[0].worms[ID];
+        Worm Enemyworm = gameState.opponents[0].worms[ID-1];
+
         if(Enemyworm.health > 0){
+            //System.out.println(Enemyworm.position.x);
+            //System.out.println(Enemyworm.position.y);
             return Enemyworm.position;
         }else{
             return null;
@@ -43,15 +46,18 @@ public class Bot {
         if(getCurrentWorm(gameState).id == 1){ //commander
             Worm enemyWorm = getFirstWormInRange();
             if (enemyWorm != null) {
+                System.out.println("recognizing enemy in sight and shooting");
                 Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
                 return new ShootCommand(direction);
             }
             if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
+                System.out.println("recognizing enemy tech and hunting");
                 Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
                 return new MoveCommand(tempPos.x, tempPos.y);
             }
 
-        }else if(getCurrentWorm(gameState).id == 2){ //agent
+        }else if(getCurrentWorm(gameState).id == 2){ // agent 
+            //if(true){
             if(getCurrentWorm(gameState).bananaBomb.count>0){
                 return new DoNothingCommand();
             }
