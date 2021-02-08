@@ -52,8 +52,8 @@ public class Bot {
             }
             if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
                 System.out.println("recognizing enemy tech and hunting");
-                Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
-                return new MoveCommand(tempPos.x, tempPos.y);
+                //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
+                return digAndMoveTo(currentWorm.position,currentWorm.position,gameState.opponents[0].worms[2].position);
             }
 
         }else if(getCurrentWorm(gameState).id == 2){ // agent 
