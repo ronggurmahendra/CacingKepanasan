@@ -163,12 +163,20 @@ public class Bot {
         return toPosition;
     }
 
-    private Cell findNextCellInPath(Position origin, Position destination) {
-        Position nextPosition = resolveToPosition(origin,destination);
+    private Cell findNextCellInPath(Position nextPosition) {
         return gameState.map[nextPosition.x][nextPosition.y];
     }
 
-    private Command digAndMoveTo(Position destination) {
+
+    private Command digAndMoveTo(Position origin, Position destination) {
+        Position nextPosition = resolveToPosition(origin,destination);
+        Cell nextCell = findNextCellInPath(nextPosition);
+
+         MyWorm[] worms = gameState.myPlayer.worms;
+         for (int i = 0; i < worms.length; i++) {
+            
+        }
+
 
     }
 }
