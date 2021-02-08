@@ -143,23 +143,27 @@ public class Bot {
     }
 
     private Position resolveToPosition(Position a, Position b) {
-        Position toPostion = new Position();
+        Position toPosition = new Position();
 
         int verticalComponent = b.y - a.y;
         int horizontalComponent = b.x - a.x;
 
         if (verticalComponent < 0) {
-            toPostion.y = a.y + 1;
+            toPosition.y = a.y + 1;
         } else if (verticalComponent > 0) {
-            toPostion.y = a.y -1;
+            toPosition.y = a.y -1;
         }
 
         if (horizontalComponent < 0) {
-            toPostion.x = a.x - 1;
+            toPosition.x = a.x - 1;
         } else if (horizontalComponent > 0) {
-            toPostion.x = a.x + 1;
+            toPosition.x = a.x + 1;
         }
 
-        return toPostion;
+        return toPosition;
+    }
+
+    private Cell findNextCellInPath(Position origin, Position destination) {
+
     }
 }
