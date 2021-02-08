@@ -47,16 +47,16 @@ public class Bot {
                 return new ShootCommand(direction);
             }
             if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
-                Position tempPos = resolveToPosition(currentWorm.position,GameState.opponents[0].worms[3].position);
+                Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
                 return new MoveCommand(tempPos.x, tempPos.y);
             }
 
         }else if(getCurrentWorm(gameState).id == 2){
-            if(getCurrentWorm(gameState).bananaBombs.count>0){
+            if(getCurrentWorm(gameState).bananaBomb.count>0){
                 return new DoNothingCommand();
             }
         }else if(getCurrentWorm(gameState).id == 3){
-            if(getCurrentWorm(gameState).snowball.count>0){
+            if(getCurrentWorm(gameState).snowballs.count>0){
                 return new DoNothingCommand();
             }
         }
@@ -199,7 +199,7 @@ public class Bot {
         return gameState.map[nextPosition.x][nextPosition.y];
     }
 
-
+/*
     private Command digAndMoveTo(Position origin, Position destination) {
         Position nextPosition = resolveToPosition(origin,destination);
 
@@ -229,6 +229,6 @@ public class Bot {
             return new DoNothingCommand();
         }
 
-
     }
+*/
 }
