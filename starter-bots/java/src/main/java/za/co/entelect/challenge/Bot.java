@@ -399,7 +399,6 @@ public class Bot {
         // Normalisasi totalPosVector
         Position totalDir = normalizeVector(totalVectorPos);
 
-
         Position movePos = new Position();
         movePos.x = pos.x + totalDir.x;
         movePos.y = pos.y + totalDir.y;
@@ -419,8 +418,8 @@ public class Bot {
                     cellAman.add(surroundCell.get(i));
                 }
             }
+            Random rand = new Random();
             if (!cellAman.isEmpty()) { // ada yang aman, geraknya random aja kali ya
-                Random rand = new Random();
                 int i = rand.nextInt(cellAman.size());
                 movePos.x = cellAman.get(i).x;
                 movePos.y = cellAman.get(i).y;
@@ -434,29 +433,18 @@ public class Bot {
                     }
                 }
                 if (!cellAman.isEmpty()) { // ada yang aman aja
-                    Random rand = new Random();
                     int i = rand.nextInt(cellAman.size());
                     movePos.x = cellAman.get(i).x;
                     movePos.y = cellAman.get(i).y;
                     return digAndMoveTo(pos,movePos);
                 } else {    // ga ada yang aman samsek
-                    Random rand = new Random();
                     int i = rand.nextInt(surroundCell.size());
                     movePos.x = surroundCell.get(i).x;
                     movePos.y = surroundCell.get(i).y;
                     return digAndMoveTo(pos,movePos);
                 }
-
             }
-
-
         }
-
-
-
-
-
-
     }
 
 //    private Position grouping()
