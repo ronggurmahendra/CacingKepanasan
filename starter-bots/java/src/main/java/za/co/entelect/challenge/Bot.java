@@ -245,6 +245,6 @@ public class Bot {
         return new DoNothingCommand();
 
     }
-
+    //public
 
 }

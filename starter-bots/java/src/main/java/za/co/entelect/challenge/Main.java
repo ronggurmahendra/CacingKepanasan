@@ -31,7 +31,7 @@ public class Main {
 
                 String statePath = String.format("./%s/%d/%s", ROUNDS_DIRECTORY, roundNumber, STATE_FILE_NAME);
                 String state = new String(Files.readAllBytes(Paths.get(statePath)));
-
+                //System.out.println(statePath);
                 GameState gameState = gson.fromJson(state, GameState.class);
                 Command command = new Bot(random, gameState).run();
 
