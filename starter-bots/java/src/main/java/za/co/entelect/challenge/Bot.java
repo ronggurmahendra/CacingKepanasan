@@ -29,7 +29,16 @@ public class Bot {
                 .get();
     }
 
-    
+    public Position GetWormPos(int ID){
+        Worm worm = gameState.myPlayer.worms[ID-1];
+
+        if(worm.health > 0){
+            return worm.position;
+        }else{
+            return null;
+        }
+    }
+
     public Position GetEnemyPos(int ID){
         Worm Enemyworm = gameState.opponents[0].worms[ID-1];
 
@@ -112,7 +121,7 @@ public class Bot {
 
         return null;
     }
-
+    // ini kayaknya line of sight
     private List<List<Cell>> constructFireDirectionLines(int range) {
         List<List<Cell>> directionLines = new ArrayList<>();
         for (Direction direction : Direction.values()) {
@@ -454,5 +463,110 @@ public class Bot {
 
 //    private Command Grouping()
 
+    private List<List<Cell>> lineOfSight(Position pos) {
+        int range = 4;
+        List<List<Cell>> directionLines = new ArrayList<>();
+        for (Direction direction : Direction.values()) {
+            List<Cell> directionLine = new ArrayList<>();
+            for (int directionMultiplier = 1; directionMultiplier <= range; directionMultiplier++) {
 
+                int coordinateX = pos.x + (directionMultiplier * direction.x);
+                int coordinateY = pos.y + (directionMultiplier * direction.y);
+
+                if (!isValidCoordinate(coordinateX, coordinateY)) {
+                    break;
+                }
+
+                if (euclideanDistance(pos.x, pos.y, coordinateX, coordinateY) > range) {
+                    break;
+                }
+
+                Cell cell = gameState.map[coordinateY][coordinateX];
+                if (cell.type == CellType.DIRT) {
+                    break;
+                }
+
+                directionLine.add(cell);
+            }
+            directionLines.add(directionLine);
+        }
+
+        return directionLines;
+    }
+
+    private int bombDamage(Position e3, int i, int j){
+        if(e3.x == i && e3.y == j){
+            return 20;
+        }
+        else if(Math.abs(i - e3.x) + Math.abs(j - e3.y) == 1){
+            return 13;
+        }
+        else if(Math.abs(i - e3.x) == 1 && Math.abs(j - e3.y) == 1){
+            return 11;
+        }
+        else if(Math.abs(i - e3.x) + Math.abs(j - e3.y) == 2){
+            return 7;
+        }
+        else{
+            return 0;
+        }
+    }
+
+    private int maxDamageFromBomb(Position pos) {
+        int max = 0, range = 5, tempMax, x = pos.x, y = pos.y;
+        for (int i = x - 5; i <= x + 5; i++) {
+            for (int j = y - 5; j <= y + 5; j++) {
+                // Don't include the current position
+                if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) > range)) {
+                    Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
+                    tempMax = 0;
+                    if(e3 != null){
+                        tempMax += bombDamage(e3, i, j);
+                    }
+                    if(e2 != null){
+                        tempMax += bombDamage(e2, i, j);
+                    }
+                    if(e1 != null){
+                        tempMax += bombDamage(e1, i, j);
+                    }
+                    if (tempMax > max) {
+                        max = tempMax;
+                    }
+                }
+            }
+        }
+        return max;
+    }
+
+    private int maxFrozen(Position pos){
+        int max = 0, range = 5, tempMax, x = pos.x, y = pos.y;
+        for (int i = x - 5; i <= x + 5; i++) {
+            for (int j = y - 5; j <= y + 5; j++) {
+                // Don't include the current position
+                if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) > range)) {
+                    Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
+                    tempMax = 0;
+                    if(e3 != null){
+                        if(euclideanDistance(e3.x, e3.y, i, j) < 2) {
+                            tempMax += 1;
+                        }
+                    }
+                    if(e2 != null){
+                        if(euclideanDistance(e2.x, e2.y, i, j) < 2) {
+                            tempMax += 1;
+                        }
+                    }
+                    if(e1 != null){
+                        if(euclideanDistance(e1.x, e1.y, i, j) < 2) {
+                            tempMax += 1;
+                        }
+                    }
+                    if (tempMax > max) {
+                        max = tempMax;
+                    }
+                }
+            }
+        }
+        return max;
+    }
 }
