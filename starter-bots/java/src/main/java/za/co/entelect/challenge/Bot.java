@@ -166,6 +166,11 @@ public class Bot {
                 && y >= 0 && y < gameState.mapSize;
     }
 
+    private boolean isNotLavaOrSpace(int x, int y) {
+        return (gameState.map[y][x].type != CellType.DEEP_SPACE) &&
+                (gameState.map[y][x].type != CellType.LAVA);
+    }
+
     private Direction resolveDirection(Position a, Position b) {
         StringBuilder builder = new StringBuilder();
 
@@ -246,36 +251,48 @@ public class Bot {
 
     }
 
-    // Cek apakah ada dirt sepanjang jarak tembak
-    private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
-        int x_dif = a_pos.x - b_pos.x;
-        int y_dif = a_pos.y - b_pos.y;
+    // Ini buat normalisasi vektor
+    private Position normalizeVector(Position vectorPos) {
+        Position dir = new Position();
+
+        int x_dif = vectorPos.x;
+        int y_dif = vectorPos.y;
         double mag = Math.sqrt(Math.pow(x_dif, 2) + Math.pow(y_dif, 2));
-        int x_dir;
-        int y_dir;
+
         if (x_dif >= 0) {
-            x_dir = (int) Math.ceil(x_dif/mag);
+            dir.x = (int) Math.ceil(x_dif/mag);
         } else {
-            x_dir = (int) Math.floor(x_dif/mag);
+            dir.x = (int) Math.floor(x_dif/mag);
         }
 
         if (y_dif >= 0) {
-            y_dir = (int) Math.ceil(y_dif/mag);
+            dir.y = (int) Math.ceil(y_dif/mag);
         } else {
-            y_dir = (int) Math.floor(y_dif/mag);
+            dir.y = (int) Math.floor(y_dif/mag);
         }
 
+        return dir;
+    }
+
+    // Cek apakah ada dirt sepanjang jarak tembak
+    private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
+        Position dif = new Position();
+        dif.x = b_pos.x - a_pos.x;
+        dif.y = b_pos.y - a_pos.y;
+
+        Position dir = normalizeVector(dif);
+
         Position c_pos = new Position();
-        c_pos.x = a_pos.x += x_dir;
-        c_pos.y = a_pos.y += y_dir;
+        c_pos.x = a_pos.x + dir.x;
+        c_pos.y = a_pos.y + dir.y;
         boolean isThere = false;
 
         while ((c_pos.x != b_pos.x) && (c_pos.y != b_pos.y) && !isThere) {
-            if (gameState.map[c_pos.y][c_pos.x].type == CellType.DIRT) {
+            if (findCell(c_pos).type == CellType.DIRT) {
                 isThere = true;
             }
-            c_pos.x += x_dir;
-            c_pos.y += y_dir;
+            c_pos.x += dir.x;
+            c_pos.y += dir.y;
         }
         return isThere;
     }
@@ -308,24 +325,130 @@ public class Bot {
         return isOn;
     }
 
+    private boolean isSaveToEscape(Position movePos) {
+        return !isOnEnemyLineOfSight(movePos) && findCell(movePos).type != CellType.DIRT;
+    }
+
     // Pastikan musuh sudah banyak didekat kita
-//    private Command retreat() {
-//        List<Position> vectorEnemyPos = new ArrayList<Position>();
-//        Worm[] listEnemyWorms = opponent.worms;
-//        Position pos = currentWorm.position;
-//
-//        for (int i = 0; i < listEnemyWorms.length; i++) {
-//            Position enemyPos = listEnemyWorms[i].position;
-//            if (listEnemyWorms[i].alive()) {
-//                Position vectorPos = new Position();
-//                vectorPos.x = pos.x - enemyPos.x;
-//                vectorPos.y = pos.y - enemyPos.y;
-//                vectorEnemyPos.add(vectorPos);
-//
-//            }
-//        }
-//
-//    }
+    private Command retreat() {
+        List<Position> vectorPos = new ArrayList<Position>();
+        Worm[] listEnemyWorms = opponent.worms;
+        Position pos = currentWorm.position;
+
+        // Tambah Vektor Posisi musuh ke kita (biar bisa langsung dijumlahin)
+        for (int i = 0; i < listEnemyWorms.length; i++) {
+            Position enemyPos = listEnemyWorms[i].position;
+            if (listEnemyWorms[i].alive()) {
+                Position vectorPosEnemy = new Position();
+                vectorPosEnemy.x = pos.x - enemyPos.x;      // Vektor Posisi musuh ke kita
+                vectorPosEnemy.y = pos.y - enemyPos.y;
+                vectorPos.add(vectorPosEnemy);
+            }
+        }
+
+        // Tambah Vektor Posisi teman terdekat
+        int distance = 999999;
+        int idx = -1;
+        Worm[] listPlayerWorms = gameState.myPlayer.worms;
+        for (int i = 0; i < listPlayerWorms.length; i++) {
+            if (currentWorm.id != listPlayerWorms[i].id) {  // Bukan worm sekarang
+                if (listPlayerWorms[i].alive()) {
+                    int c_distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listPlayerWorms[i].position.x,listPlayerWorms[i].position.y);
+                    if (c_distance < distance) {
+                        distance = c_distance;
+                        idx = i;
+                    }
+                }
+            }
+        }
+        if (idx != -1) {
+            Position vectorPosFriend = new Position();
+            vectorPosFriend.x = listPlayerWorms[idx].position.x - pos.x;
+            vectorPosFriend.y = listPlayerWorms[idx].position.y - pos.y;
+            vectorPos.add(vectorPosFriend);
+        }
+
+        // Tambah Vektor Kecenderungan Bergerak Memutar
+        Position vectorPosCenterMap = new Position();
+        int rMultiplier = 2;
+        int c_x = (pos.x - (gameState.mapSize/2))/rMultiplier;
+        int c_y = (pos.y - (gameState.mapSize/2))/rMultiplier;
+        // Putar 90 derajat
+        vectorPosCenterMap.x = -c_y;
+        vectorPosCenterMap.y = c_x;
+        vectorPos.add(vectorPosCenterMap);
+
+        Position totalVectorPos = new Position();
+        totalVectorPos.x = 0;
+        totalVectorPos.y = 0;
+
+        for (int i = 0; i < vectorPos.size(); i++) {
+            totalVectorPos.x += vectorPos.get(i).x;
+            totalVectorPos.y += vectorPos.get(i).y;
+        }
+
+        // Normalisasi totalPosVector
+        Position totalDir = normalizeVector(totalVectorPos);
+
+
+        Position movePos = new Position();
+        movePos.x = pos.x + totalDir.x;
+        movePos.y = pos.y + totalDir.y;
+
+        // Jika beruntung ini aman (ini kondisi yang sangat ideal dari banyak perhitungan)
+        if (isSaveToEscape(movePos)) {
+            return digAndMoveTo(pos,movePos);
+        } else {    // Ternyata tidak beruntung
+            List<Cell> surroundCell = getSurroundingCells(pos.x, pos.y);
+            // Harusnya bikin PrioQueue
+            // Cari posisi yang aman dulu aja
+            List<Cell> cellAman = new ArrayList<>();
+            for (int i = 0; i < surroundCell.size(); i++) {
+                movePos.x = surroundCell.get(i).x;
+                movePos.y = surroundCell.get(i).y;
+                if (isSaveToEscape(movePos)) {
+                    cellAman.add(surroundCell.get(i));
+                }
+            }
+            if (!cellAman.isEmpty()) { // ada yang aman, geraknya random aja kali ya
+                Random rand = new Random();
+                int i = rand.nextInt(cellAman.size());
+                movePos.x = cellAman.get(i).x;
+                movePos.y = cellAman.get(i).y;
+                return digAndMoveTo(pos,movePos);
+            } else {    // ga ada yang aman
+                for (int i = 0; i < surroundCell.size(); i++) {
+                    movePos.x = surroundCell.get(i).x;
+                    movePos.y = surroundCell.get(i).y;
+                    if (!isOnEnemyLineOfSight(movePos)) {
+                        cellAman.add(surroundCell.get(i));
+                    }
+                }
+                if (!cellAman.isEmpty()) { // ada yang aman aja
+                    Random rand = new Random();
+                    int i = rand.nextInt(cellAman.size());
+                    movePos.x = cellAman.get(i).x;
+                    movePos.y = cellAman.get(i).y;
+                    return digAndMoveTo(pos,movePos);
+                } else {    // ga ada yang aman samsek
+                    Random rand = new Random();
+                    int i = rand.nextInt(surroundCell.size());
+                    movePos.x = surroundCell.get(i).x;
+                    movePos.y = surroundCell.get(i).y;
+                    return digAndMoveTo(pos,movePos);
+                }
+
+            }
+
+
+        }
+
+
+
+
+
+
+    }
 
 //    private Position grouping()
 
