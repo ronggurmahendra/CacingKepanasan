@@ -246,5 +246,54 @@ public class Bot {
 
     }
 
+    // Cek apakah posisi tersebut aman, tidak mengecek apakah sel tersebut dirt/air
+    private boolean isOnEnemyLineOfSight(Position pos) {
+        Worm[] listEnemyWorms = opponent.worms;
+        boolean isOn = false;
+        for (int i = 0; i < listEnemyWorms.length && !isOn; i++) {
+
+            if (listEnemyWorms[i].alive()) { // Cek masih hidup saja
+                Position enemyPos = listEnemyWorms[i].position;
+                int distance = euclideanDistance(pos.x,pos.y,enemyPos.x,enemyPos.y);
+
+                int x_dif = Math.abs(pos.x- enemyPos.x);
+                int y_dif = Math.abs(pos.y- enemyPos.y);
+                if (x_dif == y_dif) {   // Ada di diagonal?
+                    isOn = true;
+                } else if (x_dif == 0 || y_dif == 0) { // Ada di vertikal atau horizontal?
+                    isOn = true;
+                }
+                int range = 4;  // Asumsi
+                if (isOn && distance > range) { // Cek lagi bakal kena ga
+                    isOn = false;
+                }
+            }
+        }
+        return isOn;
+    }
+
+    // Pastikan musuh sudah banyak didekat kita
+    private Command retreat() {
+        List<Position> vectorEnemyPos = new ArrayList<Position>();
+        Worm[] listEnemyWorms = opponent.worms;
+        Position pos = currentWorm.position;
+
+        for (int i = 0; i < listEnemyWorms.length; i++) {
+            Position enemyPos = listEnemyWorms[i].position;
+            if (listEnemyWorms[i].alive()) {
+                Position vectorPos = new Position();
+                vectorPos.x = pos.x - enemyPos.x;
+                vectorPos.y = pos.y - enemyPos.y;
+                vectorEnemyPos.add(vectorPos);
+
+            }
+        }
+
+    }
+
+//    private Position grouping()
+
+//    private Command Grouping()
+
 
 }

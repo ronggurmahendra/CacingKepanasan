@@ -26,5 +26,5 @@ public class GameState {
     public Opponent[] opponents;
 
     @SerializedName("map")
-    public Cell[][] map;
+    public Cell[][] map; // y,x
 }
