@@ -245,6 +245,8 @@ public class Bot {
         return new DoNothingCommand();
 
     }
+
+    // Cek apakah ada dirt sepanjang jarak tembak
     private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
         int x_dif = a_pos.x - b_pos.x;
         int y_dif = a_pos.y - b_pos.y;
@@ -296,12 +298,11 @@ public class Bot {
                     isOn = true;
                 }
                 int range = 4;  // Asumsi
-                if (isOn && distance > range) { // Cek lagi bakal kena ga
+                if (isOn && (distance > range || isThereAnyObstacle(pos,enemyPos))) { // Cek lagi bakal kena ga
                     isOn = false;
                 }
-                if (isOn) { // Cek apakah ada yang menghalangi?
 
-                }
+
             }
         }
         return isOn;
