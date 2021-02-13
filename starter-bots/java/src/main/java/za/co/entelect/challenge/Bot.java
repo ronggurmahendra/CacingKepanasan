@@ -245,6 +245,38 @@ public class Bot {
         return new DoNothingCommand();
 
     }
+    private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
+        int x_dif = a_pos.x - b_pos.x;
+        int y_dif = a_pos.y - b_pos.y;
+        double mag = Math.sqrt(Math.pow(x_dif, 2) + Math.pow(y_dif, 2));
+        int x_dir;
+        int y_dir;
+        if (x_dif >= 0) {
+            x_dir = (int) Math.ceil(x_dif/mag);
+        } else {
+            x_dir = (int) Math.floor(x_dif/mag);
+        }
+
+        if (y_dif >= 0) {
+            y_dir = (int) Math.ceil(y_dif/mag);
+        } else {
+            y_dir = (int) Math.floor(y_dif/mag);
+        }
+
+        Position c_pos = new Position();
+        c_pos.x = a_pos.x += x_dir;
+        c_pos.y = a_pos.y += y_dir;
+        boolean isThere = false;
+
+        while ((c_pos.x != b_pos.x) && (c_pos.y != b_pos.y) && !isThere) {
+            if (gameState.map[c_pos.y][c_pos.x].type == CellType.DIRT) {
+                isThere = true;
+            }
+            c_pos.x += x_dir;
+            c_pos.y += y_dir;
+        }
+        return isThere;
+    }
 
     // Cek apakah posisi tersebut aman, tidak mengecek apakah sel tersebut dirt/air
     private boolean isOnEnemyLineOfSight(Position pos) {
@@ -267,29 +299,32 @@ public class Bot {
                 if (isOn && distance > range) { // Cek lagi bakal kena ga
                     isOn = false;
                 }
+                if (isOn) { // Cek apakah ada yang menghalangi?
+
+                }
             }
         }
         return isOn;
     }
 
     // Pastikan musuh sudah banyak didekat kita
-    private Command retreat() {
-        List<Position> vectorEnemyPos = new ArrayList<Position>();
-        Worm[] listEnemyWorms = opponent.worms;
-        Position pos = currentWorm.position;
-
-        for (int i = 0; i < listEnemyWorms.length; i++) {
-            Position enemyPos = listEnemyWorms[i].position;
-            if (listEnemyWorms[i].alive()) {
-                Position vectorPos = new Position();
-                vectorPos.x = pos.x - enemyPos.x;
-                vectorPos.y = pos.y - enemyPos.y;
-                vectorEnemyPos.add(vectorPos);
-
-            }
-        }
-
-    }
+//    private Command retreat() {
+//        List<Position> vectorEnemyPos = new ArrayList<Position>();
+//        Worm[] listEnemyWorms = opponent.worms;
+//        Position pos = currentWorm.position;
+//
+//        for (int i = 0; i < listEnemyWorms.length; i++) {
+//            Position enemyPos = listEnemyWorms[i].position;
+//            if (listEnemyWorms[i].alive()) {
+//                Position vectorPos = new Position();
+//                vectorPos.x = pos.x - enemyPos.x;
+//                vectorPos.y = pos.y - enemyPos.y;
+//                vectorEnemyPos.add(vectorPos);
+//
+//            }
+//        }
+//
+//    }
 
 //    private Position grouping()
 
