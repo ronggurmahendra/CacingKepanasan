@@ -91,7 +91,7 @@ public class Bot {
             //if(true){
             if(getCurrentWorm(gameState).bananaBomb.count>0){
                 PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                if (pb.pos != null && pb.damage > 11){
+                if (pb.pos != null && pb.damage >= 20){
                     return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                 }
                 //return new ThrowBananaCommand(currentWorm.position.x, currentWorm.position.y);
