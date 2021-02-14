@@ -513,14 +513,22 @@ public class Bot {
             }
 
 
-            ToBeVisited.merge(getAdjacentCell(CurrX,CurrY,Result)); //nanti buat fungsi merge 2 array somehow
-
-
+            ToBeVisited = append(ToBeVisited,getAdjacentCell(CurrX,CurrY,Result)); //nanti buat fungsi merge 2 array somehow
         }
 
-
-
         return Result;
+    }
+    public  int[][] append(int[][] a,int[][] b){
+        int[][] c = new int[a.length + b.length][2];
+        for(int i = 0;i<a.length;i++){
+            c[i][0] = a[i][0];
+            c[i][1] = a[i][1];
+        }
+        for(int i = a.length;i< a.length + b.length;i++){
+            c[i][0] = b[i-a.length][0];
+            c[i][1] = b[i-a.length][1];
+        }
+        return c;
     }
 
     public  int[][] getAdjacentCell(int x,int y , modifiedCell[][] map) {
