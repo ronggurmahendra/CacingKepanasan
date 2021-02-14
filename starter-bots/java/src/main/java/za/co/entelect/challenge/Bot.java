@@ -1,5 +1,7 @@
 package za.co.entelect.challenge;
 
+import javafx.geometry.Pos;
+import javafx.util.Pair;
 import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.CellType;
@@ -53,6 +55,17 @@ public class Bot {
 
     public Command run(){
         if(getCurrentWorm(gameState).id == 1){ //commander
+            Position enemy = basicShot(currentWorm.position);
+            if (enemy != null){
+                System.out.println("SHOOT");
+                Direction direction = resolveDirection(currentWorm.position, enemy);
+                return new ShootCommand(direction);
+            }
+            if(GetEnemyPos(3) != null){
+                System.out.println("recognizing enemy tech and hunting");
+                return digAndMoveTo(currentWorm.position, GetEnemyPos(3));
+            }
+            /*
             Worm enemyWorm = getFirstWormInRange();
             if (enemyWorm != null) {
                 System.out.println("recognizing enemy in sight and shooting");
@@ -66,20 +79,40 @@ public class Bot {
                 //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
                 //return new MoveCommand(tempPos.x, tempPos.y);
                 return digAndMoveTo(currentWorm.position, gameState.opponents[0].worms[2].position);
+            }*/
 
-            }
 
         }else if(getCurrentWorm(gameState).id == 2){ // agent 
             //if(true){
             if(getCurrentWorm(gameState).bananaBomb.count>0){
-                return new ThrowBananaCommand(currentWorm.position.x, currentWorm.position.y);
+                PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                if (pb.pos != null && pb.damage > 11){
+                    return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+                }
+                //return new ThrowBananaCommand(currentWorm.position.x, currentWorm.position.y);
                 //return new DoNothingCommand();
             }
+            Position enemy = basicShot(currentWorm.position);
+            if (enemy != null){
+                Direction direction = resolveDirection(currentWorm.position, enemy);
+                return new ShootCommand(direction);
+            }
+            return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
-                return new ThrowSnowballCommand(currentWorm.position.x, currentWorm.position.y);
+                PairBomb pb = maxFrozen(currentWorm.position);
+                if (pb.pos != null && pb.damage > 0) {
+                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                }
+                //return new ThrowSnowballCommand(currentWorm.position.x, currentWorm.position.y);
                 //return new DoNothingCommand();
             }
+            Position enemy = basicShot(currentWorm.position);
+            if (enemy != null){
+                Direction direction = resolveDirection(currentWorm.position, enemy);
+                return new ShootCommand(direction);
+            }
+            return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }
         System.out.println("is Doing Nothing");
         return new DoNothingCommand();
@@ -228,6 +261,9 @@ public class Bot {
 
 
     private Command digAndMoveTo(Position origin, Position destination) {
+        if(origin == null || destination == null){
+            return new DoNothingCommand();
+        }
         Position nextPosition = resolveToPosition(origin,destination);
 
         MyWorm[] worms = gameState.myPlayer.worms;
@@ -451,11 +487,10 @@ public class Bot {
 
 //    private Command Grouping()
 
-    private List<List<Cell>> lineOfSight(Position pos) {
+    private List<Position> lineOfSight(Position pos) {
         int range = 4;
-        List<List<Cell>> directionLines = new ArrayList<>();
+        List<Position> directionLine = new ArrayList<>();
         for (Direction direction : Direction.values()) {
-            List<Cell> directionLine = new ArrayList<>();
             for (int directionMultiplier = 1; directionMultiplier <= range; directionMultiplier++) {
 
                 int coordinateX = pos.x + (directionMultiplier * direction.x);
@@ -473,13 +508,41 @@ public class Bot {
                 if (cell.type == CellType.DIRT) {
                     break;
                 }
-
-                directionLine.add(cell);
+                Position sight = new Position(coordinateX, coordinateY);
+                directionLine.add(sight);
             }
-            directionLines.add(directionLine);
         }
+        return directionLine;
+    }
 
-        return directionLines;
+    private Position basicShot(Position pos){
+        List<Position> sight = lineOfSight(pos);
+        boolean w1 = false, w2 = false, w3 = false;
+        Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3), e;
+        for(Position element : sight){
+            if(element.equals(e1)){
+                w1 = true;
+            }
+            else if(element.equals(e2)){
+                w2 = true;
+            }
+            else if(element.equals(e3)){
+                w3 = true;
+            }
+        }
+        if(w3){
+            e = e3;
+        }
+        else if(w2){
+            e = e2;
+        }
+        else if(w1){
+            e = e1;
+        }
+        else{
+            e = null;
+        }
+        return e;
     }
 
     private int bombDamage(Position e3, int i, int j){
@@ -500,12 +563,13 @@ public class Bot {
         }
     }
 
-    private int maxDamageFromBomb(Position pos) {
+    private PairBomb maxDamageFromBomb(Position pos) {
         int max = 0, range = 5, tempMax, x = pos.x, y = pos.y;
+        Position e = null;
         for (int i = x - 5; i <= x + 5; i++) {
             for (int j = y - 5; j <= y + 5; j++) {
                 // Don't include the current position
-                if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) > range)) {
+                if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
                     Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
                     tempMax = 0;
                     if(e3 != null){
@@ -518,43 +582,54 @@ public class Bot {
                         tempMax += bombDamage(e1, i, j);
                     }
                     if (tempMax > max) {
+                        e = new Position(i, j);
                         max = tempMax;
                     }
                 }
             }
         }
-        return max;
+        PairBomb pb = new PairBomb(e, max);
+        return pb;
     }
 
-    private int maxFrozen(Position pos){
+    private int frozenUntil(int ID){
+        return gameState.opponents[0].worms[ID-1].frozen;
+    }
+
+    private PairBomb maxFrozen(Position pos){
         int max = 0, range = 5, tempMax, x = pos.x, y = pos.y;
+        Position e = null;
         for (int i = x - 5; i <= x + 5; i++) {
             for (int j = y - 5; j <= y + 5; j++) {
                 // Don't include the current position
-                if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) > range)) {
+                if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
                     Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
                     tempMax = 0;
                     if(e3 != null){
-                        if(euclideanDistance(e3.x, e3.y, i, j) < 2) {
+                        if(euclideanDistance(e3.x, e3.y, i, j) < 2 && frozenUntil(3) == 0) {
                             tempMax += 1;
                         }
                     }
                     if(e2 != null){
-                        if(euclideanDistance(e2.x, e2.y, i, j) < 2) {
+                        if(euclideanDistance(e2.x, e2.y, i, j) < 2 && frozenUntil(2) == 0) {
                             tempMax += 1;
                         }
                     }
                     if(e1 != null){
-                        if(euclideanDistance(e1.x, e1.y, i, j) < 2) {
+                        if(euclideanDistance(e1.x, e1.y, i, j) < 2 && frozenUntil(1) == 0) {
                             tempMax += 1;
                         }
                     }
                     if (tempMax > max) {
+                        e = new Position(i, j);
                         max = tempMax;
                     }
                 }
             }
         }
-        return max;
+        PairBomb pb = new PairBomb(e, max);
+        return pb;
     }
+
+
 }
