@@ -303,17 +303,24 @@ public class Bot {
         int x_dif = vectorPos.x;
         int y_dif = vectorPos.y;
         double mag = Math.sqrt(Math.pow(x_dif, 2) + Math.pow(y_dif, 2));
+        double cdir_x = x_dif/mag;
+        double cdir_y = y_dif/mag;
 
-        if (x_dif >= 0) {
-            dir.x = (int) Math.ceil(x_dif/mag);
+        // Solve yang x
+        if (cdir_x > -0.5 && cdir_x < 0.5) {
+            dir.x = 0;
+        } else if (cdir_x >= 0.5) {
+            dir.x = 1;
         } else {
-            dir.x = (int) Math.floor(x_dif/mag);
+            dir.x = 0;
         }
-
-        if (y_dif >= 0) {
-            dir.y = (int) Math.ceil(y_dif/mag);
+        // Solve yang y
+        if (cdir_y > -0.5 && cdir_y < 0.5) {
+            dir.y = 0;
+        } else if (cdir_y >= 0.5) {
+            dir.y = 1;
         } else {
-            dir.y = (int) Math.floor(y_dif/mag);
+            dir.y = 0;
         }
 
         return dir;
