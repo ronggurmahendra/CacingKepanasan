@@ -702,12 +702,13 @@ public class Bot {
                 Result[idxPrevX][idxPrevY].distance = Integer.MAX_VALUE;//asumsikan infinite
             }
         }
-        while(ToBeVisited != null){
+        while(ToBeVisited.length > 0){
             int idx = getMinDist(ToBeVisited,Result); //ambil yang distancenya minimal
-            Result[ToBeVisited[idx][0]][ToBeVisited[idx][1]].visit = true; //ini di visit
             int CurrX = ToBeVisited[idx][0];
             int CurrY = ToBeVisited[idx][1];
-            if (Result[CurrX][CurrY].cell.type == CellType.AIR) {
+            Result[CurrX][CurrY].visit = true; //ini di visit
+
+            if (Result[CurrX][CurrY].cell.type == CellType.AIR) { //masukin distancenya
                 Result[CurrX][CurrY].distance = Result[Result[CurrX][CurrY].prev.x][Result[CurrX][CurrY].prev.y].distance + 1;
             } else if (Result[CurrX][CurrY].cell.type == CellType.DIRT) {
                 Result[CurrX][CurrY].distance = Result[Result[CurrX][CurrY].prev.x][Result[CurrX][CurrY].prev.y].distance + 2;
@@ -780,5 +781,21 @@ public class Bot {
         }
         return idxmin;
     }
+
+    public int[][] removeElmt(int[][] ToBeVisited,int index){
+        int[][] temp = new int[ToBeVisited.length-1][2];
+        int j = 0;
+        for(int i = 0;i<ToBeVisited.length;i++){
+            if(i != index){
+                temp[j][0] = ToBeVisited[i][0];
+                temp[j][1] = ToBeVisited[i][1];
+                j++;
+            }
+        }
+        return temp;
+    }
+    //public int[][] getEnemyShootingRange(Cell[][] GameMap, Cell source){
+
+    //}
 
 }

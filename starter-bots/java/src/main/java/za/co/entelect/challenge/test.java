@@ -17,7 +17,7 @@ import java.util.Scanner;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.util.Arrays.*;
 import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.CellType;
@@ -26,13 +26,18 @@ import za.co.entelect.challenge.enums.Direction;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.io.*;
+//import java.util.
 public class test {
     public static void main (String[] args) {
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
         Random random = new Random(System.nanoTime());
         System.out.println("b1");
-
+        int[][] arr = {{1,2},{3,4},{5,6}};
+        System.out.println(arr.length);
+        //arr = ArrayUtils.remove(arr, 1);
+        //System.out.println(arr.length);
+        //System.out.println(arr[2][0]);
         //while (true) {
             System.out.println("b2");
             try {
