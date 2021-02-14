@@ -661,14 +661,13 @@ public class Bot {
                 if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
                     Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
                     tempMax = 0;
-                    if(e3 != null){
-                        tempMax += bombDamage(e3, i, j);
-                    }
-                    if(e2 != null){
-                        tempMax += bombDamage(e2, i, j);
-                    }
-                    if(e1 != null){
-                        tempMax += bombDamage(e1, i, j);
+                    for(int a = 1; a < 4; a++){
+                        if(GetEnemyPos(a) != null){
+                            tempMax += bombDamage(GetEnemyPos(a), i, j);
+                        }
+                        if(GetWormPos(a) != null){
+                            tempMax -= bombDamage(GetWormPos(a), i, j);
+                        }
                     }
                     if (tempMax > max) {
                         e = new Position(i, j);
@@ -677,12 +676,15 @@ public class Bot {
                 }
             }
         }
-        PairBomb pb = new PairBomb(e, max);
-        return pb;
+        return new PairBomb(e, max);
     }
 
     private int frozenUntil(int ID){
         return gameState.opponents[0].worms[ID-1].frozen;
+    }
+
+    private boolean frozen(Position pos,int ID, int i, int j){
+        return euclideanDistance(pos.x, pos.y, i, j) < 2 && frozenUntil(3) == 0;
     }
 
     private PairBomb maxFrozen(Position pos){
@@ -692,21 +694,17 @@ public class Bot {
             for (int j = y - 5; j <= y + 5; j++) {
                 // Don't include the current position
                 if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
-                    Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
                     tempMax = 0;
-                    if(e3 != null){
-                        if(euclideanDistance(e3.x, e3.y, i, j) < 2 && frozenUntil(3) == 0) {
-                            tempMax += 1;
+                    for(int a = 1; a < 4; a++){
+                        if(GetEnemyPos(a) != null){
+                            if(euclideanDistance(GetEnemyPos(a).x, GetEnemyPos(a).y, i, j) < 2 && frozenUntil(a) == 0) {
+                                tempMax += 1;
+                            }
                         }
-                    }
-                    if(e2 != null){
-                        if(euclideanDistance(e2.x, e2.y, i, j) < 2 && frozenUntil(2) == 0) {
-                            tempMax += 1;
-                        }
-                    }
-                    if(e1 != null){
-                        if(euclideanDistance(e1.x, e1.y, i, j) < 2 && frozenUntil(1) == 0) {
-                            tempMax += 1;
+                        if(GetWormPos(a) != null){
+                            if(euclideanDistance(GetWormPos(a).x, GetWormPos(a).y, i, j) < 2 && frozenUntil(a) == 0) {
+                                tempMax -= 1;
+                            }
                         }
                     }
                     if (tempMax > max) {
