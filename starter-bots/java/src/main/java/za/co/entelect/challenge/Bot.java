@@ -1,7 +1,7 @@
 package za.co.entelect.challenge;
 
-import javafx.geometry.Pos;
-import javafx.util.Pair;
+//import javafx.geometry.Pos;
+//import javafx.util.Pair;
 import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.CellType;
