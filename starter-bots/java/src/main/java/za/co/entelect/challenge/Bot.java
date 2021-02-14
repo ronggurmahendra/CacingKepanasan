@@ -10,6 +10,7 @@ import za.co.entelect.challenge.enums.Direction;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.io.*;
+import java.lang.*;
 public class Bot {
 
     private Random random;
@@ -295,9 +296,6 @@ public class Bot {
         return new DoNothingCommand();
 
     }
-<<<<<<< HEAD
-    //public
-=======
 
     // Ini buat normalisasi vektor
     private Position normalizeVector(Position vectorPos) {
@@ -341,6 +339,39 @@ public class Bot {
             }
             c_pos.x += dir.x;
             c_pos.y += dir.y;
+/*=======
+
+    // Cek apakah ada dirt sepanjang jarak tembak
+    private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
+        int x_dif = a_pos.x - b_pos.x;
+        int y_dif = a_pos.y - b_pos.y;
+        double mag = Math.sqrt(Math.pow(x_dif, 2) + Math.pow(y_dif, 2));
+        int x_dir;
+        int y_dir;
+        if (x_dif >= 0) {
+            x_dir = (int) Math.ceil(x_dif/mag);
+        } else {
+            x_dir = (int) Math.floor(x_dif/mag);
+        }
+
+        if (y_dif >= 0) {
+            y_dir = (int) Math.ceil(y_dif/mag);
+        } else {
+            y_dir = (int) Math.floor(y_dif/mag);
+        }
+
+        Position c_pos = new Position();
+        c_pos.x = a_pos.x += x_dir;
+        c_pos.y = a_pos.y += y_dir;
+        boolean isThere = false;
+
+        while ((c_pos.x != b_pos.x) && (c_pos.y != b_pos.y) && !isThere) {
+            if (gameState.map[c_pos.y][c_pos.x].type == CellType.DIRT) {
+                isThere = true;
+            }
+            c_pos.x += x_dir;
+            c_pos.y += y_dir;
+>>>>>>> pathplanning*/
         }
         return isThere;
     }
@@ -630,10 +661,124 @@ public class Bot {
                 }
             }
         }
+//<<<<<<< HEAD
         PairBomb pb = new PairBomb(e, max);
         return pb;
     }
 
->>>>>>> d1e3a3023d4ff109786a3a41c0083c775e6a9504
+//>>>>>>> d1e3a3023d4ff109786a3a41c0083c775e6a9504
+//        return max;
+//    }
+
+    public modifiedCell[][] shortestRoute(Cell[][] GameMap, Cell source){
+        //initialize
+        modifiedCell[][] Result = new modifiedCell[GameMap.length][GameMap[0].length];
+        for(int i = 0; i < GameMap.length;i++ ){
+            for(int j = 0; j<GameMap[0].length;j++){
+                Result[i][j].cell = GameMap[i][j];
+                Result[i][j].prev = null;
+                Result[i][j].visit = false;
+                Result[i][j].distance = Integer.MAX_VALUE;//asumsikan tak hingga
+            }
+        }
+        //initialize source nya
+        Result[source.x][source.y].visit = true;
+        Result[source.x][source.y].distance = 0;
+        //starting dijstra
+        int[][] ToBeVisited = new int[33*33][2];
+        ToBeVisited = getAdjacentCell(source.x,source.y,Result); //initialize node yang akan di visit disekitar sumber
+        for(int i = 0;i<ToBeVisited.length;i++) {
+            int idxPrevX = ToBeVisited[i][0];
+            int idxPrevY = ToBeVisited[i][1];
+            Result[idxPrevX][idxPrevY].prev.x = ToBeVisited[i][0]; //initialize prev nya
+            Result[idxPrevX][idxPrevY].prev.y = ToBeVisited[i][1];
+
+
+            if (Result[idxPrevX][idxPrevY].cell.type == CellType.AIR) {
+                Result[idxPrevX][idxPrevY].distance = Result[Result[idxPrevX][idxPrevY].prev.x][Result[idxPrevX][idxPrevY].prev.y].distance + 1;
+            } else if (Result[idxPrevX][idxPrevY].cell.type == CellType.DIRT) {
+                Result[idxPrevX][idxPrevY].distance = Result[Result[idxPrevX][idxPrevY].prev.x][Result[idxPrevX][idxPrevY].prev.y].distance + 2;
+            }else{ //deep space
+                Result[idxPrevX][idxPrevY].distance = Integer.MAX_VALUE;//asumsikan infinite
+            }
+        }
+        while(ToBeVisited != null){
+            int idx = getMinDist(ToBeVisited,Result); //ambil yang distancenya minimal
+            Result[ToBeVisited[idx][0]][ToBeVisited[idx][1]].visit = true; //ini di visit
+            int CurrX = ToBeVisited[idx][0];
+            int CurrY = ToBeVisited[idx][1];
+            if (Result[CurrX][CurrY].cell.type == CellType.AIR) {
+                Result[CurrX][CurrY].distance = Result[Result[CurrX][CurrY].prev.x][Result[CurrX][CurrY].prev.y].distance + 1;
+            } else if (Result[CurrX][CurrY].cell.type == CellType.DIRT) {
+                Result[CurrX][CurrY].distance = Result[Result[CurrX][CurrY].prev.x][Result[CurrX][CurrY].prev.y].distance + 2;
+            }else{ //deep space
+                Result[CurrX][CurrY].distance = Integer.MAX_VALUE;//asumsikan infinite
+            }
+            ToBeVisited[idx] = null; //kalkulasi buat cell ini selesai
+
+            int[][] TempToBeVisited = new int[33*33][2];
+            TempToBeVisited = getAdjacentCell(CurrX,CurrY,Result); //ambil semua cell yg adj dg curr cell
+            for(int i = 0;i<TempToBeVisited.length;i++) {
+                int idxPrevX = TempToBeVisited[i][0];
+                int idxPrevY = TempToBeVisited[i][1];
+                Result[idxPrevX][idxPrevY].prev.x = TempToBeVisited[i][0]; //initialize prev nya untuk cell yang adj dg currCell
+                Result[idxPrevX][idxPrevY].prev.y = TempToBeVisited[i][1];
+
+
+                if (Result[idxPrevX][idxPrevY].cell.type == CellType.AIR) {
+                    Result[idxPrevX][idxPrevY].distance = Result[Result[idxPrevX][idxPrevY].prev.x][Result[idxPrevX][idxPrevY].prev.y].distance + 1;
+                } else if (Result[idxPrevX][idxPrevY].cell.type == CellType.DIRT) {
+                    Result[idxPrevX][idxPrevY].distance = Result[Result[idxPrevX][idxPrevY].prev.x][Result[idxPrevX][idxPrevY].prev.y].distance + 2;
+                }else{ //deep space
+                    Result[idxPrevX][idxPrevY].distance = Integer.MAX_VALUE;//asumsikan infinite
+                }
+            }
+
+
+            ToBeVisited = append(ToBeVisited,getAdjacentCell(CurrX,CurrY,Result)); //nanti buat fungsi merge 2 array somehow
+        }
+
+        return Result;
+    }
+    public  int[][] append(int[][] a,int[][] b){
+        int[][] c = new int[a.length + b.length][2];
+        for(int i = 0;i<a.length;i++){
+            c[i][0] = a[i][0];
+            c[i][1] = a[i][1];
+        }
+        for(int i = a.length;i< a.length + b.length;i++){
+            c[i][0] = b[i-a.length][0];
+            c[i][1] = b[i-a.length][1];
+        }
+        return c;
+    }
+
+    public  int[][] getAdjacentCell(int x,int y , modifiedCell[][] map) {
+        //int x = src.cell.x;
+        //int y = src.cell.y;
+        int a[][] = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y - 1}, {x, y + 1}, {x, y - 1}, {x - 1, y + 1}, {x - 1, y}, {x - 1, y - 1}};
+        int[][] Result = new int[8][2];
+        int j= 0;
+        for (int i = 0; i < a.length; i++) {
+            if(map[a[i][0]][a[i][1]].visit = false){
+                Result[j][0] = map[a[i][0]][a[i][1]].cell.x;
+                Result[j][1] = map[a[i][0]][a[i][1]].cell.y;
+                j++;
+            }
+
+        }
+        return Result;
+    }
+    public int getMinDist(int[][] ToBeVisited,modifiedCell[][] map){
+        int min = map[ToBeVisited[0][0]][ToBeVisited[0][1]].distance;
+        int idxmin = 0;
+        for(int i = 1;i< ToBeVisited.length;i++){
+            if(map[ToBeVisited[i][0]][ToBeVisited[i][1]].distance<min){
+                min = map[ToBeVisited[i][0]][ToBeVisited[i][1]].distance;
+                idxmin = i;
+            }
+        }
+        return idxmin;
+    }
 
 }
