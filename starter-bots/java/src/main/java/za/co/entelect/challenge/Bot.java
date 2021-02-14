@@ -1,7 +1,7 @@
 package za.co.entelect.challenge;
 
-import javafx.geometry.Pos;
-import javafx.util.Pair;
+//import javafx.geometry.Pos;
+//import javafx.util.Pair;
 import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.CellType;
@@ -98,6 +98,7 @@ public class Bot {
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
             }
+            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
@@ -113,6 +114,7 @@ public class Bot {
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
             }
+            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }
         System.out.println("is Doing Nothing");
@@ -236,7 +238,7 @@ public class Bot {
     }
 
     private Position resolveToPosition(Position origin, Position destination) {
-        Position toPosition = new Position();
+        Position toPosition = new Position(origin.x, origin.y);
 
         int verticalComponent = destination.y - origin.y;
         int horizontalComponent = destination.x - origin.x;
@@ -304,17 +306,24 @@ public class Bot {
         int x_dif = vectorPos.x;
         int y_dif = vectorPos.y;
         double mag = Math.sqrt(Math.pow(x_dif, 2) + Math.pow(y_dif, 2));
+        double cdir_x = x_dif/mag;
+        double cdir_y = y_dif/mag;
 
-        if (x_dif >= 0) {
-            dir.x = (int) Math.ceil(x_dif/mag);
+        // Solve yang x
+        if (cdir_x > -0.5 && cdir_x < 0.5) {
+            dir.x = 0;
+        } else if (cdir_x >= 0.5) {
+            dir.x = 1;
         } else {
-            dir.x = (int) Math.floor(x_dif/mag);
+            dir.x = 0;
         }
-
-        if (y_dif >= 0) {
-            dir.y = (int) Math.ceil(y_dif/mag);
+        // Solve yang y
+        if (cdir_y > -0.5 && cdir_y < 0.5) {
+            dir.y = 0;
+        } else if (cdir_y >= 0.5) {
+            dir.y = 1;
         } else {
-            dir.y = (int) Math.floor(y_dif/mag);
+            dir.y = 0;
         }
 
         return dir;
@@ -480,39 +489,42 @@ public class Bot {
             List<Cell> surroundCell = getSurroundingCells(pos.x, pos.y);
             // Harusnya bikin PrioQueue
             // Cari posisi yang aman dulu aja
+            Position alterMovePos = new Position();
             List<Cell> cellAman = new ArrayList<>();
             for (int i = 0; i < surroundCell.size(); i++) {
-                movePos.x = surroundCell.get(i).x;
-                movePos.y = surroundCell.get(i).y;
-                if (isSaveToEscape(movePos)) {
+                alterMovePos.x = surroundCell.get(i).x;
+                alterMovePos.y = surroundCell.get(i).y;
+                if (isSaveToEscape(alterMovePos)) {
                     cellAman.add(surroundCell.get(i));
                 }
             }
             Random rand = new Random();
             if (!cellAman.isEmpty()) { // ada yang aman, geraknya random aja kali ya
                 int i = rand.nextInt(cellAman.size());
-                movePos.x = cellAman.get(i).x;
-                movePos.y = cellAman.get(i).y;
+                alterMovePos.x = cellAman.get(i).x;
+                alterMovePos.y = cellAman.get(i).y;
+                return digAndMoveTo(pos,alterMovePos);
+            } else {    // ga ada yang aman, gas aja kesana deh
                 return digAndMoveTo(pos,movePos);
-            } else {    // ga ada yang aman
-                for (int i = 0; i < surroundCell.size(); i++) {
-                    movePos.x = surroundCell.get(i).x;
-                    movePos.y = surroundCell.get(i).y;
-                    if (!isOnEnemyLineOfSight(movePos)) {
-                        cellAman.add(surroundCell.get(i));
-                    }
-                }
-                if (!cellAman.isEmpty()) { // ada yang aman aja
-                    int i = rand.nextInt(cellAman.size());
-                    movePos.x = cellAman.get(i).x;
-                    movePos.y = cellAman.get(i).y;
-                    return digAndMoveTo(pos,movePos);
-                } else {    // ga ada yang aman samsek
-                    int i = rand.nextInt(surroundCell.size());
-                    movePos.x = surroundCell.get(i).x;
-                    movePos.y = surroundCell.get(i).y;
-                    return digAndMoveTo(pos,movePos);
-                }
+
+//                for (int i = 0; i < surroundCell.size(); i++) {
+//                    alterMovePos.x = surroundCell.get(i).x;
+//                    alterMovePos.y = surroundCell.get(i).y;
+//                    if (!isOnEnemyLineOfSight(alterMovePos)) {
+//                        cellAman.add(surroundCell.get(i));
+//                    }
+//                }
+//                if (!cellAman.isEmpty()) { // ada yang aman aja
+//                    int i = rand.nextInt(cellAman.size());
+//                    alterMovePos.x = cellAman.get(i).x;
+//                    alterMovePos.y = cellAman.get(i).y;
+//                    return digAndMoveTo(pos,alterMovePos);
+//                } else {    // ga ada yang aman samsek
+//                    int i = rand.nextInt(surroundCell.size());
+//                    alterMovePos.x = surroundCell.get(i).x;
+//                    alterMovePos.y = surroundCell.get(i).y;
+//                    return digAndMoveTo(pos,alterMovePos);
+//                }
             }
         }
     }
