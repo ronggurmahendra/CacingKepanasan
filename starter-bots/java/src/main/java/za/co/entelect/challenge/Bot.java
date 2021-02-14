@@ -358,39 +358,6 @@ public class Bot {
             }
             c_pos.x += dir.x;
             c_pos.y += dir.y;
-/*=======
-
-    // Cek apakah ada dirt sepanjang jarak tembak
-    private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
-        int x_dif = a_pos.x - b_pos.x;
-        int y_dif = a_pos.y - b_pos.y;
-        double mag = Math.sqrt(Math.pow(x_dif, 2) + Math.pow(y_dif, 2));
-        int x_dir;
-        int y_dir;
-        if (x_dif >= 0) {
-            x_dir = (int) Math.ceil(x_dif/mag);
-        } else {
-            x_dir = (int) Math.floor(x_dif/mag);
-        }
-
-        if (y_dif >= 0) {
-            y_dir = (int) Math.ceil(y_dif/mag);
-        } else {
-            y_dir = (int) Math.floor(y_dif/mag);
-        }
-
-        Position c_pos = new Position();
-        c_pos.x = a_pos.x += x_dir;
-        c_pos.y = a_pos.y += y_dir;
-        boolean isThere = false;
-
-        while ((c_pos.x != b_pos.x) && (c_pos.y != b_pos.y) && !isThere) {
-            if (gameState.map[c_pos.y][c_pos.x].type == CellType.DIRT) {
-                isThere = true;
-            }
-            c_pos.x += x_dir;
-            c_pos.y += y_dir;
->>>>>>> pathplanning*/
         }
         return isThere;
     }
@@ -539,9 +506,67 @@ public class Bot {
         }
     }
 
-//    private Position grouping()
+   private Command positioning() {
+       Worm[] listPlayerWorms = gameState.myPlayer.worms;
+       List<Position> friendWormsPos = new ArrayList<Position>();
+       for (int i = 0; i < listPlayerWorms.length; i++) {
+           if (currentWorm.id != listPlayerWorms[i].id && listPlayerWorms[i].alive()) {  // Bukan worm sekarang
+                friendWormsPos.add(listPlayerWorms[i].position);
+           }
+       }
+       List<Cell> surroundCell = getSurroundingCells(currentWorm.position.x,currentWorm.position.y);
+       List<Cell> possibleCell = new ArrayList<Cell>();
+       // Cari yang jaraknya 2 dari setiap temen
+       boolean isGood;
+       for (int i = 0; i < surroundCell.size(); i++) {
+           isGood = true;
+           for (int j = 0; j < friendWormsPos.size(); j++) {
+               int distance = euclideanDistance(surroundCell.get(i).x,surroundCell.get(i).y,friendWormsPos.get(i).x,friendWormsPos.get(i).y);
+                if (distance < 2) {
+                    isGood = false;
+                }
+           }
+           if (isGood) {
+               possibleCell.add(surroundCell.get(i));
+           }
+       }
+       Position cellPos = new Position();
+       if (possibleCell.isEmpty()) {    // Ternyata semua cell jaraknya 2 dari temen
+           for (int i = 0; i < surroundCell.size(); i++) {  // Cari yang ada di lineOfSightMusuh
+               cellPos.x = surroundCell.get(i).x;
+               cellPos.y = surroundCell.get(i).y;
+               if (isOnEnemyLineOfSight(cellPos)) {
+                   possibleCell.add(surroundCell.get(i));
+               }
+           }
+           if (possibleCell.isEmpty()) {        // Kalau ga ada do nothing aja deh
+               return new DoNothingCommand();
+           } else {
+               cellPos.x = possibleCell.get(0).x;
+               cellPos.y = possibleCell.get(0).y;
+               return digAndMoveTo(currentWorm.position,cellPos);
+           }
+       } else { // Ada yang jaraknya 2 nih
+           List<Cell> isGoodCell = new ArrayList<Cell>();
+           for (int i = 0; i < possibleCell.size(); i++) {
+               cellPos.x = possibleCell.get(i).x;
+               cellPos.y = possibleCell.get(i).y;
+               if (isOnEnemyLineOfSight(cellPos)) {  // Lebih ideal lagi kalau ada di lineofsightmusuh
+                   isGoodCell.add(possibleCell.get(i));
+               }
+           }
+           if (isGoodCell.isEmpty()) {  // Kalau ga ada yang ideal
+               cellPos.x = possibleCell.get(0).x;
+               cellPos.y = possibleCell.get(0).y;
+               return digAndMoveTo(currentWorm.position,cellPos);
+           } else { // Kalau ini ideal banget
+               cellPos.x = isGoodCell.get(0).x;
+               cellPos.y = isGoodCell.get(0).y;
+               return digAndMoveTo(currentWorm.position,cellPos);
+           }
+       }
 
-//    private Command Grouping()
+   }
 
     private List<Position> lineOfSight(Position pos) {
         int range = 4;
