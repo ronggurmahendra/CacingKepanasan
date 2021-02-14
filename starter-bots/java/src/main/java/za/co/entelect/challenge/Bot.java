@@ -56,11 +56,15 @@ public class Bot {
 
     public Command run(){
         if(getCurrentWorm(gameState).id == 1){ //commander
-            Position enemy = basicShot(currentWorm.position);
+            /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){
                 System.out.println("SHOOT");
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
+            }*/
+            Command com = basicShot();
+            if(com != null){
+                return com;
             }
             if(GetEnemyPos(3) != null){
                 System.out.println("recognizing enemy tech and hunting");
@@ -93,12 +97,15 @@ public class Bot {
                 //return new ThrowBananaCommand(currentWorm.position.x, currentWorm.position.y);
                 //return new DoNothingCommand();
             }
-            Position enemy = basicShot(currentWorm.position);
+            /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
+            }*/
+            Command com = basicShot();
+            if(com != null){
+                return com;
             }
-            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
@@ -109,12 +116,15 @@ public class Bot {
                 //return new ThrowSnowballCommand(currentWorm.position.x, currentWorm.position.y);
                 //return new DoNothingCommand();
             }
-            Position enemy = basicShot(currentWorm.position);
+            /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
+            }*/
+            Command com = basicShot();
+            if(com != null){
+                return com;
             }
-            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }
         System.out.println("is Doing Nothing");
@@ -561,7 +571,7 @@ public class Bot {
         return directionLine;
     }
 
-    private Position basicShot(Position pos){
+    private Position shotPosition(Position pos){
         List<Position> sight = lineOfSight(pos);
         boolean w1 = false, w2 = false, w3 = false;
         Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3), e;
@@ -590,6 +600,39 @@ public class Bot {
         }
         return e;
     }
+    // asumsi a_pos sama b_pos udah lurus
+    private boolean isFriendlyFire (Position a_pos, Position b_pos) {
+        //System.out.println(String.format("a pos: %d %d", a_pos.x, a_pos.y));
+        //System.out.println(String.format("b pos: %d %d", b_pos.x, b_pos.y));
+        Position c_pos = resolveToPosition(a_pos, b_pos);
+        boolean isThere = false;
+        while (!c_pos.equals(b_pos) && !isThere) {
+            //System.out.println(String.format("c pos: %d %d", c_pos.x, c_pos.y));
+            if (c_pos.equals(GetWormPos(1)) || c_pos.equals(GetWormPos(2)) || c_pos.equals(GetWormPos(3))) {
+                //System.out.println("found");
+                isThere = true;
+            }
+            else{
+                //System.out.println("not found");
+                c_pos = resolveToPosition(c_pos, b_pos);
+            }
+        }
+        return isThere;
+    }
+
+    private Command basicShot(){
+        Position pos = currentWorm.position;
+        Position target = shotPosition(pos);
+        if(target != null){
+            if(!isFriendlyFire(pos, target)){
+                Direction dir = resolveDirection(pos, target);
+                return new ShootCommand(dir);
+            }
+        }
+        return null;
+    }
+
+
 
     private int bombDamage(Position e3, int i, int j){
         if(e3.x == i && e3.y == j){
