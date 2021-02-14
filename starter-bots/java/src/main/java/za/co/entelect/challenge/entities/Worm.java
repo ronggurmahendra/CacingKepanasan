@@ -23,4 +23,11 @@ public class Worm {
 
     @SerializedName("snowballs")
     public Bomb snowballs;
+
+    @SerializedName("roundsUntilUnfrozen")
+    public int frozen;
+
+    public boolean alive() {
+        return health > 0;
+    }
 }
