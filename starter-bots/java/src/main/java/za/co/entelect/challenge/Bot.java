@@ -57,11 +57,15 @@ public class Bot {
     public Command run(){
         modifiedCell[][] test = shortestRoute(gameState.map,currentWorm.position);
         if(getCurrentWorm(gameState).id == 1){ //commander
-            Position enemy = basicShot(currentWorm.position);
+            /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){
                 System.out.println("SHOOT");
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
+            }*/
+            Command com = basicShot();
+            if(com != null){
+                return com;
             }
             if(GetEnemyPos(3) != null){
                 System.out.println("recognizing enemy tech and hunting");
@@ -88,18 +92,21 @@ public class Bot {
             //if(true){
             if(getCurrentWorm(gameState).bananaBomb.count>0){
                 PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                if (pb.pos != null && pb.damage > 11){
+                if (pb.pos != null && pb.damage >= 20){
                     return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                 }
                 //return new ThrowBananaCommand(currentWorm.position.x, currentWorm.position.y);
                 //return new DoNothingCommand();
             }
-            Position enemy = basicShot(currentWorm.position);
+            /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
+            }*/
+            Command com = basicShot();
+            if(com != null){
+                return com;
             }
-            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
@@ -110,12 +117,15 @@ public class Bot {
                 //return new ThrowSnowballCommand(currentWorm.position.x, currentWorm.position.y);
                 //return new DoNothingCommand();
             }
-            Position enemy = basicShot(currentWorm.position);
+            /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
+            }*/
+            Command com = basicShot();
+            if(com != null){
+                return com;
             }
-            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }
         System.out.println("is Doing Nothing");
@@ -349,39 +359,6 @@ public class Bot {
             }
             c_pos.x += dir.x;
             c_pos.y += dir.y;
-/*=======
-
-    // Cek apakah ada dirt sepanjang jarak tembak
-    private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
-        int x_dif = a_pos.x - b_pos.x;
-        int y_dif = a_pos.y - b_pos.y;
-        double mag = Math.sqrt(Math.pow(x_dif, 2) + Math.pow(y_dif, 2));
-        int x_dir;
-        int y_dir;
-        if (x_dif >= 0) {
-            x_dir = (int) Math.ceil(x_dif/mag);
-        } else {
-            x_dir = (int) Math.floor(x_dif/mag);
-        }
-
-        if (y_dif >= 0) {
-            y_dir = (int) Math.ceil(y_dif/mag);
-        } else {
-            y_dir = (int) Math.floor(y_dif/mag);
-        }
-
-        Position c_pos = new Position();
-        c_pos.x = a_pos.x += x_dir;
-        c_pos.y = a_pos.y += y_dir;
-        boolean isThere = false;
-
-        while ((c_pos.x != b_pos.x) && (c_pos.y != b_pos.y) && !isThere) {
-            if (gameState.map[c_pos.y][c_pos.x].type == CellType.DIRT) {
-                isThere = true;
-            }
-            c_pos.x += x_dir;
-            c_pos.y += y_dir;
->>>>>>> pathplanning*/
         }
         return isThere;
     }
@@ -530,9 +507,67 @@ public class Bot {
         }
     }
 
-//    private Position grouping()
+   private Command positioning() {
+       Worm[] listPlayerWorms = gameState.myPlayer.worms;
+       List<Position> friendWormsPos = new ArrayList<Position>();
+       for (int i = 0; i < listPlayerWorms.length; i++) {
+           if (currentWorm.id != listPlayerWorms[i].id && listPlayerWorms[i].alive()) {  // Bukan worm sekarang
+                friendWormsPos.add(listPlayerWorms[i].position);
+           }
+       }
+       List<Cell> surroundCell = getSurroundingCells(currentWorm.position.x,currentWorm.position.y);
+       List<Cell> possibleCell = new ArrayList<Cell>();
+       // Cari yang jaraknya 2 dari setiap temen
+       boolean isGood;
+       for (int i = 0; i < surroundCell.size(); i++) {
+           isGood = true;
+           for (int j = 0; j < friendWormsPos.size(); j++) {
+               int distance = euclideanDistance(surroundCell.get(i).x,surroundCell.get(i).y,friendWormsPos.get(i).x,friendWormsPos.get(i).y);
+                if (distance < 2) {
+                    isGood = false;
+                }
+           }
+           if (isGood) {
+               possibleCell.add(surroundCell.get(i));
+           }
+       }
+       Position cellPos = new Position();
+       if (possibleCell.isEmpty()) {    // Ternyata semua cell jaraknya 2 dari temen
+           for (int i = 0; i < surroundCell.size(); i++) {  // Cari yang ada di lineOfSightMusuh
+               cellPos.x = surroundCell.get(i).x;
+               cellPos.y = surroundCell.get(i).y;
+               if (isOnEnemyLineOfSight(cellPos)) {
+                   possibleCell.add(surroundCell.get(i));
+               }
+           }
+           if (possibleCell.isEmpty()) {        // Kalau ga ada do nothing aja deh
+               return new DoNothingCommand();
+           } else {
+               cellPos.x = possibleCell.get(0).x;
+               cellPos.y = possibleCell.get(0).y;
+               return digAndMoveTo(currentWorm.position,cellPos);
+           }
+       } else { // Ada yang jaraknya 2 nih
+           List<Cell> isGoodCell = new ArrayList<Cell>();
+           for (int i = 0; i < possibleCell.size(); i++) {
+               cellPos.x = possibleCell.get(i).x;
+               cellPos.y = possibleCell.get(i).y;
+               if (isOnEnemyLineOfSight(cellPos)) {  // Lebih ideal lagi kalau ada di lineofsightmusuh
+                   isGoodCell.add(possibleCell.get(i));
+               }
+           }
+           if (isGoodCell.isEmpty()) {  // Kalau ga ada yang ideal
+               cellPos.x = possibleCell.get(0).x;
+               cellPos.y = possibleCell.get(0).y;
+               return digAndMoveTo(currentWorm.position,cellPos);
+           } else { // Kalau ini ideal banget
+               cellPos.x = isGoodCell.get(0).x;
+               cellPos.y = isGoodCell.get(0).y;
+               return digAndMoveTo(currentWorm.position,cellPos);
+           }
+       }
 
-//    private Command Grouping()
+   }
 
     private List<Position> lineOfSight(Position pos) {
         int range = 4;
@@ -562,7 +597,7 @@ public class Bot {
         return directionLine;
     }
 
-    private Position basicShot(Position pos){
+    private Position shotPosition(Position pos){
         List<Position> sight = lineOfSight(pos);
         boolean w1 = false, w2 = false, w3 = false;
         Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3), e;
@@ -591,6 +626,39 @@ public class Bot {
         }
         return e;
     }
+    // asumsi a_pos sama b_pos udah lurus
+    private boolean isFriendlyFire (Position a_pos, Position b_pos) {
+        //System.out.println(String.format("a pos: %d %d", a_pos.x, a_pos.y));
+        //System.out.println(String.format("b pos: %d %d", b_pos.x, b_pos.y));
+        Position c_pos = resolveToPosition(a_pos, b_pos);
+        boolean isThere = false;
+        while (!c_pos.equals(b_pos) && !isThere) {
+            //System.out.println(String.format("c pos: %d %d", c_pos.x, c_pos.y));
+            if (c_pos.equals(GetWormPos(1)) || c_pos.equals(GetWormPos(2)) || c_pos.equals(GetWormPos(3))) {
+                //System.out.println("found");
+                isThere = true;
+            }
+            else{
+                //System.out.println("not found");
+                c_pos = resolveToPosition(c_pos, b_pos);
+            }
+        }
+        return isThere;
+    }
+
+    private Command basicShot(){
+        Position pos = currentWorm.position;
+        Position target = shotPosition(pos);
+        if(target != null){
+            if(!isFriendlyFire(pos, target)){
+                Direction dir = resolveDirection(pos, target);
+                return new ShootCommand(dir);
+            }
+        }
+        return null;
+    }
+
+
 
     private int bombDamage(Position e3, int i, int j){
         if(e3.x == i && e3.y == j){
@@ -619,14 +687,13 @@ public class Bot {
                 if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
                     Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
                     tempMax = 0;
-                    if(e3 != null){
-                        tempMax += bombDamage(e3, i, j);
-                    }
-                    if(e2 != null){
-                        tempMax += bombDamage(e2, i, j);
-                    }
-                    if(e1 != null){
-                        tempMax += bombDamage(e1, i, j);
+                    for(int a = 1; a < 4; a++){
+                        if(GetEnemyPos(a) != null){
+                            tempMax += bombDamage(GetEnemyPos(a), i, j);
+                        }
+                        if(GetWormPos(a) != null){
+                            tempMax -= bombDamage(GetWormPos(a), i, j);
+                        }
                     }
                     if (tempMax > max) {
                         e = new Position(i, j);
@@ -635,12 +702,15 @@ public class Bot {
                 }
             }
         }
-        PairBomb pb = new PairBomb(e, max);
-        return pb;
+        return new PairBomb(e, max);
     }
 
     private int frozenUntil(int ID){
         return gameState.opponents[0].worms[ID-1].frozen;
+    }
+
+    private boolean frozen(Position pos,int ID, int i, int j){
+        return euclideanDistance(pos.x, pos.y, i, j) < 2 && frozenUntil(3) == 0;
     }
 
     private PairBomb maxFrozen(Position pos){
@@ -650,21 +720,17 @@ public class Bot {
             for (int j = y - 5; j <= y + 5; j++) {
                 // Don't include the current position
                 if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
-                    Position e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
                     tempMax = 0;
-                    if(e3 != null){
-                        if(euclideanDistance(e3.x, e3.y, i, j) < 2 && frozenUntil(3) == 0) {
-                            tempMax += 1;
+                    for(int a = 1; a < 4; a++){
+                        if(GetEnemyPos(a) != null){
+                            if(euclideanDistance(GetEnemyPos(a).x, GetEnemyPos(a).y, i, j) < 2 && frozenUntil(a) == 0) {
+                                tempMax += 1;
+                            }
                         }
-                    }
-                    if(e2 != null){
-                        if(euclideanDistance(e2.x, e2.y, i, j) < 2 && frozenUntil(2) == 0) {
-                            tempMax += 1;
-                        }
-                    }
-                    if(e1 != null){
-                        if(euclideanDistance(e1.x, e1.y, i, j) < 2 && frozenUntil(1) == 0) {
-                            tempMax += 1;
+                        if(GetWormPos(a) != null){
+                            if(euclideanDistance(GetWormPos(a).x, GetWormPos(a).y, i, j) < 2 && frozenUntil(a) == 0) {
+                                tempMax -= 1;
+                            }
                         }
                     }
                     if (tempMax > max) {
