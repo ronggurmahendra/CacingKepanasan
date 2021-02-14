@@ -32,17 +32,9 @@ public class test {
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
         Random random = new Random(System.nanoTime());
-        System.out.println("b1");
         int[][] arr = {{1,2},{3,4},{5,6}};
         System.out.println(arr.length);
-        //arr = ArrayUtils.remove(arr, 1);
-        //System.out.println(arr.length);
-        //System.out.println(arr[2][0]);
-        //while (true) {
-            System.out.println("b2");
             try {
-                System.out.println("b3");
-
                 String state = new String(Files.readAllBytes(Paths.get("./test.json")));
                 System.out.println(state);
                 GameState gameState = gson.fromJson(state, GameState.class);
@@ -50,7 +42,28 @@ public class test {
 
                 //GameState gameState = gson.fromJson(state, GameState.class);
                 Bot testBot = new Bot(random, gameState);
+                modifiedCell[][] testRoute = testBot.shortestRoute(gameState.map,gameState.myPlayer.worms[0].position);
+                //System.out.println(distance);
 
+                for(int i = 0;i< testRoute.length;i++){
+                    for(int j = 0;j<testRoute[0].length;j++){
+                        System.out.print(testRoute[i][j].cell.x);
+                        System.out.print(" ");
+                        System.out.print(testRoute[i][j].cell.y);
+                        System.out.print(" ");
+                        System.out.print(testRoute[i][j].distance);
+                        System.out.print(" ");
+                        System.out.print(testRoute[i][j].cell.type);
+                        System.out.print(" prev : ");
+                        System.out.print(testRoute[i][j].prev.x);
+                        System.out.print(" ");
+                        System.out.print(testRoute[i][j].prev.y);
+                        System.out.print(" ");
+                        System.out.print("Visited : ");
+                        System.out.print(testRoute[i][j].visit);
+                        System.out.println(" ");
+                    }
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();

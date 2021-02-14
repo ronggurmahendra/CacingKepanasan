@@ -15,4 +15,6 @@ public class Cell {
 
     @SerializedName("powerup")
     public PowerUp powerUp;
+
+    //public void deepCopy(int i)
 }
