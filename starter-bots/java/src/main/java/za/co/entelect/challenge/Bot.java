@@ -98,6 +98,7 @@ public class Bot {
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
             }
+            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }else if(getCurrentWorm(gameState).id == 3){ //tech
             if(getCurrentWorm(gameState).snowballs.count>0){
@@ -113,6 +114,7 @@ public class Bot {
                 Direction direction = resolveDirection(currentWorm.position, enemy);
                 return new ShootCommand(direction);
             }
+            System.out.println(String.format("current: %d %d", currentWorm.position.x, currentWorm.position.y));
             return digAndMoveTo(currentWorm.position, GetWormPos(1));
         }
         System.out.println("is Doing Nothing");
@@ -236,7 +238,7 @@ public class Bot {
     }
 
     private Position resolveToPosition(Position origin, Position destination) {
-        Position toPosition = new Position();
+        Position toPosition = new Position(origin.x, origin.y);
 
         int verticalComponent = destination.y - origin.y;
         int horizontalComponent = destination.x - origin.x;
