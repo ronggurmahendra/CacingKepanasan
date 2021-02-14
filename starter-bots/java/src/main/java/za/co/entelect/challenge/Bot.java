@@ -453,39 +453,42 @@ public class Bot {
             List<Cell> surroundCell = getSurroundingCells(pos.x, pos.y);
             // Harusnya bikin PrioQueue
             // Cari posisi yang aman dulu aja
+            Position alterMovePos = new Position();
             List<Cell> cellAman = new ArrayList<>();
             for (int i = 0; i < surroundCell.size(); i++) {
-                movePos.x = surroundCell.get(i).x;
-                movePos.y = surroundCell.get(i).y;
-                if (isSaveToEscape(movePos)) {
+                alterMovePos.x = surroundCell.get(i).x;
+                alterMovePos.y = surroundCell.get(i).y;
+                if (isSaveToEscape(alterMovePos)) {
                     cellAman.add(surroundCell.get(i));
                 }
             }
             Random rand = new Random();
             if (!cellAman.isEmpty()) { // ada yang aman, geraknya random aja kali ya
                 int i = rand.nextInt(cellAman.size());
-                movePos.x = cellAman.get(i).x;
-                movePos.y = cellAman.get(i).y;
+                alterMovePos.x = cellAman.get(i).x;
+                alterMovePos.y = cellAman.get(i).y;
+                return digAndMoveTo(pos,alterMovePos);
+            } else {    // ga ada yang aman, gas aja kesana deh
                 return digAndMoveTo(pos,movePos);
-            } else {    // ga ada yang aman
-                for (int i = 0; i < surroundCell.size(); i++) {
-                    movePos.x = surroundCell.get(i).x;
-                    movePos.y = surroundCell.get(i).y;
-                    if (!isOnEnemyLineOfSight(movePos)) {
-                        cellAman.add(surroundCell.get(i));
-                    }
-                }
-                if (!cellAman.isEmpty()) { // ada yang aman aja
-                    int i = rand.nextInt(cellAman.size());
-                    movePos.x = cellAman.get(i).x;
-                    movePos.y = cellAman.get(i).y;
-                    return digAndMoveTo(pos,movePos);
-                } else {    // ga ada yang aman samsek
-                    int i = rand.nextInt(surroundCell.size());
-                    movePos.x = surroundCell.get(i).x;
-                    movePos.y = surroundCell.get(i).y;
-                    return digAndMoveTo(pos,movePos);
-                }
+
+//                for (int i = 0; i < surroundCell.size(); i++) {
+//                    alterMovePos.x = surroundCell.get(i).x;
+//                    alterMovePos.y = surroundCell.get(i).y;
+//                    if (!isOnEnemyLineOfSight(alterMovePos)) {
+//                        cellAman.add(surroundCell.get(i));
+//                    }
+//                }
+//                if (!cellAman.isEmpty()) { // ada yang aman aja
+//                    int i = rand.nextInt(cellAman.size());
+//                    alterMovePos.x = cellAman.get(i).x;
+//                    alterMovePos.y = cellAman.get(i).y;
+//                    return digAndMoveTo(pos,alterMovePos);
+//                } else {    // ga ada yang aman samsek
+//                    int i = rand.nextInt(surroundCell.size());
+//                    alterMovePos.x = surroundCell.get(i).x;
+//                    alterMovePos.y = surroundCell.get(i).y;
+//                    return digAndMoveTo(pos,alterMovePos);
+//                }
             }
         }
     }
