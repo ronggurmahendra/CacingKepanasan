@@ -97,16 +97,22 @@ public class Bot {
                                 return retreat();
                             }
                         }
-                        if (shotPosition(power) != null) {
+                        if (shotPosition(resolveToPosition(currentWorm.position, power)) != null) {
                             if (getCurrentWorm(gameState).snowballs.count > 0) {
                                 PairBomb pb = maxFrozen(currentWorm.position);
                                 if (pb.pos != null && pb.damage > 0) {
                                     return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                                 }
                             }
+                            System.out.println("3-3");
+                            System.out.println(currentWorm.position.x);
+                            System.out.println(currentWorm.position.y);
                             return ImprovedDigAndMoveTo(currentWorm.position, power);
                         }
                     }
+                    System.out.println("3-4");
+                    System.out.println(currentWorm.position.x);
+                    System.out.println(currentWorm.position.y);
                     return ImprovedDigAndMoveTo(currentWorm.position, power);
                 }
                 System.out.println("3-2");
@@ -973,12 +979,12 @@ public class Bot {
 //            System.out.print(currCell.prev.y);
 
         }
-//        System.out.println();
-//        System.out.print("So Go To");
-//        System.out.print(" x:");
-//        System.out.print(currCell.cell.x);
-//        System.out.print(" y: ");
-//        System.out.print(currCell.cell.y);
+        System.out.println();
+        System.out.print("So Go To");
+        System.out.print(" x:");
+        System.out.print(currCell.cell.x);
+        System.out.print(" y: ");
+        System.out.print(currCell.cell.y);
         return new Position(currCell.cell.x,currCell.cell.y);
     }
 
