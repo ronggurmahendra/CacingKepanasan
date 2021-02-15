@@ -135,9 +135,18 @@ public class Bot {
                 if(enemy.size() > 0){
                     if(enemy.contains(opponent.worms[2]) || enemy.size() > 1){
                         for(Worm w : enemy){
-                            
+                            if(frozenUntil(w.id) > 0){
+                                return retreat();
+                            }
+                            if(getCurrentWorm(gameState).snowballs.count>0) {
+                                PairBomb pb = maxFrozen(currentWorm.position);
+                                if (pb.pos != null && pb.damage > 0) {
+                                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                                }
+                            }
                         }
                     }
+                    
                 }
             /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){

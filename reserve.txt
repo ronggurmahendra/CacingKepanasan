@@ -3,3 +3,4 @@
                     if (pb.pos != null && pb.damage > 0) {
                         return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                     }
+		}
