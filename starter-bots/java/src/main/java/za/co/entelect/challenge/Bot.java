@@ -9,7 +9,6 @@ import za.co.entelect.challenge.enums.Direction;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.io.*;
 import java.lang.*;
 public class Bot {
 
@@ -55,7 +54,7 @@ public class Bot {
     }
 
     public Command run(){
-        modifiedCell[][] test = shortestRoute(gameState.map,currentWorm.position);
+        //modifiedCell[][] test = shortestRoute(gameState.map,currentWorm.position);
         if(getCurrentWorm(gameState).id == 1){ //commander
             /*Position enemy = basicShot(currentWorm.position);
             if (enemy != null){
@@ -888,8 +887,77 @@ public class Bot {
         }
         return temp;
     }
-    //public List<Position> getEnemyShootingRange(Cell[][] GameMap, Cell source){
+    public Command HuntAndKill(){
+        Command command =  basicShot();
+        if(command == null){
+            List<Position> EnemyinRange = new ArrayList<Position>();
+            for(int i = 0;i<3;i++){
+                List<Position> TempEnemyinRang = lineOfSight(opponent.worms[i].position);
+                for(int j = 0;j< TempEnemyinRang.size();j++){
+                    EnemyinRange.add(EnemyinRange.get(j));
+                }
+            }
+            modifiedCell[][] Map = shortestRoute(gameState.map,getCurrentWorm(gameState).position);
+            Position GoTo = GetMinDistanceFromArray(Map,EnemyinRange);
+            return ImprovedDigAndMoveTo(getCurrentWorm(gameState).position,GoTo);
+        }else{
+            return command;
+        }
 
-    //}
+
+    }
+
+    public Position GetMinDistanceFromArray(modifiedCell[][] Map, List<Position> EnemyinRange){
+        int min = Map[getShortestFirstRoute(Map,EnemyinRange.get(0)).x][ getShortestFirstRoute(Map,EnemyinRange.get(0)).y].distance;
+        Position Result = new Position(getShortestFirstRoute(Map,EnemyinRange.get(0)).x,getShortestFirstRoute(Map,EnemyinRange.get(0)).y);
+        for(int i = 1;i<EnemyinRange.size();i++){
+            int tempmin = Map[getShortestFirstRoute(Map,EnemyinRange.get(i)).x][ getShortestFirstRoute(Map,EnemyinRange.get(i)).y].distance;
+            if(tempmin < min){
+                min = tempmin;
+                Result.x = getShortestFirstRoute(Map,EnemyinRange.get(i)).x;
+                Result.y = getShortestFirstRoute(Map,EnemyinRange.get(i)).y;
+            }
+        }
+        return Result;
+
+    }
+
+
+    public Position getShortestFirstRoute(modifiedCell[][] Map, Position Target){
+        int XTarget = Target.x;
+        int YTarget = Target.y;
+        modifiedCell currCell = Map[XTarget][YTarget];
+        System.out.print("Generating Best Route : ");
+
+        System.out.print(" x:");
+        System.out.print(currCell.cell.x);
+        System.out.print(" y:");
+        System.out.print(currCell.cell.y);
+        while(Map[currCell.prev.x][currCell.prev.y].distance != 0){
+
+            currCell = Map[currCell.prev.x][currCell.prev.y];
+            System.out.print(" <- ");
+            System.out.print(" x:");
+            System.out.print(currCell.prev.x);
+            System.out.print(" y:");
+            System.out.print(currCell.prev.y);
+
+        }
+        System.out.println();
+        System.out.print("So Go To");
+        System.out.print(" x:");
+        System.out.print(currCell.cell.x);
+        System.out.print(" y: ");
+        System.out.print(currCell.cell.y);
+        return new Position(currCell.cell.x,currCell.cell.y);
+    }
+
+    public Command ImprovedDigAndMoveTo(Position origin, Position destination){
+        modifiedCell[][] Map = shortestRoute(gameState.map, origin);
+        Position goTo = getShortestFirstRoute(Map,destination);
+
+        return digAndMoveTo(origin, goTo);
+    }
+
 
 }

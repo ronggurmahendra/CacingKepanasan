@@ -50,7 +50,7 @@ public class test {
                         System.out.print(testRoute[i][j].cell.x);
                         System.out.print(" ");
                         System.out.print(testRoute[i][j].cell.y);
-                        System.out.print(" ");
+                        System.out.print(" Distance: ");
                         System.out.print(testRoute[i][j].distance);
                         System.out.print(" ");
                         System.out.print(testRoute[i][j].cell.type);
@@ -64,6 +64,7 @@ public class test {
                         System.out.println(" ");
                     }
                 }
+                Position testPos = testBot.getShortestFirstRoute(testRoute, new Position(24,10));
 
             } catch (Exception e) {
                 e.printStackTrace();
