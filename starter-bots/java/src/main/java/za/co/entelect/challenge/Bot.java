@@ -63,53 +63,61 @@ public class Bot {
                 if (com != null) {
                     return com;
                 }
+                System.out.println("0-----------");
                 if (GetEnemyPos(3) != null) {
-                    //System.out.println("recognizing enemy tech and hunting");
-                    return digAndMoveTo(currentWorm.position, GetEnemyPos(3));
-                    // nanti ganti djikstra
+                    System.out.println("Execute improved dig and move to");
+                    return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(3));
                 }
-                if (true) { // harusnya grouping
-                    //Hunt and Kill
+                System.out.println("1-----------");
+                if (isGroup()) { // harusnya grouping
+                    System.out.println("2-----------");
+                    return HuntAndKill();
                 }
-                // regroup
-                return new DoNothingCommand();
+                System.out.println("3-----------");
+                return Regroup();
             } else if (getCurrentWorm(gameState).id == 3) { //tech
                 // nyari power up, misal di variabel power
                 Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
-                List<Worm> enemy = countEnemy(currentWorm.position);
-                if (enemy.size() > 0) {
-                    if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
-                        for (Worm w : enemy) {
-                            if (frozenUntil(w.id) > 0) {
+                System.out.println("masuk");
+                if(power.x != -1 && power.y != -1){
+                    System.out.println("3-1");
+                    List<Worm> enemy = countEnemy(currentWorm.position);
+                    if (enemy.size() > 0) {
+                        if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
+                            for (Worm w : enemy) {
+                                if (frozenUntil(w.id) > 0) {
+                                    return retreat();
+                                }
+                                if (getCurrentWorm(gameState).snowballs.count > 0) {
+                                    PairBomb pb = maxFrozen(currentWorm.position);
+                                    if (pb.pos != null && pb.damage > 0) {
+                                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                                    }
+                                }
                                 return retreat();
                             }
+                        }
+                        if (shotPosition(power) != null) {
                             if (getCurrentWorm(gameState).snowballs.count > 0) {
                                 PairBomb pb = maxFrozen(currentWorm.position);
                                 if (pb.pos != null && pb.damage > 0) {
                                     return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                                 }
                             }
-                            return retreat();
+                            return ImprovedDigAndMoveTo(currentWorm.position, power);
                         }
                     }
-                    if (shotPosition(power) != null) {
-                        if (getCurrentWorm(gameState).snowballs.count > 0) {
-                            PairBomb pb = maxFrozen(currentWorm.position);
-                            if (pb.pos != null && pb.damage > 0) {
-                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-                            }
-                        }
-                        return ImprovedDigAndMoveTo(currentWorm.position, power);
-                    }
+                    return ImprovedDigAndMoveTo(currentWorm.position, power);
                 }
-                //return ImprovedDigAndMoveTo(currentWorm.position, power);
-                Command com = basicShot();
-                if (com != null) {
-                    return com;
-                }
-                return digAndMoveTo(currentWorm.position, GetWormPos(1));
+                System.out.println("3-2");
+                return Regroup();
             }
         }
+        System.out.println("------------------------MASIH SALAH------------------------------");
+        System.out.println("------------------------MASIH SALAH------------------------------");
+        System.out.println("------------------------MASIH SALAH------------------------------");
+        System.out.println("------------------------MASIH SALAH------------------------------");
+        System.out.println("------------------------MASIH SALAH------------------------------");
         return new DoNothingCommand();
         /**
         Worm enemyWorm = getFirstWormInRange();
@@ -648,15 +656,15 @@ public class Bot {
             for (int j = y - 5; j <= y + 5; j++) {
                 // Don't include the current position
                 if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
-                    if (e1.x == i && e1.y == j) {
+                    if (e1 != null && e1.x == i && e1.y == j) {
                         //count += 1;
                         worm.add(gameState.opponents[0].worms[0]);
                     }
-                    if (e2.x == i && e2.y == j) {
+                    if (e2 != null && e2.x == i && e2.y == j) {
                         //count += 1;
                         worm.add(gameState.opponents[0].worms[1]);
                     }
-                    if (e3.x == i && e3.y == j) {
+                    if (e3 != null && e3.x == i && e3.y == j) {
                         //count += 1;
                         worm.add(gameState.opponents[0].worms[2]);
                     }
@@ -752,6 +760,7 @@ public class Bot {
 //    }
 
     public modifiedCell[][] shortestRoute(Cell[][] GameMap, Position source){
+        System.out.println("Generating Map");
         //initialize
         modifiedCell[][] Result = new modifiedCell[GameMap.length][GameMap[0].length];
         for(int i = 0; i < GameMap.length;i++ ){
@@ -891,13 +900,14 @@ public class Bot {
         return temp;
     }
     public Command HuntAndKill(){
+        System.out.println("HuntandKill");
         Command command =  basicShot();
         if(command == null){
             List<Position> EnemyinRange = new ArrayList<Position>();
             for(int i = 0;i<3;i++){
                 List<Position> TempEnemyinRang = lineOfSight(opponent.worms[i].position);
                 for(int j = 0;j< TempEnemyinRang.size();j++){
-                    EnemyinRange.add(EnemyinRange.get(j));
+                    EnemyinRange.add(TempEnemyinRang.get(j));
                 }
             }
             modifiedCell[][] Map = shortestRoute(gameState.map,getCurrentWorm(gameState).position);
@@ -911,18 +921,20 @@ public class Bot {
     }
 
     public Position GetMinDistanceFromArray(modifiedCell[][] Map, List<Position> EnemyinRange){
-        int min = Map[getShortestFirstRoute(Map,EnemyinRange.get(0)).x][ getShortestFirstRoute(Map,EnemyinRange.get(0)).y].distance;
-        Position Result = new Position(getShortestFirstRoute(Map,EnemyinRange.get(0)).x,getShortestFirstRoute(Map,EnemyinRange.get(0)).y);
-        for(int i = 1;i<EnemyinRange.size();i++){
-            int tempmin = Map[getShortestFirstRoute(Map,EnemyinRange.get(i)).x][ getShortestFirstRoute(Map,EnemyinRange.get(i)).y].distance;
-            if(tempmin < min){
-                min = tempmin;
-                Result.x = getShortestFirstRoute(Map,EnemyinRange.get(i)).x;
-                Result.y = getShortestFirstRoute(Map,EnemyinRange.get(i)).y;
+        if(EnemyinRange.size() > 0){
+            int min = Map[getShortestFirstRoute(Map,EnemyinRange.get(0)).x][ getShortestFirstRoute(Map,EnemyinRange.get(0)).y].distance;
+            Position Result = new Position(getShortestFirstRoute(Map,EnemyinRange.get(0)).x,getShortestFirstRoute(Map,EnemyinRange.get(0)).y);
+            for(int i = 1;i<EnemyinRange.size();i++){
+                int tempmin = Map[getShortestFirstRoute(Map,EnemyinRange.get(i)).x][ getShortestFirstRoute(Map,EnemyinRange.get(i)).y].distance;
+                if(tempmin < min){
+                    min = tempmin;
+                    Result.x = getShortestFirstRoute(Map,EnemyinRange.get(i)).x;
+                    Result.y = getShortestFirstRoute(Map,EnemyinRange.get(i)).y;
+                }
             }
+            return Result;
         }
-        return Result;
-
+        return new Position(-1, -1);
     }
 
 
@@ -930,36 +942,45 @@ public class Bot {
         int XTarget = Target.x;
         int YTarget = Target.y;
         modifiedCell currCell = Map[XTarget][YTarget];
-        System.out.print("Generating Best Route : ");
-
-        System.out.print(" x:");
-        System.out.print(currCell.cell.x);
-        System.out.print(" y:");
-        System.out.print(currCell.cell.y);
+//        System.out.print("Generating Best Route : ");
+//
+//        System.out.print(" x:");
+//        System.out.print(currCell.cell.x);
+//        System.out.print(" y:");
+//        System.out.print(currCell.cell.y);
         while(Map[currCell.prev.x][currCell.prev.y].distance != 0){
 
             currCell = Map[currCell.prev.x][currCell.prev.y];
-            System.out.print(" <- ");
-            System.out.print(" x:");
-            System.out.print(currCell.prev.x);
-            System.out.print(" y:");
-            System.out.print(currCell.prev.y);
+//            System.out.print(" <- ");
+//            System.out.print(" x:");
+//            System.out.print(currCell.prev.x);
+//            System.out.print(" y:");
+//            System.out.print(currCell.prev.y);
 
         }
-        System.out.println();
-        System.out.print("So Go To");
-        System.out.print(" x:");
-        System.out.print(currCell.cell.x);
-        System.out.print(" y: ");
-        System.out.print(currCell.cell.y);
+//        System.out.println();
+//        System.out.print("So Go To");
+//        System.out.print(" x:");
+//        System.out.print(currCell.cell.x);
+//        System.out.print(" y: ");
+//        System.out.print(currCell.cell.y);
         return new Position(currCell.cell.x,currCell.cell.y);
     }
 
     public Command ImprovedDigAndMoveTo(Position origin, Position destination){
         modifiedCell[][] Map = shortestRoute(gameState.map, origin);
-        Position goTo = getShortestFirstRoute(Map,destination);
+        Position nextPosition = getShortestFirstRoute(Map,destination);
+        Cell nextCell = gameState.map[nextPosition.y][nextPosition.x];
 
-        return digAndMoveTo(origin, goTo);
+        if (nextCell.type == CellType.AIR) {
+            System.out.println(nextCell.type);
+            return new MoveCommand(nextPosition.x,nextPosition.y);
+        } else if (nextCell.type == CellType.DIRT) {
+            return new DigCommand(nextPosition.x,nextPosition.y);
+        } else {
+            return new DoNothingCommand();
+        }
+        //return digAndMoveTo(origin, goTo);
     }
 
 
@@ -978,6 +999,74 @@ public class Bot {
             }
         }
         return powerUp;
+    }
+
+    private boolean isGroup(){
+        Position f1 = GetWormPos(1), f2 = GetWormPos(2), f3 = GetWormPos(3);
+        int total = 0, totalX = 0, totalY = 0;
+        if(f1 != null){
+            total ++;
+            totalX += f1.x;
+            totalY += f1.y;
+        }
+        if(f2 != null){
+            total ++;
+            totalX += f2.x;
+            totalY += f2.y;
+        }
+        if(f3 != null){
+            total ++;
+            totalX += f3.x;
+            totalY += f3.y;
+        }
+        Position center = new Position(totalX/total, totalY/total);
+        boolean group = true;
+        if(f1 != null && euclideanDistance(f1.x, f1.y, center.x, center.y) > 2){
+            group = false;
+        }
+        if(f2 != null && euclideanDistance(f2.x, f2.y, center.x, center.y) > 2){
+            group = false;
+        }
+        if(f3 != null && euclideanDistance(f3.x, f3.y, center.x, center.y) > 2){
+            group = false;
+        }
+        return group;
+    }
+
+    public Command Regroup(){
+        Position e1 = GetWormPos(1), e2 = GetWormPos(2), e3 = GetWormPos(3);
+        List<modifiedCell[][]> mC = new ArrayList<>();
+        if(e1 != null){
+            mC.add(shortestRoute(gameState.map, e1));
+        }
+        if(e2 != null){
+            mC.add(shortestRoute(gameState.map, e2));
+        }
+        if(e3 != null){
+            mC.add(shortestRoute(gameState.map, e3));
+        }
+        if(mC.size() == 1){
+            return HuntAndKill();
+        }
+        Position Center = new Position(0,0);
+        int minDistance = 0;
+        for(modifiedCell[][] mc : mC){
+            minDistance += mc[0][0].distance;
+        }
+        for(int i = 0; i<gameState.mapSize;i++){
+            for(int j = 0;j<gameState.mapSize;j++){
+                int TempMinDistance = 0;
+                for(modifiedCell[][] mc : mC){
+                    TempMinDistance += mc[0][0].distance;
+                }
+                if(TempMinDistance < minDistance){
+                    Center.x = i;
+                    Center.y = j;
+                    minDistance = TempMinDistance;
+                }
+            }
+        }
+        return(ImprovedDigAndMoveTo(getCurrentWorm(gameState).position,Center));
     }
 
 }
