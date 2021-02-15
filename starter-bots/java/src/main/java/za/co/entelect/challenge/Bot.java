@@ -25,10 +25,11 @@ public class Bot {
     }
 
     private MyWorm getCurrentWorm(GameState gameState) {
-        return Arrays.stream(gameState.myPlayer.worms)
-                .filter(myWorm -> myWorm.id == gameState.currentWormId)
-                .findFirst()
-                .get();
+//        return Arrays.stream(gameState.myPlayer.worms)
+//                .filter(myWorm -> myWorm.id == gameState.currentWormId)
+//                .findFirst()
+//                .get();
+        return gameState.myPlayer.worms[gameState.currentWormId-1];
     }
 
     public Position GetWormPos(int ID){
@@ -59,8 +60,11 @@ public class Bot {
         }
         else {
             if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 2) { //commander
+                System.out.println("-2-----------");
                 Command com = basicShot();
+                System.out.println("-1-----------");
                 if (com != null) {
+                    System.out.println("-0.5-----------");
                     return com;
                 }
                 System.out.println("0-----------");
@@ -966,7 +970,8 @@ public class Bot {
     public Position getShortestFirstRoute(modifiedCell[][] Map, Position Target){
         int XTarget = Target.x;
         int YTarget = Target.y;
-        modifiedCell currCell = Map[XTarget][YTarget];
+        modifiedCell currCell = new modifiedCell();
+        currCell.deepCopy(Map[XTarget][YTarget]);
 //        System.out.print("Generating Best Route : ");
 //
 //        System.out.print(" x:");
@@ -976,20 +981,20 @@ public class Bot {
         while(Map[currCell.prev.x][currCell.prev.y].distance != 0){
 
             currCell = Map[currCell.prev.x][currCell.prev.y];
-//            System.out.print(" <- ");
-//            System.out.print(" x:");
-//            System.out.print(currCell.prev.x);
-//            System.out.print(" y:");
-//            System.out.print(currCell.prev.y);
+            System.out.print(" <- ");
+            System.out.print(" x:");
+            System.out.print(currCell.prev.x);
+            System.out.print(" y:");
+            System.out.print(currCell.prev.y);
 
         }
-//        System.out.println();
-//        System.out.print("So Go To");
-//        System.out.print(" x:");
-//        System.out.print(currCell.cell.x);
-//        System.out.print(" y: ");
-//        System.out.print(currCell.cell.y);
-//        System.out.println();
+        System.out.println();
+        System.out.print("So Go To");
+        System.out.print(" x:");
+        System.out.print(currCell.cell.x);
+        System.out.print(" y: ");
+        System.out.print(currCell.cell.y);
+        System.out.println();
         return new Position(currCell.cell.x,currCell.cell.y);
     }
 
@@ -1005,6 +1010,8 @@ public class Bot {
             return new DigCommand(nextPosition.x,nextPosition.y);
         } else {
             System.out.println("DEEp SPaCe?");
+            System.out.println(nextPosition.x);
+            System.out.println(nextPosition.y);
             return new DoNothingCommand();
         }
         //return digAndMoveTo(origin, goTo);
@@ -1084,7 +1091,7 @@ public class Bot {
             for(int j = 0;j<gameState.mapSize;j++){
                 int TempMinDistance = 0;
                 for(modifiedCell[][] mc : mC){
-                    TempMinDistance += mc[0][0].distance;
+                    TempMinDistance += mc[i][j].distance;
                 }
                 if(TempMinDistance < minDistance){
                     Center.x = i;

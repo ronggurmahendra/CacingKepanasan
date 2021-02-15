@@ -18,4 +18,15 @@ public class modifiedCell {
         this.visit = visit;
         this.distance = distance;
     }
+    public void deepCopy(modifiedCell mC){
+        this.cell = new Cell();
+        this.cell.x = mC.cell.x;
+        this.cell.y = mC.cell.y;
+        this.cell.type = mC.cell.type;
+        this.prev = new Cell();
+        this.prev.x = mC.prev.x;
+        this.prev.y = mC.prev.y;
+        this.visit = mC.visit;
+        this.distance = mC.distance;
+    }
 }
