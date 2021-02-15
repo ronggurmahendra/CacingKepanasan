@@ -419,27 +419,27 @@ public class Bot {
             }
         }
 
-        // Tambah Vektor Posisi teman terdekat
-        int distance = 999999;
-        int idx = -1;
-        Worm[] listPlayerWorms = gameState.myPlayer.worms;
-        for (int i = 0; i < listPlayerWorms.length; i++) {
-            if (currentWorm.id != listPlayerWorms[i].id) {  // Bukan worm sekarang
-                if (listPlayerWorms[i].alive()) {
-                    int c_distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listPlayerWorms[i].position.x,listPlayerWorms[i].position.y);
-                    if (c_distance < distance) {
-                        distance = c_distance;
-                        idx = i;
-                    }
-                }
-            }
-        }
-        if (idx != -1) {
-            Position vectorPosFriend = new Position();
-            vectorPosFriend.x = listPlayerWorms[idx].position.x - pos.x;
-            vectorPosFriend.y = listPlayerWorms[idx].position.y - pos.y;
-            vectorPos.add(vectorPosFriend);
-        }
+//        // Tambah Vektor Posisi teman terdekat
+//        int distance = 999999;
+//        int idx = -1;
+//        Worm[] listPlayerWorms = gameState.myPlayer.worms;
+//        for (int i = 0; i < listPlayerWorms.length; i++) {
+//            if (currentWorm.id != listPlayerWorms[i].id) {  // Bukan worm sekarang
+//                if (listPlayerWorms[i].alive()) {
+//                    int c_distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listPlayerWorms[i].position.x,listPlayerWorms[i].position.y);
+//                    if (c_distance < distance) {
+//                        distance = c_distance;
+//                        idx = i;
+//                    }
+//                }
+//            }
+//        }
+//        if (idx != -1) {
+//            Position vectorPosFriend = new Position();
+//            vectorPosFriend.x = listPlayerWorms[idx].position.x - pos.x;
+//            vectorPosFriend.y = listPlayerWorms[idx].position.y - pos.y;
+//            vectorPos.add(vectorPosFriend);
+//        }
 
         // Tambah Vektor Kecenderungan Bergerak Memutar
         Position vectorPosCenterMap = new Position();
@@ -979,12 +979,12 @@ public class Bot {
 //            System.out.print(currCell.prev.y);
 
         }
-        System.out.println();
-        System.out.print("So Go To");
-        System.out.print(" x:");
-        System.out.print(currCell.cell.x);
-        System.out.print(" y: ");
-        System.out.print(currCell.cell.y);
+//        System.out.println();
+//        System.out.print("So Go To");
+//        System.out.print(" x:");
+//        System.out.print(currCell.cell.x);
+//        System.out.print(" y: ");
+//        System.out.print(currCell.cell.y);
         return new Position(currCell.cell.x,currCell.cell.y);
     }
 
