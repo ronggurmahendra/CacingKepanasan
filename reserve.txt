@@ -1,0 +1,35 @@
+                if(getCurrentWorm(gameState).snowballs.count>0){
+                    PairBomb pb = maxFrozen(currentWorm.position);
+                    if (pb.pos != null && pb.damage > 0) {
+                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                    }
+		}
+            /*
+            Worm enemyWorm = getFirstWormInRange();
+            if (enemyWorm != null) {
+                System.out.println("recognizing enemy in sight and shooting");
+                Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                return new ShootCommand(direction);
+            }
+            if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
+
+
+                System.out.println("recognizing enemy tech and hunting");
+                //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
+                //return new MoveCommand(tempPos.x, tempPos.y);
+                return digAndMoveTo(currentWorm.position, gameState.opponents[0].worms[2].position);
+            }*/
+
+//            else if(getCurrentWorm(gameState).id == 2){ // agent
+//                //if(true){
+//                if(getCurrentWorm(gameState).bananaBomb.count>0){
+//                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+//                    if (pb.pos != null && pb.damage >= 20){
+//                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+//                    }
+//                }
+//                Command com = basicShot();
+//                if(com != null){
+//                    return com;
+//                }
+//                return digAndMoveTo(currentWorm.position, GetWormPos(1));
