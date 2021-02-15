@@ -54,115 +54,63 @@ public class Bot {
     }
 
     public Command run(){
-<<<<<<< HEAD
-        //modifiedCell[][] test = shortestRoute(gameState.map,currentWorm.position);
-        if(getCurrentWorm(gameState).id == 1){ //commander
-            /*Position enemy = basicShot(currentWorm.position);
-            if (enemy != null){
-                System.out.println("SHOOT");
-                Direction direction = resolveDirection(currentWorm.position, enemy);
-                return new ShootCommand(direction);
-            }*/
-            Command com = basicShot();
-            if(com != null){
-                return com;
-            }
-            if(GetEnemyPos(3) != null){
-                System.out.println("recognizing enemy tech and hunting");
-                return digAndMoveTo(currentWorm.position, GetEnemyPos(3));
-            }
-            /*
-            Worm enemyWorm = getFirstWormInRange();
-            if (enemyWorm != null) {
-                System.out.println("recognizing enemy in sight and shooting");
-                Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-                return new ShootCommand(direction);
-            }
-            if(GetEnemyPos(3) != null){//asumsikan 3 itu tech
-
-
-                System.out.println("recognizing enemy tech and hunting");
-                //Position tempPos = resolveToPosition(currentWorm.position,gameState.opponents[0].worms[2].position);
-                //return new MoveCommand(tempPos.x, tempPos.y);
-                return digAndMoveTo(currentWorm.position, gameState.opponents[0].worms[2].position);
-            }*/
-
-
-        }else if(getCurrentWorm(gameState).id == 2){ // agent 
-            //if(true){
-            if(getCurrentWorm(gameState).bananaBomb.count>0){
-                PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                if (pb.pos != null && pb.damage >= 20){
-                    return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
-=======
-        modifiedCell[][] test = shortestRoute(gameState.map,currentWorm.position);
         if(isWar()){
             return new DoNothingCommand();
         }
-        else{
-            if(getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 2){ //commander
+        else {
+            if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 2) { //commander
                 Command com = basicShot();
-                if(com != null){
+                if (com != null) {
                     return com;
->>>>>>> 290a34bb9d4f6471cf6aad7482768b5374abb505
                 }
-                if(GetEnemyPos(3) != null){
+                if (GetEnemyPos(3) != null) {
                     //System.out.println("recognizing enemy tech and hunting");
                     return digAndMoveTo(currentWorm.position, GetEnemyPos(3));
                     // nanti ganti djikstra
                 }
-                if(true) { // harusnya grouping
+                if (true) { // harusnya grouping
                     //Hunt and Kill
                 }
                 // regroup
                 return new DoNothingCommand();
-            }
-//            else if(getCurrentWorm(gameState).id == 2){ // agent
-//                //if(true){
-//                if(getCurrentWorm(gameState).bananaBomb.count>0){
-//                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
-//                    if (pb.pos != null && pb.damage >= 20){
-//                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
-//                    }
-//                }
-//                Command com = basicShot();
-//                if(com != null){
-//                    return com;
-//                }
-//                return digAndMoveTo(currentWorm.position, GetWormPos(1));
-            else if(getCurrentWorm(gameState).id == 3){ //tech
+            } else if (getCurrentWorm(gameState).id == 3) { //tech
+                // nyari power up, misal di variabel power
+                Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
                 List<Worm> enemy = countEnemy(currentWorm.position);
-                if(enemy.size() > 0){
-                    if(enemy.contains(opponent.worms[2]) || enemy.size() > 1){
-                        for(Worm w : enemy){
-                            if(frozenUntil(w.id) > 0){
+                if (enemy.size() > 0) {
+                    if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
+                        for (Worm w : enemy) {
+                            if (frozenUntil(w.id) > 0) {
                                 return retreat();
                             }
-                            if(getCurrentWorm(gameState).snowballs.count>0) {
+                            if (getCurrentWorm(gameState).snowballs.count > 0) {
                                 PairBomb pb = maxFrozen(currentWorm.position);
                                 if (pb.pos != null && pb.damage > 0) {
                                     return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                                 }
                             }
+                            return retreat();
                         }
                     }
-                    
+                    if (shotPosition(power) != null) {
+                        if (getCurrentWorm(gameState).snowballs.count > 0) {
+                            PairBomb pb = maxFrozen(currentWorm.position);
+                            if (pb.pos != null && pb.damage > 0) {
+                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                            }
+                        }
+                        return ImprovedDigAndMoveTo(currentWorm.position, power);
+                    }
                 }
-            /*Position enemy = basicShot(currentWorm.position);
-            if (enemy != null){
-                Direction direction = resolveDirection(currentWorm.position, enemy);
-                return new ShootCommand(direction);
-            }*/
+                //return ImprovedDigAndMoveTo(currentWorm.position, power);
                 Command com = basicShot();
-                if(com != null){
+                if (com != null) {
                     return com;
                 }
                 return digAndMoveTo(currentWorm.position, GetWormPos(1));
             }
-            System.out.println("is Doing Nothing");
-            return new DoNothingCommand();
         }
-
+        return new DoNothingCommand();
         /**
         Worm enemyWorm = getFirstWormInRange();
         if (enemyWorm != null) {
@@ -183,6 +131,7 @@ public class Bot {
         return new DoNothingCommand();
         */
     }
+
 
     private Worm getFirstWormInRange() {
 
@@ -1017,6 +966,18 @@ public class Bot {
     private boolean isWar(){
         // nanti isi
         return false;
+    }
+
+    public List<Position> getPowerUp(){
+        List<Position> powerUp = new ArrayList<Position>();
+        for (int i = 0;i<gameState.mapSize;i++){
+            for(int j = 0;j<gameState.mapSize;j++){
+                if(gameState.map[i][j].powerUp != null){
+                    powerUp.add(new Position(j,i));
+                }
+            }
+        }
+        return powerUp;
     }
 
 }
