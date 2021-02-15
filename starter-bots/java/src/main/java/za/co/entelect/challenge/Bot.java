@@ -807,7 +807,7 @@ public class Bot {
         List<Position> TempToBeVisited = new ArrayList<Position>();
         System.out.println("Generating Map2");
         do{
-            System.out.println(ToBeVisited.size());
+            //System.out.println(ToBeVisited.size());
             //initialize source nya
             Result[source.x][source.y].visit = true;
             //starting dijstra
@@ -822,7 +822,7 @@ public class Bot {
                 Result[CurridxX][CurridxY].prev.y = source.y;
                 if (Result[CurridxX][CurridxY].cell.type == CellType.AIR) {
                     Result[CurridxX][CurridxY].distance = Result[Result[CurridxX][CurridxY].prev.x][Result[CurridxX][CurridxY].prev.y].distance + 1;
-                } else if (Result[CurridxX][CurridxY].cell.type == CellType.DIRT) {
+                } else if (Result[CurridxX][CurridxY].cell.type == CellType.DIRT || Result[CurridxX][CurridxY].cell.type == CellType.LAVA) {
                     Result[CurridxX][CurridxY].distance = Result[Result[CurridxX][CurridxY].prev.x][Result[CurridxX][CurridxY].prev.y].distance + 2;
                 }else{ //deep space
                     Result[CurridxX][CurridxY].distance = Integer.MAX_VALUE;//asumsikan infinite
