@@ -272,6 +272,17 @@ public class Bot {
         return gameState.map[nextPosition.y][nextPosition.x];
     }
 
+    private boolean isCellOccupied(Position pos) {
+        boolean occupied = false;
+        Worm[] listPlayerWorms = gameState.myPlayer.worms;
+
+        for (int i = 0; i < listPlayerWorms.length && !occupied; i++) {
+            if (pos.x == listPlayerWorms[i].position.x && pos.y == listPlayerWorms[i].position.y) {
+                occupied = true;
+            }
+        }
+        return occupied;
+    }
 
     private Command digAndMoveTo(Position origin, Position destination) {
         if(origin == null || destination == null){
@@ -280,13 +291,13 @@ public class Bot {
         Position nextPosition = resolveToPosition(origin,destination);
 
         MyWorm[] worms = gameState.myPlayer.worms;
-        boolean canMove = true;
+        boolean canMove = isCellOccupied(nextPosition);
 
-        for (int i = 0; i < worms.length; i++) {
-            if (worms[i].position.equals(nextPosition)) {
-                canMove = false;
-            }
-        }
+//        for (int i = 0; i < worms.length; i++) {
+//            if (worms[i].position.equals(nextPosition)) {
+//                canMove = false;
+//            }
+//        }
 
         if (!isValidCoordinate(nextPosition.x, nextPosition.y)) {
             canMove = false;
@@ -411,27 +422,27 @@ public class Bot {
             }
         }
 
-        // Tambah Vektor Posisi teman terdekat
-        int distance = 999999;
-        int idx = -1;
-        Worm[] listPlayerWorms = gameState.myPlayer.worms;
-        for (int i = 0; i < listPlayerWorms.length; i++) {
-            if (currentWorm.id != listPlayerWorms[i].id) {  // Bukan worm sekarang
-                if (listPlayerWorms[i].alive()) {
-                    int c_distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listPlayerWorms[i].position.x,listPlayerWorms[i].position.y);
-                    if (c_distance < distance) {
-                        distance = c_distance;
-                        idx = i;
-                    }
-                }
-            }
-        }
-        if (idx != -1) {
-            Position vectorPosFriend = new Position();
-            vectorPosFriend.x = listPlayerWorms[idx].position.x - pos.x;
-            vectorPosFriend.y = listPlayerWorms[idx].position.y - pos.y;
-            vectorPos.add(vectorPosFriend);
-        }
+//        // Tambah Vektor Posisi teman terdekat
+//        int distance = 999999;
+//        int idx = -1;
+//        Worm[] listPlayerWorms = gameState.myPlayer.worms;
+//        for (int i = 0; i < listPlayerWorms.length; i++) {
+//            if (currentWorm.id != listPlayerWorms[i].id) {  // Bukan worm sekarang
+//                if (listPlayerWorms[i].alive()) {
+//                    int c_distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listPlayerWorms[i].position.x,listPlayerWorms[i].position.y);
+//                    if (c_distance < distance) {
+//                        distance = c_distance;
+//                        idx = i;
+//                    }
+//                }
+//            }
+//        }
+//        if (idx != -1) {
+//            Position vectorPosFriend = new Position();
+//            vectorPosFriend.x = listPlayerWorms[idx].position.x - pos.x;
+//            vectorPosFriend.y = listPlayerWorms[idx].position.y - pos.y;
+//            vectorPos.add(vectorPosFriend);
+//        }
 
         // Tambah Vektor Kecenderungan Bergerak Memutar
         Position vectorPosCenterMap = new Position();
@@ -471,7 +482,7 @@ public class Bot {
             for (int i = 0; i < surroundCell.size(); i++) {
                 alterMovePos.x = surroundCell.get(i).x;
                 alterMovePos.y = surroundCell.get(i).y;
-                if (isSaveToEscape(alterMovePos)) {
+                if (isSaveToEscape(alterMovePos) && !isCellOccupied(alterMovePos)) {
                     cellAman.add(surroundCell.get(i));
                 }
             }
@@ -482,26 +493,27 @@ public class Bot {
                 alterMovePos.y = cellAman.get(i).y;
                 return digAndMoveTo(pos,alterMovePos);
             } else {    // ga ada yang aman, gas aja kesana deh
-                return digAndMoveTo(pos,movePos);
+//                return digAndMoveTo(pos,movePos);
 
-//                for (int i = 0; i < surroundCell.size(); i++) {
-//                    alterMovePos.x = surroundCell.get(i).x;
-//                    alterMovePos.y = surroundCell.get(i).y;
-//                    if (!isOnEnemyLineOfSight(alterMovePos)) {
-//                        cellAman.add(surroundCell.get(i));
-//                    }
-//                }
-//                if (!cellAman.isEmpty()) { // ada yang aman aja
-//                    int i = rand.nextInt(cellAman.size());
-//                    alterMovePos.x = cellAman.get(i).x;
-//                    alterMovePos.y = cellAman.get(i).y;
-//                    return digAndMoveTo(pos,alterMovePos);
-//                } else {    // ga ada yang aman samsek
+                for (int i = 0; i < surroundCell.size(); i++) {
+                    alterMovePos.x = surroundCell.get(i).x;
+                    alterMovePos.y = surroundCell.get(i).y;
+                    if (!isOnEnemyLineOfSight(alterMovePos) && !isCellOccupied(alterMovePos)) {
+                        cellAman.add(surroundCell.get(i));
+                    }
+                }
+                if (!cellAman.isEmpty()) { // ada yang aman aja
+                    int i = rand.nextInt(cellAman.size());
+                    alterMovePos.x = cellAman.get(i).x;
+                    alterMovePos.y = cellAman.get(i).y;
+                    return digAndMoveTo(pos,alterMovePos);
+                } else {    // ga ada yang aman samsek
 //                    int i = rand.nextInt(surroundCell.size());
 //                    alterMovePos.x = surroundCell.get(i).x;
 //                    alterMovePos.y = surroundCell.get(i).y;
 //                    return digAndMoveTo(pos,alterMovePos);
-//                }
+                    return digAndMoveTo(pos,movePos);
+                }
             }
         }
     }
@@ -531,15 +543,16 @@ public class Bot {
            }
        }
        Position cellPos = new Position();
+       Random rand = new Random();
        if (possibleCell.isEmpty()) {    // Ternyata semua cell jaraknya 2 dari temen
            for (int i = 0; i < surroundCell.size(); i++) {  // Cari yang ada di lineOfSightMusuh
                cellPos.x = surroundCell.get(i).x;
                cellPos.y = surroundCell.get(i).y;
-               if (isOnEnemyLineOfSight(cellPos)) {
+               if (isOnEnemyLineOfSight(cellPos) && !isCellOccupied(cellPos)) {
                    possibleCell.add(surroundCell.get(i));
                }
            }
-           if (possibleCell.isEmpty()) {        // Kalau ga ada do nothing aja deh
+           if (possibleCell.isEmpty()) {        // Kalau ga gerak random aja
                return new DoNothingCommand();
            } else {
                cellPos.x = possibleCell.get(0).x;
@@ -556,12 +569,14 @@ public class Bot {
                }
            }
            if (isGoodCell.isEmpty()) {  // Kalau ga ada yang ideal
-               cellPos.x = possibleCell.get(0).x;
-               cellPos.y = possibleCell.get(0).y;
+               int i = rand.nextInt(possibleCell.size());
+               cellPos.x = possibleCell.get(i).x;
+               cellPos.y = possibleCell.get(i).y;
                return digAndMoveTo(currentWorm.position,cellPos);
            } else { // Kalau ini ideal banget
-               cellPos.x = isGoodCell.get(0).x;
-               cellPos.y = isGoodCell.get(0).y;
+               int i = rand.nextInt(isGoodCell.size());
+               cellPos.x = isGoodCell.get(i).x;
+               cellPos.y = isGoodCell.get(i).y;
                return digAndMoveTo(currentWorm.position,cellPos);
            }
        }
