@@ -801,10 +801,13 @@ public class Bot {
                 Result[i][j].deepCopy(GameMap[j][i].x,GameMap[j][i].y, source.x,source.y,false,Integer.MAX_VALUE,GameMap[j][i].type);
             }
         }
+        System.out.println("Generating Map1");
         Result[source.x][source.y].distance = 0;
         List<Position> ToBeVisited = new ArrayList<Position>();
         List<Position> TempToBeVisited = new ArrayList<Position>();
+        System.out.println("Generating Map2");
         do{
+            System.out.println(ToBeVisited.size());
             //initialize source nya
             Result[source.x][source.y].visit = true;
             //starting dijstra
@@ -830,6 +833,8 @@ public class Bot {
             source.y = ToBeVisited.get(idx).y;
             ToBeVisited.remove(idx);
         }while(ToBeVisited.size()>0);
+        System.out.println(source.x);
+        System.out.println(source.y);
         /*for(int i = 0;i<ToBeVisited.size();i++) {//initialize ynag pertama
             int CurridxX = ToBeVisited.get(i).x;
             int CurridxY = ToBeVisited.get(i).y;
@@ -934,11 +939,15 @@ public class Bot {
         if(command == null){
             List<Position> EnemyinRange = new ArrayList<Position>();
             for(int i = 0;i<3;i++){
-                List<Position> TempEnemyinRang = lineOfSight(opponent.worms[i].position);
-                for(int j = 0;j< TempEnemyinRang.size();j++){
-                    EnemyinRange.add(TempEnemyinRang.get(j));
+                if(GetWormPos(i+1) != null){
+                    List<Position> TempEnemyinRang = lineOfSight(opponent.worms[i].position);
+                    for(int j = 0;j< TempEnemyinRang.size();j++){
+                        EnemyinRange.add(TempEnemyinRang.get(j));
+                    }
                 }
             }
+            System.out.print("enemy size: ");
+            System.out.println(EnemyinRange.size());
             modifiedCell[][] Map = shortestRoute(gameState.map,getCurrentWorm(gameState).position);
             Position GoTo = GetMinDistanceFromArray(Map,EnemyinRange);
             return ImprovedDigAndMoveTo(getCurrentWorm(gameState).position,GoTo);
@@ -950,7 +959,9 @@ public class Bot {
     }
 
     public Position GetMinDistanceFromArray(modifiedCell[][] Map, List<Position> EnemyinRange){
+        System.out.println("getmindistance");
         if(EnemyinRange.size() > 0){
+            System.out.println("size > 0");
             int min = Map[getShortestFirstRoute(Map,EnemyinRange.get(0)).x][ getShortestFirstRoute(Map,EnemyinRange.get(0)).y].distance;
             Position Result = new Position(getShortestFirstRoute(Map,EnemyinRange.get(0)).x,getShortestFirstRoute(Map,EnemyinRange.get(0)).y);
             for(int i = 1;i<EnemyinRange.size();i++){
@@ -961,8 +972,11 @@ public class Bot {
                     Result.y = getShortestFirstRoute(Map,EnemyinRange.get(i)).y;
                 }
             }
+            System.out.println(Result.x);
+            System.out.println(Result.y);
             return Result;
         }
+        System.out.println("Pos : -1 -1");
         return new Position(-1, -1);
     }
 
@@ -981,20 +995,20 @@ public class Bot {
         while(Map[currCell.prev.x][currCell.prev.y].distance != 0){
 
             currCell = Map[currCell.prev.x][currCell.prev.y];
-            System.out.print(" <- ");
-            System.out.print(" x:");
-            System.out.print(currCell.prev.x);
-            System.out.print(" y:");
-            System.out.print(currCell.prev.y);
+//            System.out.print(" <- ");
+//            System.out.print(" x:");
+//            System.out.print(currCell.prev.x);
+//            System.out.print(" y:");
+//            System.out.print(currCell.prev.y);
 
         }
-        System.out.println();
-        System.out.print("So Go To");
-        System.out.print(" x:");
-        System.out.print(currCell.cell.x);
-        System.out.print(" y: ");
-        System.out.print(currCell.cell.y);
-        System.out.println();
+//        System.out.println();
+//        System.out.print("So Go To");
+//        System.out.print(" x:");
+//        System.out.print(currCell.cell.x);
+//        System.out.print(" y: ");
+//        System.out.print(currCell.cell.y);
+//        System.out.println();
         return new Position(currCell.cell.x,currCell.cell.y);
     }
 
