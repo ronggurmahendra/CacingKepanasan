@@ -77,8 +77,11 @@ public class Bot {
                 return Regroup();
             } else if (getCurrentWorm(gameState).id == 3) { //tech
                 // nyari power up, misal di variabel power
+                //Position temp = new Position(currentWorm.position.x, currentWorm.position.y);
                 Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
                 System.out.println("masuk");
+                System.out.println(currentWorm.position.x);
+                System.out.println(currentWorm.position.y);
                 if(power.x != -1 && power.y != -1){
                     System.out.println("3-1");
                     List<Worm> enemy = countEnemy(currentWorm.position);
@@ -765,7 +768,8 @@ public class Bot {
 //        return max;
 //    }
 
-    public modifiedCell[][] shortestRoute(Cell[][] GameMap, Position source){
+    public modifiedCell[][] shortestRoute(Cell[][] GameMap, Position Source){
+        Position source = new Position(Source.x, Source.y);
         System.out.println("Generating Map");
         //initialize
         modifiedCell[][] Result = new modifiedCell[GameMap.length][GameMap[0].length];
@@ -964,12 +968,13 @@ public class Bot {
 //            System.out.print(currCell.prev.y);
 
         }
-        System.out.println();
-        System.out.print("So Go To");
-        System.out.print(" x:");
-        System.out.print(currCell.cell.x);
-        System.out.print(" y: ");
-        System.out.print(currCell.cell.y);
+//        System.out.println();
+//        System.out.print("So Go To");
+//        System.out.print(" x:");
+//        System.out.print(currCell.cell.x);
+//        System.out.print(" y: ");
+//        System.out.print(currCell.cell.y);
+//        System.out.println();
         return new Position(currCell.cell.x,currCell.cell.y);
     }
 
@@ -984,6 +989,7 @@ public class Bot {
         } else if (nextCell.type == CellType.DIRT) {
             return new DigCommand(nextPosition.x,nextPosition.y);
         } else {
+            System.out.println("DEEp SPaCe?");
             return new DoNothingCommand();
         }
         //return digAndMoveTo(origin, goTo);
