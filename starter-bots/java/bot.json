@@ -2,7 +2,7 @@
 	"author": "Cacing Kepanasan",
 	"email": "James.James@example.com",
 	"nickName": "Asyihab",
-	"botLocation": "./target",
+	"botLocation": "/target",
 	"botFileName": "java-sample-bot-jar-with-dependencies.jar",
 	"botLanguage": "java"
 }
