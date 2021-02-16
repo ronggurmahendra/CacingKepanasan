@@ -993,6 +993,13 @@ public class Bot {
         List<Position> ToBeVisited = new ArrayList<Position>();
         List<Position> TempToBeVisited = new ArrayList<Position>();
         System.out.println("Generating Map2");
+        List<Position> PosAlly = newArrayList<Position>();
+        for(int i = 0;i< gameState.myPlayer.worms.length;i++){
+            if(gameState.myPlayer.worms[i].alive()){
+                PosAlly.add(gameState.myPlayer.worms[i].position);
+            }
+        }
+
         do{
             //System.out.println(ToBeVisited.size());
             //initialize source nya
@@ -1013,6 +1020,12 @@ public class Bot {
                     Result[CurridxX][CurridxY].distance = Result[Result[CurridxX][CurridxY].prev.x][Result[CurridxX][CurridxY].prev.y].distance + 2;
                 }else{ //deep space
                     Result[CurridxX][CurridxY].distance = Integer.MAX_VALUE;//asumsikan infinite
+                }
+                for(int k = 0;k< PosAlly.size();k++){
+                    if(PosAlly.get(k).x == CurridxX && PosAlly.get(k).y == CurridxY){
+                        Result[CurridxX][CurridxY].distance = Integer.MAX_VALUE;
+                        Result[CurridxX][CurridxY].cell.type == CellType.DEEP_SPACE;
+                    }
                 }
             }
             int idx = getMinDist(ToBeVisited,Result);
