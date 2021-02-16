@@ -984,7 +984,7 @@ public class Bot {
         if(command == null){
             List<Position> EnemyinRange = new ArrayList<Position>();
             for(int i = 0;i<3;i++){
-                if(GetWormPos(i+1) != null){
+                if(GetEnemyPos(i+1) != null){
                     List<Position> TempEnemyinRang = lineOfSight(opponent.worms[i].position);
                     for(int j = 0;j< TempEnemyinRang.size();j++){
                         EnemyinRange.add(TempEnemyinRang.get(j));
