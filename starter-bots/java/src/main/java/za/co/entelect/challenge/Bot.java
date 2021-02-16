@@ -153,7 +153,9 @@ public class Bot {
                         return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                     }
                 }
+                System.out.println("3-66");
                 return Regroup();
+//                return retreat();
             }
         }
         System.out.println("------------------------MASIH SALAH------------------------------");
@@ -325,7 +327,7 @@ public class Bot {
         Position nextPosition = resolveToPosition(origin,destination);
 
         MyWorm[] worms = gameState.myPlayer.worms;
-        boolean canMove = isCellOccupied(nextPosition);
+        boolean canMove = !isCellOccupied(nextPosition);
 
 //        for (int i = 0; i < worms.length; i++) {
 //            if (worms[i].position.equals(nextPosition)) {
@@ -337,11 +339,13 @@ public class Bot {
             canMove = false;
         }
 
+
         if (canMove) {
             Cell nextCell = findCell(nextPosition);
 //            Command cmd;
+//            System.out.println("can move");
 
-            if (nextCell.type == CellType.AIR) {
+            if (nextCell.type == CellType.AIR || nextCell.type == CellType.LAVA) {
                 System.out.println(nextCell.type);
                 return new MoveCommand(nextPosition.x,nextPosition.y);
             } else if (nextCell.type == CellType.DIRT) {
@@ -350,6 +354,7 @@ public class Bot {
                 return new DoNothingCommand();
             }
         }
+//        System.out.println("can't move");
         return new DoNothingCommand();
 
     }
@@ -369,6 +374,8 @@ public class Bot {
             dir.x = 0;
         } else if (cdir_x >= 0.5) {
             dir.x = 1;
+        } else if (cdir_x <= -0.5) {
+            dir.x = -1;
         } else {
             dir.x = 0;
         }
@@ -377,13 +384,15 @@ public class Bot {
             dir.y = 0;
         } else if (cdir_y >= 0.5) {
             dir.y = 1;
+        } else if (cdir_y <= -0.5) {
+            dir.y = -1;
         } else {
             dir.y = 0;
         }
 
         return dir;
     }
-
+    
     // Cek apakah ada dirt sepanjang jarak tembak
     private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
         Position dif = new Position();
@@ -441,6 +450,7 @@ public class Bot {
 
     // Pastikan musuh sudah banyak didekat kita
     private Command retreat() {
+        System.out.println("Retreat");
         List<Position> vectorPos = new ArrayList<Position>();
         Worm[] listEnemyWorms = opponent.worms;
         Position pos = currentWorm.position;
@@ -480,7 +490,7 @@ public class Bot {
 
         // Tambah Vektor Kecenderungan Bergerak Memutar
         Position vectorPosCenterMap = new Position();
-        int rMultiplier = 2;
+        int rMultiplier = 1;
         int c_x = (pos.x - (gameState.mapSize/2))/rMultiplier;
         int c_y = (pos.y - (gameState.mapSize/2))/rMultiplier;
         // Putar 90 derajat
@@ -542,11 +552,11 @@ public class Bot {
                     alterMovePos.y = cellAman.get(i).y;
                     return digAndMoveTo(pos,alterMovePos);
                 } else {    // ga ada yang aman samsek
-//                    int i = rand.nextInt(surroundCell.size());
-//                    alterMovePos.x = surroundCell.get(i).x;
-//                    alterMovePos.y = surroundCell.get(i).y;
-//                    return digAndMoveTo(pos,alterMovePos);
-                    return digAndMoveTo(pos,movePos);
+                    int i = rand.nextInt(surroundCell.size());
+                    alterMovePos.x = surroundCell.get(i).x;
+                    alterMovePos.y = surroundCell.get(i).y;
+                    return digAndMoveTo(pos,alterMovePos);
+//                    return digAndMoveTo(pos,movePos);
                 }
             }
         }
