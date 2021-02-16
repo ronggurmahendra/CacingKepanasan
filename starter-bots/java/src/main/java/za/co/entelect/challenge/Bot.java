@@ -144,12 +144,12 @@ public class Bot {
             return HuntAndKill();
         }
         else {
-            if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 2) { //commander
-                if(currentWorm.id == 2){
-                    if(getCurrentWorm(gameState).bananaBomb.count>0){
-                        PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                        if (pb.pos != null && pb.damage > 20) {
-                            return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+            if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 3) { //commander && tech
+                if(currentWorm.id == 3){
+                    if (getCurrentWorm(gameState).snowballs.count > 0) {
+                        PairBomb pb = maxFrozen(currentWorm.position);
+                        if (pb.pos != null && pb.damage > 0) {
+                            return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                         }
                     }
                 }
@@ -161,18 +161,18 @@ public class Bot {
                     return com;
                 }
                 System.out.println("0-----------");
-                if (GetEnemyPos(3) != null) {
+                if (GetEnemyPos(2) != null) {
                     System.out.println("Execute improved dig and move to");
-                    return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(3));
+                    return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(2));
                 }
                 System.out.println("1-----------");
                 if (isGroup()) { // harusnya grouping
                     System.out.println("2-----------");
-                    if(currentWorm.id == 2){
-                        if(getCurrentWorm(gameState).bananaBomb.count>0){
-                            PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                            if (pb.pos != null && pb.damage >= 20) {
-                                return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+                    if(currentWorm.id == 3){
+                        if (getCurrentWorm(gameState).snowballs.count > 0) {
+                            PairBomb pb = maxFrozen(currentWorm.position);
+                            if (pb.pos != null && pb.damage > 0) {
+                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                             }
                         }
                     }
@@ -180,7 +180,7 @@ public class Bot {
                 }
                 System.out.println("3-----------");
                 return Regroup();
-            } else if (getCurrentWorm(gameState).id == 3) { //tech
+            } else if (getCurrentWorm(gameState).id == 2) { //bomber
                 // nyari power up, misal di variabel power
                 //Position temp = new Position(currentWorm.position.x, currentWorm.position.y);
                 Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
@@ -195,23 +195,20 @@ public class Bot {
 
                         if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
                             for (Worm w : enemy) {
-                                if (frozenUntil(true, w.id) > 0) {
-                                    return retreat();
-                                }
-                                if (getCurrentWorm(gameState).snowballs.count > 0) {
-                                    PairBomb pb = maxFrozen(currentWorm.position);
-                                    if (pb.pos != null && pb.damage > 0) {
-                                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                                if (currentWorm.bananaBomb.count > 0) {
+                                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+                                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                                     }
                                 }
-                                return retreat();
+//                                return retreat();
                             }
                         }
                         if (shotPosition(resolveToPosition(currentWorm.position, power)) != null) {
-                            if (getCurrentWorm(gameState).snowballs.count > 0) {
-                                PairBomb pb = maxFrozen(currentWorm.position);
-                                if (pb.pos != null && pb.damage > 0) {
-                                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                            if (currentWorm.bananaBomb.count > 0) {
+                                PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                                if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+                                    return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                                 }
                             }
                             System.out.println("3-3");
@@ -227,22 +224,21 @@ public class Bot {
                 }
                 System.out.println("3-2");
                 if(isGroup()){
-                    if(getCurrentWorm(gameState).snowballs.count>0){
-                        PairBomb pb = maxFrozen(currentWorm.position);
-                        if (pb.pos != null && pb.damage > 0) {
-                            return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                    if (currentWorm.bananaBomb.count > 0) {
+                        PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                        if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+                            return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                         }
                     }
                 }
-                if(getCurrentWorm(gameState).snowballs.count>0){
-                    PairBomb pb = maxFrozen(currentWorm.position);
-                    if (pb.pos != null && pb.damage > 1) {
-                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                if (currentWorm.bananaBomb.count > 0) {
+                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
                 }
                 System.out.println("3-66");
                 return Regroup();
-//                return retreat();
             }
         }
         System.out.println("------------------------MASIH SALAH------------------------------");
@@ -251,25 +247,7 @@ public class Bot {
         System.out.println("------------------------MASIH SALAH------------------------------");
         System.out.println("------------------------MASIH SALAH------------------------------");
         return new DoNothingCommand();
-        /**
-        Worm enemyWorm = getFirstWormInRange();
-        if (enemyWorm != null) {
-            Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-            return new ShootCommand(direction);
-        }
 
-        List<Cell> surroundingBlocks = getSurroundingCells(currentWorm.position.x, currentWorm.position.y);
-        int cellIdx = random.nextInt(surroundingBlocks.size());
-
-        Cell block = surroundingBlocks.get(cellIdx);
-        if (block.type == CellType.AIR) {
-            return new MoveCommand(block.x, block.y);
-        } else if (block.type == CellType.DIRT) {
-            return new DigCommand(block.x, block.y);
-        }
-
-        return new DoNothingCommand();
-        */
     }
 
     private int countEnemyAlive() {
@@ -305,7 +283,7 @@ public class Bot {
             if (listAlliesWorms[i].alive()) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listAlliesWorms[i].position.x,listAlliesWorms[i].position.y);
                 if (distance < 4) {
-                    isThere1 = true;
+                    isThere2 = true;
                 }
             }
         }
@@ -545,10 +523,19 @@ public class Bot {
         c_pos.y = a_pos.y + dir.y;
         boolean isThere = false;
 
+        Worm[] listFriendWorms = gameState.myPlayer.worms;
         while ((c_pos.x != b_pos.x) && (c_pos.y != b_pos.y) && !isThere) {
             if (findCell(c_pos).type == CellType.DIRT) {
                 isThere = true;
             }
+            for (int i = 0; i < listFriendWorms.length && !isThere; i++) {
+                if (listFriendWorms[i].position.x == c_pos.x && listFriendWorms[i].position.y == c_pos.y) {
+                    if (listFriendWorms[i].alive()) {
+                        isThere = true;
+                    }
+                }
+            }
+
             c_pos.x += dir.x;
             c_pos.y += dir.y;
         }
