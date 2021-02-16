@@ -114,14 +114,14 @@ public class Bot {
                     if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
-                } else {
-                    Command cmd = basicShot();
-                    if (cmd != null) {
-                        return cmd;
-                    } else {
-                        return positioning();
-                    }
                 }
+                Command cmd = basicShot();
+                if (cmd != null) {
+                    return cmd;
+                } else {
+                    return positioning();
+                }
+
             } if (currentWorm.id == 3) {  // Snowballer
                 System.out.println("--7--");
                 if (getCurrentWorm(gameState).snowballs.count > 0) {
@@ -129,19 +129,19 @@ public class Bot {
                     if (pb.pos != null && pb.damage > countEnemyAlive/2) {
                         return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                     }
-                } else {
-                    Command cmd = basicShot();
-                    if (cmd != null) {
-                        return cmd;
-                    } else {
-                        return positioning();
-                    }
                 }
+                Command cmd = basicShot();
+                if (cmd != null) {
+                    return cmd;
+                } else {
+                    return positioning();
+                }
+
             }
             System.out.println("Something error in War");
             System.out.println("Something error in War");
             System.out.println("Something error in War");
-            return new DoNothingCommand();
+            return HuntAndKill();
         }
         else {
             if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 2) { //commander
@@ -282,11 +282,43 @@ public class Bot {
         return countAlive;
     }
 
+    private boolean isThereAlliesEnemyNear() {
+        Worm[] listEnemyWorms = opponent.worms;
+        Worm[] listAlliesWorms = gameState.myPlayer.worms;
+        boolean isThere1 = false;
+        boolean isThere2 = false;
+        int distance = 6;
+        // Cek apakah ada musuh dekat?
+        for (int i = 0; i < listEnemyWorms.length && !isThere1; i++) {
+            if (listEnemyWorms[i].alive()) {
+                distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listEnemyWorms[i].position.x,listEnemyWorms[i].position.y);
+                if (distance < 4) {
+                    isThere1 = true;
+                }
+            }
+        }
+
+        // Cek apakah ada teman dekat
+        for (int i = 0; i < listAlliesWorms.length && !isThere1; i++) {
+            if (listAlliesWorms[i].alive()) {
+                distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listAlliesWorms[i].position.x,listAlliesWorms[i].position.y);
+                if (distance < 4) {
+                    isThere1 = true;
+                }
+            }
+        }
+        return isThere1 && isThere2;
+
+
+    }
+
+
     private boolean isWar() {
         int countAlive = countEnemyAlive();
         boolean onWar = false;
 
-        if (countAlive <= 2) {
+
+        if (countAlive <= 2 && isThereAlliesEnemyNear()) {
             onWar = true;
         }
         return onWar;
@@ -704,6 +736,7 @@ public class Bot {
                }
            }
            if (possibleCell.isEmpty()) {        // Kalau ga gerak random aja
+               System.out.println("Call DoNothing");
                return new DoNothingCommand();
            } else {
                cellPos.x = possibleCell.get(0).x;
