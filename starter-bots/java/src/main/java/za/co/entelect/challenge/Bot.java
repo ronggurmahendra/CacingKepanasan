@@ -183,66 +183,51 @@ public class Bot {
             } else if (getCurrentWorm(gameState).id == 3) { //tech
                 // nyari power up, misal di variabel power
                 //Position temp = new Position(currentWorm.position.x, currentWorm.position.y);
-                Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
-                System.out.println("masuk");
-                System.out.println(currentWorm.position.x);
-                System.out.println(currentWorm.position.y);
-                if(power.x != -1 && power.y != -1){
-                    System.out.println("3-1");
-                    List<Worm> enemy = countEnemy(currentWorm.position);
-                    if (enemy.size() > 0) {
-//                        int powerDistance = euclideanDistance(currentWorm.position.x, currentWorm.position.y, power.x, power.y);
-
-                        if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
-                            for (Worm w : enemy) {
-                                if (frozenUntil(true, w.id) > 0) {
-                                    return retreat();
-                                }
-                                if (getCurrentWorm(gameState).snowballs.count > 0) {
-                                    PairBomb pb = maxFrozen(currentWorm.position);
-                                    if (pb.pos != null && pb.damage > 0) {
-                                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-                                    }
-                                }
-                                return retreat();
-                            }
-                        }
-                        if (shotPosition(resolveToPosition(currentWorm.position, power)) != null) {
-                            if (getCurrentWorm(gameState).snowballs.count > 0) {
-                                PairBomb pb = maxFrozen(currentWorm.position);
-                                if (pb.pos != null && pb.damage > 0) {
-                                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-                                }
-                            }
-                            System.out.println("3-3");
-                            System.out.println(currentWorm.position.x);
-                            System.out.println(currentWorm.position.y);
-                            return ImprovedDigAndMoveTo(currentWorm.position, power);
-                        }
-                    }
-                    System.out.println("3-4");
-                    System.out.println(currentWorm.position.x);
-                    System.out.println(currentWorm.position.y);
-                    return ImprovedDigAndMoveTo(currentWorm.position, power);
-                }
-                System.out.println("3-2");
-                if(isGroup()){
-                    if(getCurrentWorm(gameState).snowballs.count>0){
-                        PairBomb pb = maxFrozen(currentWorm.position);
-                        if (pb.pos != null && pb.damage > 0) {
-                            return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-                        }
-                    }
-                }
+//                Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
+//                System.out.println("masuk");
+//                System.out.println(currentWorm.position.x);
+//                System.out.println(currentWorm.position.y);
+//                if(power.x != -1 && power.y != -1){
+//                    System.out.println("3-1");
+//                    List<Worm> enemy = countEnemy(currentWorm.position);
+//                    if (enemy.size() > 0) {
+//                        if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
+//                            for (Worm w : enemy) {
+//                                if (frozenUntil(true, w.id) > 0) {
+//                                    //return retreat();
+//                                    return ImprovedDigAndMoveTo(currentWorm.position, power);
+//                                }
+//                                if (getCurrentWorm(gameState).snowballs.count > 0) {
+//                                    PairBomb pb = maxFrozen(currentWorm.position);
+//                                    if (pb.pos != null && pb.damage > 0) {
+//                                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+//                                    }
+//                                }
+//                                //return retreat();
+//                                return ImprovedDigAndMoveTo(currentWorm.position, power);
+//                            }
+//                        }
+//                        if (shotPosition(resolveToPosition(currentWorm.position, power)) != null) {
+//                            if (getCurrentWorm(gameState).snowballs.count > 0) {
+//                                PairBomb pb = maxFrozen(currentWorm.position);
+//                                if (pb.pos != null && pb.damage > 0) {
+//                                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+//                                }
+//                            }
+//                            System.out.println("3-3");
+//                            return ImprovedDigAndMoveTo(currentWorm.position, power);
+//                        }
+//                    }
+//                    System.out.println("3-4");
+//                    return ImprovedDigAndMoveTo(currentWorm.position, power);
+//                }
                 if(getCurrentWorm(gameState).snowballs.count>0){
                     PairBomb pb = maxFrozen(currentWorm.position);
                     if (pb.pos != null && pb.damage > 1) {
                         return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                     }
                 }
-                System.out.println("3-66");
                 return Regroup();
-//                return retreat();
             }
         }
         System.out.println("------------------------MASIH SALAH------------------------------");
@@ -305,7 +290,7 @@ public class Bot {
             if (listAlliesWorms[i].alive()) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listAlliesWorms[i].position.x,listAlliesWorms[i].position.y);
                 if (distance < 4) {
-                    isThere1 = true;
+                    isThere2 = true;
                 }
             }
         }
@@ -797,6 +782,44 @@ public class Bot {
         return directionLine;
     }
 
+    private List<Position> modifiedLineOfSight(Position pos) {
+        int range = 4;
+        boolean obs = false;
+        List<Position> directionLine = new ArrayList<>();
+        for (Direction direction : Direction.values()) {
+            obs = false;
+            for (int directionMultiplier = 1; directionMultiplier <= range && !obs; directionMultiplier++) {
+
+                int coordinateX = pos.x + (directionMultiplier * direction.x);
+                int coordinateY = pos.y + (directionMultiplier * direction.y);
+
+                if (!isValidCoordinate(coordinateX, coordinateY)) {
+                    break;
+                }
+
+                if (euclideanDistance(pos.x, pos.y, coordinateX, coordinateY) > range) {
+                    break;
+                }
+                Cell cell = gameState.map[coordinateY][coordinateX];
+                if (cell.type == CellType.DIRT) {
+                    break;
+                }
+
+                Position sight = new Position(coordinateX, coordinateY);
+                for(int a = 1; a < 4 && !obs; a++){
+                    if(sight.equals(GetWormPos(a))){
+                        obs = true;
+                    }
+                    if(sight.equals(GetEnemyPos(a))){
+                        obs = true;
+                    }
+                }
+                directionLine.add(sight);
+            }
+        }
+        return directionLine;
+    }
+
     private Position shotPosition(Position pos){
         List<Position> sight = lineOfSight(pos);
         boolean w1 = false, w2 = false, w3 = false;
@@ -1126,7 +1149,7 @@ public class Bot {
             List<Position> EnemyinRange = new ArrayList<Position>();
             for(int i = 0;i<3;i++){
                 if(GetEnemyPos(i+1) != null){
-                    List<Position> TempEnemyinRang = lineOfSight(opponent.worms[i].position);
+                    List<Position> TempEnemyinRang = modifiedLineOfSight(opponent.worms[i].position);
                     for(int j = 0;j< TempEnemyinRang.size();j++){
                         EnemyinRange.add(TempEnemyinRang.get(j));
                     }
@@ -1280,13 +1303,19 @@ public class Bot {
         Position Center = new Position(0,0);
         int minDistance = 0;
         for(modifiedCell[][] mc : mC){
-            minDistance += mc[0][0].distance;
+            if(minDistance < mc[0][0].distance){
+                minDistance = mc[0][0].distance;
+            }
+            //minDistance += mc[0][0].distance;
         }
         for(int i = 0; i<gameState.mapSize;i++){
             for(int j = 0;j<gameState.mapSize;j++){
                 int TempMinDistance = 0;
                 for(modifiedCell[][] mc : mC){
-                    TempMinDistance += mc[i][j].distance;
+                    if(TempMinDistance < mc[i][j].distance){
+                        TempMinDistance = mc[i][j].distance;
+                    }
+                    //TempMinDistance += mc[i][j].distance;
                 }
                 if(TempMinDistance < minDistance){
                     Center.x = i;
