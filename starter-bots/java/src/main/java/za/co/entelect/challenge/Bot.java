@@ -287,7 +287,7 @@ public class Bot {
 
         // Cek apakah ada teman dekat
         for (int i = 0; i < listAlliesWorms.length && !isThere2; i++) {
-            if (listAlliesWorms[i].alive()) {
+            if (listAlliesWorms[i].alive() && i+1 != currentWorm.id) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listAlliesWorms[i].position.x,listAlliesWorms[i].position.y);
                 if (distance < 4) {
                     isThere2 = true;
@@ -300,11 +300,10 @@ public class Bot {
 
 
     private boolean isWar() {
-        int countAlive = countEnemyAlive();
+        //int countAlive = countEnemyAlive();
         boolean onWar = false;
 
-
-        if (countAlive <= 2 && isThereAlliesEnemyNear()) {
+        if (isThereAlliesEnemyNear()) {
             onWar = true;
         }
         return onWar;
@@ -1016,7 +1015,7 @@ public class Bot {
         List<Position> ToBeVisited = new ArrayList<Position>();
         List<Position> TempToBeVisited = new ArrayList<Position>();
         System.out.println("Generating Map2");
-        List<Position> PosAlly = newArrayList<Position>();
+        List<Position> PosAlly = new ArrayList<Position>();
         for(int i = 0;i< gameState.myPlayer.worms.length;i++){
             if(gameState.myPlayer.worms[i].alive()){
                 PosAlly.add(gameState.myPlayer.worms[i].position);
@@ -1047,7 +1046,7 @@ public class Bot {
                 for(int k = 0;k< PosAlly.size();k++){
                     if(PosAlly.get(k).x == CurridxX && PosAlly.get(k).y == CurridxY){
                         Result[CurridxX][CurridxY].distance = Integer.MAX_VALUE;
-                        Result[CurridxX][CurridxY].cell.type == CellType.DEEP_SPACE;
+                        Result[CurridxX][CurridxY].cell.type = CellType.DEEP_SPACE;
                     }
                 }
             }
