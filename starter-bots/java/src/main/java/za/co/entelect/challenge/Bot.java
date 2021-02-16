@@ -299,7 +299,7 @@ public class Bot {
         }
 
         // Cek apakah ada teman dekat
-        for (int i = 0; i < listAlliesWorms.length && !isThere1; i++) {
+        for (int i = 0; i < listAlliesWorms.length && !isThere2; i++) {
             if (listAlliesWorms[i].alive()) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listAlliesWorms[i].position.x,listAlliesWorms[i].position.y);
                 if (distance < 4) {
@@ -308,7 +308,6 @@ public class Bot {
             }
         }
         return isThere1 && isThere2;
-
 
     }
 
