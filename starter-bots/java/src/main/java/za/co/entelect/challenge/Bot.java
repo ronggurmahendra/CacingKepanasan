@@ -143,7 +143,7 @@ public class Bot {
             System.out.println("Something error in War");
             return HuntAndKill();
         }
-        else {
+        else {  // NOT IN WAR
             if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 3) { //commander && tech
                 if(currentWorm.id == 3){
                     if (getCurrentWorm(gameState).snowballs.count > 0) {
@@ -272,7 +272,7 @@ public class Bot {
         for (int i = 0; i < listEnemyWorms.length && !isThere1; i++) {
             if (listEnemyWorms[i].alive()) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listEnemyWorms[i].position.x,listEnemyWorms[i].position.y);
-                if (distance < 4) {
+                if (distance < 5) {
                     isThere1 = true;
                 }
             }
@@ -282,7 +282,7 @@ public class Bot {
         for (int i = 0; i < listAlliesWorms.length && !isThere2; i++) {
             if (listAlliesWorms[i].alive()) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listAlliesWorms[i].position.x,listAlliesWorms[i].position.y);
-                if (distance < 4) {
+                if (distance < 5) {
                     isThere2 = true;
                 }
             }
@@ -529,11 +529,14 @@ public class Bot {
                 isThere = true;
             }
             for (int i = 0; i < listFriendWorms.length && !isThere; i++) {
-                if (listFriendWorms[i].position.x == c_pos.x && listFriendWorms[i].position.y == c_pos.y) {
-                    if (listFriendWorms[i].alive()) {
-                        isThere = true;
+                if (listFriendWorms[i].id != currentWorm.id) {
+                    if (listFriendWorms[i].position.x == c_pos.x && listFriendWorms[i].position.y == c_pos.y) {
+                        if (listFriendWorms[i].alive()) {
+                            isThere = true;
+                        }
                     }
                 }
+
             }
 
             c_pos.x += dir.x;
@@ -716,6 +719,7 @@ public class Bot {
        Position cellPos = new Position();
        Random rand = new Random();
        if (possibleCell.isEmpty()) {    // Ternyata semua cell jaraknya 2 dari temen
+           System.out.println("---a---");
            for (int i = 0; i < surroundCell.size(); i++) {  // Cari yang ada di lineOfSightMusuh
                cellPos.x = surroundCell.get(i).x;
                cellPos.y = surroundCell.get(i).y;
@@ -727,16 +731,18 @@ public class Bot {
                System.out.println("Call DoNothing");
                return new DoNothingCommand();
            } else {
+               System.out.println("---ab---");
                cellPos.x = possibleCell.get(0).x;
                cellPos.y = possibleCell.get(0).y;
                return digAndMoveTo(currentWorm.position,cellPos);
            }
-       } else { // Ada yang jaraknya 2 nih
+       } else { // Ada yang jaraknya 1 nih
+           System.out.println("---b---");
            List<Cell> isGoodCell = new ArrayList<Cell>();
            for (int i = 0; i < possibleCell.size(); i++) {
                cellPos.x = possibleCell.get(i).x;
                cellPos.y = possibleCell.get(i).y;
-               if (isOnEnemyLineOfSight(cellPos)) {  // Lebih ideal lagi kalau ada di lineofsightmusuh
+               if (isOnEnemyLineOfSight(cellPos) && !isCellOccupied(cellPos)) {  // Lebih ideal lagi kalau ada di lineofsightmusuh
                    isGoodCell.add(possibleCell.get(i));
                }
            }
@@ -746,7 +752,9 @@ public class Bot {
                cellPos.x = possibleCell.get(i).x;
                cellPos.y = possibleCell.get(i).y;
                return digAndMoveTo(currentWorm.position,cellPos);
+//               return HuntAndKill();
            } else { // Kalau ini ideal banget
+               System.out.println("---ba---");
                int i = rand.nextInt(isGoodCell.size());
                cellPos.x = isGoodCell.get(i).x;
                cellPos.y = isGoodCell.get(i).y;
