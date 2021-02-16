@@ -56,6 +56,36 @@ public class Bot {
 
     public Command run(){
         if(isWar()){
+            Worm[] listPlayerWorms = gameState.myPlayer.worms;
+            if (currentWorm.health <= 20) {  // Sekarat?
+                if (currentWorm.id == 2) { // Rampage
+                    if (currentWorm.bananaBomb.count > 0) {
+                        PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                        if (pb.pos != null && pb.damage > 0) {
+                            return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+                        }
+                    }
+                    return HuntAndKill();
+                } else if (currentWorm.id == 3) {
+                    if (getCurrentWorm(gameState).snowballs.count > 0) {
+                        PairBomb pb = maxFrozen(currentWorm.position);
+                        if (pb.pos != null && pb.damage > 0) {
+                            return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                        }
+                    }
+                    return HuntAndKill();
+                } else {
+                    return HuntAndKill();
+                }
+            } else if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 20) {
+                if (gameState.myPlayer.token > 0) {
+
+                }
+
+            } else if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20) {
+
+            }
+
             return new DoNothingCommand();
         }
         else {
