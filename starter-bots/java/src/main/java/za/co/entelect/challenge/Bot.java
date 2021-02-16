@@ -57,8 +57,10 @@ public class Bot {
     public Command run(){
         int countEnemyAlive = countEnemyAlive();
         if(isWar()){
+            System.out.println("--1--");
             Worm[] listPlayerWorms = gameState.myPlayer.worms;
             if (currentWorm.health <= 20) {  // Sekarat?
+                System.out.println("--2--");
                 if (currentWorm.id == 2) { // Bomber
                     if (currentWorm.bananaBomb.count > 0) {
                         PairBomb pb = maxDamageFromBomb(currentWorm.position);
@@ -76,6 +78,7 @@ public class Bot {
                 }
             } // KALAU CURRENT GA SEKARAT
             if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 20) {
+                System.out.println("--3--");
                 if (gameState.myPlayer.token > 0) { // Ganti orang
                     if (listPlayerWorms[1].bananaBomb.count > 0) {
                         PairBomb pb = maxDamageFromBomb(listPlayerWorms[1].position);
@@ -86,6 +89,7 @@ public class Bot {
                 }
             }
             if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20) {
+                System.out.println("--4--");
                 if (gameState.myPlayer.token > 0) { // Ganti orang
                     if (listPlayerWorms[2].snowballs.count > 0) {
                         PairBomb pb = maxFrozen(listPlayerWorms[2].position);
@@ -96,6 +100,7 @@ public class Bot {
                 }
             }
             if (currentWorm.id == 1) {
+                System.out.println("--5--");
                 Command cmd = basicShot();
                 if (cmd != null) {
                     return cmd;
@@ -103,6 +108,7 @@ public class Bot {
                     return positioning();
                 }
             } if (currentWorm.id == 2) {
+                System.out.println("--6--");
                 if (currentWorm.bananaBomb.count > 0) {
                     PairBomb pb = maxDamageFromBomb(currentWorm.position);
                     if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
@@ -117,6 +123,7 @@ public class Bot {
                     }
                 }
             } if (currentWorm.id == 3) {  // Snowballer
+                System.out.println("--7--");
                 if (getCurrentWorm(gameState).snowballs.count > 0) {
                     PairBomb pb = maxFrozen(currentWorm.position);
                     if (pb.pos != null && pb.damage > countEnemyAlive/2) {
@@ -662,6 +669,7 @@ public class Bot {
     }
 
    private Command positioning() {
+       System.out.println("Calling positioning");
        Worm[] listPlayerWorms = gameState.myPlayer.worms;
        List<Position> friendWormsPos = new ArrayList<Position>();
        for (int i = 0; i < listPlayerWorms.length; i++) {
@@ -676,7 +684,7 @@ public class Bot {
        for (int i = 0; i < surroundCell.size(); i++) {
            isGood = true;
            for (int j = 0; j < friendWormsPos.size(); j++) {
-               int distance = euclideanDistance(surroundCell.get(i).x,surroundCell.get(i).y,friendWormsPos.get(i).x,friendWormsPos.get(i).y);
+               int distance = euclideanDistance(surroundCell.get(j).x,surroundCell.get(j).y,friendWormsPos.get(j).x,friendWormsPos.get(j).y);
                 if (distance < 2) {
                     isGood = false;
                 }
@@ -712,6 +720,7 @@ public class Bot {
                }
            }
            if (isGoodCell.isEmpty()) {  // Kalau ga ada yang ideal
+               System.out.println("Call Random");
                int i = rand.nextInt(possibleCell.size());
                cellPos.x = possibleCell.get(i).x;
                cellPos.y = possibleCell.get(i).y;
