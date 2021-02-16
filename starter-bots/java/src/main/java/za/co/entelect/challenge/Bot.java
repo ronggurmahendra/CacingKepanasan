@@ -186,6 +186,23 @@ public class Bot {
     }
 
 
+    private boolean isWar() {
+        Worm[] listEnemyWorms = opponent.worms;
+        int countAlive = 0;
+        boolean onWar = false;
+
+        for (int i = 0; i < listEnemyWorms.length; i++) {
+            if (listEnemyWorms[i].alive()) {
+                countAlive++;
+            }
+        }
+
+        if (countAlive <= 2) {
+            onWar = true;
+        }
+        return onWar;
+    }
+
     private Worm getFirstWormInRange() {
 
         Set<String> cells = constructFireDirectionLines(currentWorm.weapon.range)
@@ -949,11 +966,10 @@ public class Bot {
                     Result.add(a.get(i));
                 }
             }
-
-
         }
         return Result;
     }
+
     public int getMinDist(List<Position> ToBeVisited,modifiedCell[][] map){
         int min = map[ToBeVisited.get(0).x][ToBeVisited.get(0).y].distance;
         int idxmin = 0;
@@ -1076,11 +1092,6 @@ public class Bot {
         //return digAndMoveTo(origin, goTo);
     }
 
-
-    private boolean isWar(){
-        // nanti isi
-        return false;
-    }
 
     public List<Position> getPowerUp(){
         List<Position> powerUp = new ArrayList<Position>();
