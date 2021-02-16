@@ -55,37 +55,85 @@ public class Bot {
     }
 
     public Command run(){
+        int countEnemyAlive = countEnemyAlive();
         if(isWar()){
             Worm[] listPlayerWorms = gameState.myPlayer.worms;
             if (currentWorm.health <= 20) {  // Sekarat?
-                if (currentWorm.id == 2) { // Rampage
+                if (currentWorm.id == 2) { // Bomber
                     if (currentWorm.bananaBomb.count > 0) {
                         PairBomb pb = maxDamageFromBomb(currentWorm.position);
                         if (pb.pos != null && pb.damage > 0) {
                             return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                         }
                     }
-                    return HuntAndKill();
-                } else if (currentWorm.id == 3) {
+                } else if (currentWorm.id == 3) {  // Snowballer
                     if (getCurrentWorm(gameState).snowballs.count > 0) {
                         PairBomb pb = maxFrozen(currentWorm.position);
                         if (pb.pos != null && pb.damage > 0) {
                             return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                         }
                     }
-                    return HuntAndKill();
-                } else {
-                    return HuntAndKill();
                 }
-            } else if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 20) {
-                if (gameState.myPlayer.token > 0) {
-
+            } // KALAU CURRENT GA SEKARAT
+            if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 20) {
+                if (gameState.myPlayer.token > 0) { // Ganti orang
+                    if (listPlayerWorms[1].bananaBomb.count > 0) {
+                        PairBomb pb = maxDamageFromBomb(listPlayerWorms[1].position);
+                        if (pb.pos != null && pb.damage > 0) {
+                            return new UseToken(2,new ThrowBananaCommand(pb.pos.x, pb.pos.y));
+                        }
+                    }
                 }
-
-            } else if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20) {
-
             }
-
+            if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20) {
+                if (gameState.myPlayer.token > 0) { // Ganti orang
+                    if (listPlayerWorms[2].snowballs.count > 0) {
+                        PairBomb pb = maxFrozen(listPlayerWorms[2].position);
+                        if (pb.pos != null && pb.damage > 0) {
+                            return new UseToken(3,new ThrowSnowballCommand(pb.pos.x, pb.pos.y));
+                        }
+                    }
+                }
+            }
+            if (currentWorm.id == 1) {
+                Command cmd = basicShot();
+                if (cmd != null) {
+                    return cmd;
+                } else {
+                    return positioning();
+                }
+            } if (currentWorm.id == 2) {
+                if (currentWorm.bananaBomb.count > 0) {
+                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+                    }
+                } else {
+                    Command cmd = basicShot();
+                    if (cmd != null) {
+                        return cmd;
+                    } else {
+                        return positioning();
+                    }
+                }
+            } if (currentWorm.id == 3) {  // Snowballer
+                if (getCurrentWorm(gameState).snowballs.count > 0) {
+                    PairBomb pb = maxFrozen(currentWorm.position);
+                    if (pb.pos != null && pb.damage > countEnemyAlive/2) {
+                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                    }
+                } else {
+                    Command cmd = basicShot();
+                    if (cmd != null) {
+                        return cmd;
+                    } else {
+                        return positioning();
+                    }
+                }
+            }
+            System.out.println("Something error in War");
+            System.out.println("Something error in War");
+            System.out.println("Something error in War");
             return new DoNothingCommand();
         }
         else {
@@ -215,17 +263,21 @@ public class Bot {
         */
     }
 
-
-    private boolean isWar() {
+    private int countEnemyAlive() {
         Worm[] listEnemyWorms = opponent.worms;
         int countAlive = 0;
-        boolean onWar = false;
 
         for (int i = 0; i < listEnemyWorms.length; i++) {
             if (listEnemyWorms[i].alive()) {
                 countAlive++;
             }
         }
+        return countAlive;
+    }
+
+    private boolean isWar() {
+        int countAlive = countEnemyAlive();
+        boolean onWar = false;
 
         if (countAlive <= 2) {
             onWar = true;
