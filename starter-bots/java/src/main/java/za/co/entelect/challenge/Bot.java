@@ -191,6 +191,8 @@ public class Bot {
                     System.out.println("3-1");
                     List<Worm> enemy = countEnemy(currentWorm.position);
                     if (enemy.size() > 0) {
+//                        int powerDistance = euclideanDistance(currentWorm.position.x, currentWorm.position.y, power.x, power.y);
+
                         if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
                             for (Worm w : enemy) {
                                 if (frozenUntil(true, w.id) > 0) {
