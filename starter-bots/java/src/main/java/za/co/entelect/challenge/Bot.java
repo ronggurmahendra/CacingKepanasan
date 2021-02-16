@@ -505,7 +505,7 @@ public class Bot {
         movePos.y = pos.y + totalDir.y;
 
         // Jika beruntung ini aman (ini kondisi yang sangat ideal dari banyak perhitungan)
-        if (isSaveToEscape(movePos)) {
+        if (isSaveToEscape(movePos) && totalDir.x != 0 && totalDir.y != 0) {
             return digAndMoveTo(pos,movePos);
         } else {    // Ternyata tidak beruntung
             List<Cell> surroundCell = getSurroundingCells(pos.x, pos.y);
