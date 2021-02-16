@@ -60,6 +60,14 @@ public class Bot {
         }
         else {
             if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 2) { //commander
+                if(currentWorm.id == 2){
+                    if(getCurrentWorm(gameState).bananaBomb.count>0){
+                        PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                        if (pb.pos != null && pb.damage > 20) {
+                            return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+                        }
+                    }
+                }
                 System.out.println("-2-----------");
                 Command com = basicShot();
                 System.out.println("-1-----------");
@@ -75,6 +83,14 @@ public class Bot {
                 System.out.println("1-----------");
                 if (isGroup()) { // harusnya grouping
                     System.out.println("2-----------");
+                    if(currentWorm.id == 2){
+                        if(getCurrentWorm(gameState).bananaBomb.count>0){
+                            PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                            if (pb.pos != null && pb.damage >= 20) {
+                                return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+                            }
+                        }
+                    }
                     return HuntAndKill();
                 }
                 System.out.println("3-----------");
@@ -92,7 +108,7 @@ public class Bot {
                     if (enemy.size() > 0) {
                         if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
                             for (Worm w : enemy) {
-                                if (frozenUntil(w.id) > 0) {
+                                if (frozenUntil(true, w.id) > 0) {
                                     return retreat();
                                 }
                                 if (getCurrentWorm(gameState).snowballs.count > 0) {
@@ -123,6 +139,20 @@ public class Bot {
                     return ImprovedDigAndMoveTo(currentWorm.position, power);
                 }
                 System.out.println("3-2");
+                if(isGroup()){
+                    if(getCurrentWorm(gameState).snowballs.count>0){
+                        PairBomb pb = maxFrozen(currentWorm.position);
+                        if (pb.pos != null && pb.damage > 0) {
+                            return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                        }
+                    }
+                }
+                if(getCurrentWorm(gameState).snowballs.count>0){
+                    PairBomb pb = maxFrozen(currentWorm.position);
+                    if (pb.pos != null && pb.damage > 1) {
+                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                    }
+                }
                 return Regroup();
             }
         }
@@ -743,12 +773,17 @@ public class Bot {
         return new PairBomb(e, max);
     }
 
-    private int frozenUntil(int ID){
-        return gameState.opponents[0].worms[ID-1].frozen;
+    private int frozenUntil(boolean enemy, int ID){
+        if(enemy){
+            return gameState.opponents[0].worms[ID-1].frozen;
+        }
+        else {
+            return gameState.myPlayer.worms[ID-1].frozen;
+        }
     }
 
     private boolean frozen(Position pos,int ID, int i, int j){
-        return euclideanDistance(pos.x, pos.y, i, j) < 2 && frozenUntil(3) == 0;
+        return euclideanDistance(pos.x, pos.y, i, j) < 2 && frozenUntil(true, ID) == 0;
     }
 
     private PairBomb maxFrozen(Position pos){
@@ -761,12 +796,12 @@ public class Bot {
                     tempMax = 0;
                     for(int a = 1; a < 4; a++){
                         if(GetEnemyPos(a) != null){
-                            if(euclideanDistance(GetEnemyPos(a).x, GetEnemyPos(a).y, i, j) < 2 && frozenUntil(a) == 0) {
+                            if(euclideanDistance(GetEnemyPos(a).x, GetEnemyPos(a).y, i, j) < 2 && frozenUntil(true, a) == 0) {
                                 tempMax += 1;
                             }
                         }
                         if(GetWormPos(a) != null){
-                            if(euclideanDistance(GetWormPos(a).x, GetWormPos(a).y, i, j) < 2 && frozenUntil(a) == 0) {
+                            if(euclideanDistance(GetWormPos(a).x, GetWormPos(a).y, i, j) < 2 && frozenUntil(false, a) == 0) {
                                 tempMax -= 1;
                             }
                         }
