@@ -1041,6 +1041,9 @@ public class Bot {
     }
 
     private PairBomb maxDamageFromBomb(Position pos) {
+        if(frozenUntil(false, 2) > 0){
+            return new PairBomb(null, 0);
+        }
         int max = 0, range = 5, tempMax, x = pos.x, y = pos.y;
         Position e = null;
         for (int i = x - 5; i <= x + 5; i++) {
@@ -1081,10 +1084,34 @@ public class Bot {
     }
 
     private PairBomb maxFrozen(Position pos){
-        int max = 0, range = 5, tempMax, x = pos.x, y = pos.y;
+        if(frozenUntil(false, 3) > 0){
+            return new PairBomb(null, 0);
+        }
+        int max = 0, range = 5, tempMax, x = pos.x, y = pos.y, i, j;
         Position e = null;
-        for (int i = x - 5; i <= x + 5; i++) {
-            for (int j = y - 5; j <= y + 5; j++) {
+        for(int b = 0; b<3; b++){
+            i = gameState.opponents[0].worms[b].position.x;
+            j = gameState.opponents[0].worms[b].position.y;
+            tempMax = 0;
+            for(int a = 1; a < 4; a++){
+                if(GetEnemyPos(a) != null){
+                    if(euclideanDistance(GetEnemyPos(a).x, GetEnemyPos(a).y, i, j) < 2 && frozenUntil(true, a) == 0) {
+                        tempMax += 1;
+                    }
+                }
+                if(GetWormPos(a) != null){
+                    if(euclideanDistance(GetWormPos(a).x, GetWormPos(a).y, i, j) < 2 && frozenUntil(false, a) == 0) {
+                        tempMax -= 1;
+                    }
+                }
+            }
+            if (tempMax > max) {
+                e = new Position(i, j);
+                max = tempMax;
+            }
+        }
+        for (i = x - 5; i <= x + 5; i++) {
+            for (j = y - 5; j <= y + 5; j++) {
                 // Don't include the current position
                 if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
                     tempMax = 0;
@@ -1127,11 +1154,8 @@ public class Bot {
                 Result[i][j].deepCopy(GameMap[j][i].x,GameMap[j][i].y, source.x,source.y,false,Integer.MAX_VALUE,GameMap[j][i].type);
             }
         }
-//        System.out.println("Generating Map1");
-        Result[source.x][source.y].distance = 0;
-        List<Position> ToBeVisited = new ArrayList<Position>();
-        List<Position> TempToBeVisited = new ArrayList<Position>();
 
+//        System.out.println("Generating Map1");
 //       System.out.println("Generating Map2");
 
         List<Position> PosAlly = new ArrayList<Position>();
@@ -1146,6 +1170,10 @@ public class Bot {
                 PosAlly.add(gameState.opponents[0].worms[i].position);
             }
         }
+
+        Result[source.x][source.y].distance = 0;
+        List<Position> ToBeVisited = new ArrayList<Position>();
+        List<Position> TempToBeVisited = new ArrayList<Position>();
         do{
             //System.out.println(ToBeVisited.size());
             //initialize source nya
@@ -1169,8 +1197,8 @@ public class Bot {
                 }
                 for(int k = 0;k< PosAlly.size();k++){
                     if(PosAlly.get(k).x == CurridxX && PosAlly.get(k).y == CurridxY){
-                        Result[CurridxX][CurridxY].distance = Integer.MAX_VALUE;
-                        Result[CurridxX][CurridxY].cell.type = CellType.DEEP_SPACE;
+                        Result[CurridxX][CurridxY].distance = 999;
+                        //Result[CurridxX][CurridxY].cell.type = CellType.DEEP_SPACE;
                     }
                 }
             }
@@ -1331,29 +1359,29 @@ public class Bot {
         int YTarget = Target.y;
         modifiedCell currCell = new modifiedCell();
         currCell.deepCopy(Map[XTarget][YTarget]);
-//        System.out.print("Generating Best Route : ");
-//
-//        System.out.print(" x:");
-//        System.out.print(currCell.cell.x);
-//        System.out.print(" y:");
-//        System.out.print(currCell.cell.y);
+        System.out.print("Generating Best Route : ");
+
+        System.out.print(" x:");
+        System.out.print(currCell.cell.x);
+        System.out.print(" y:");
+        System.out.print(currCell.cell.y);
         while(Map[currCell.prev.x][currCell.prev.y].distance != 0){
 
             currCell = Map[currCell.prev.x][currCell.prev.y];
-//            System.out.print(" <- ");
-//            System.out.print(" x:");
-//            System.out.print(currCell.prev.x);
-//            System.out.print(" y:");
-//            System.out.print(currCell.prev.y);
+            System.out.print(" <- ");
+            System.out.print(" x:");
+            System.out.print(currCell.prev.x);
+            System.out.print(" y:");
+            System.out.print(currCell.prev.y);
 
         }
-//        System.out.println();
-//        System.out.print("So Go To");
-//        System.out.print(" x:");
-//        System.out.print(currCell.cell.x);
-//        System.out.print(" y: ");
-//        System.out.print(currCell.cell.y);
-//        System.out.println();
+        System.out.println();
+        System.out.print("So Go To");
+        System.out.print(" x:");
+        System.out.print(currCell.cell.x);
+        System.out.print(" y: ");
+        System.out.print(currCell.cell.y);
+        System.out.println();
         return new Position(currCell.cell.x,currCell.cell.y);
     }
 
