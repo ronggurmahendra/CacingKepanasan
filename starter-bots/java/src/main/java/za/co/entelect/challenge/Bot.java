@@ -56,7 +56,6 @@ public class Bot {
 
     public Command run(){
         int countEnemyAlive = countEnemyAlive();
-        System.out.println("--1--");
         Worm[] listPlayerWorms = gameState.myPlayer.worms;
         if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
             System.out.println("--2--");
@@ -98,172 +97,245 @@ public class Bot {
                 }
             }
         }
-        if(isWar()){
-            if (currentWorm.id == 1) {
-                System.out.println("--5--");
-                Command cmd = basicShot();
-                if (cmd != null) {
-                    return cmd;
-                } else {
-                    return positioning();
+        if (currentWorm.id == 2) {
+            if (currentWorm.bananaBomb.count > 0) {
+                PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+                    return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                 }
-            } if (currentWorm.id == 2) {
-                System.out.println("--6--");
-                if (currentWorm.bananaBomb.count > 0) {
-                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
-                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
-                    }
-                }
-                Command cmd = basicShot();
-                if (cmd != null) {
-                    return cmd;
-                } else {
-                    return positioning();
-                }
-
-            } if (currentWorm.id == 3) {  // Snowballer
-                System.out.println("--7--");
-                if (getCurrentWorm(gameState).snowballs.count > 0) {
+            }
+        }
+        if(!isGroup()){
+            return Regroup();
+        }
+        else if(isWar()){
+            if (currentWorm.id == 3) {
+                if (currentWorm.snowballs.count > 0) {
                     PairBomb pb = maxFrozen(currentWorm.position);
-                    if (pb.pos != null && pb.damage > countEnemyAlive/2) {
+                    if (pb.pos != null && pb.damage >= (countEnemyAlive+1)/2) {
                         return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
                     }
                 }
-                Command cmd = basicShot();
-                if (cmd != null) {
-                    return cmd;
-                } else {
-                    return positioning();
-                }
-
             }
-            System.out.println("Something error in War");
-            System.out.println("Something error in War");
-            System.out.println("Something error in War");
+            Command cmd = basicShot();
+            if (cmd != null) {
+                return cmd;
+            } else {
+                return positioning();
+            }
+        }
+        else{
             return HuntAndKill();
         }
-        else {  // NOT IN WAR
-            if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 3) { //commander && tech
-                if(currentWorm.id == 3){
-                    // EDIT YANG INI
-                    if (onBattle(1)  || euclideanDistance(currentWorm.position.x,currentWorm.position.y,opponent.worms[1].position.x,opponent.worms[1].position.y) < 6) {
-                        if (getCurrentWorm(gameState).snowballs.count > 3) {
-                            PairBomb pb = maxFrozen(currentWorm.position);
-                            if (pb.pos != null && pb.damage > 0) {
-                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-                            }
-                        }
-                    }
-                }
-                System.out.println("-2-----------");
-                Command com = basicShot();
-                System.out.println("-1-----------");
-                if (com != null) {
-                    System.out.println("-0.5-----------");
-                    return com;
-                }
-                System.out.println("0-----------");
-                if (GetEnemyPos(2) != null) {
-                    System.out.println("Execute improved dig and move to");
-                    return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(2));
-                }
-                System.out.println("1-----------");
-                if (isGroup()) { // harusnya grouping
-                    System.out.println("2-----------");
-                    if(currentWorm.id == 3){
-
-                        if (getCurrentWorm(gameState).snowballs.count > 0) {
-                            PairBomb pb = maxFrozen(currentWorm.position);
-                            if (pb.pos != null && pb.damage > 0) {
-                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-                            }
-                        }
-                    }
-                    return HuntAndKill();
-                }
-                System.out.println("3-----------");
-                return Regroup();
-            } else if (getCurrentWorm(gameState).id == 2) { //bomber
-                // nyari power up, misal di variabel power
-                //Position temp = new Position(currentWorm.position.x, currentWorm.position.y);
-//                Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
-//                System.out.println("masuk");
-//                System.out.println(currentWorm.position.x);
-//                System.out.println(currentWorm.position.y);
-//                if(power.x != -1 && power.y != -1){
-//                    System.out.println("3-1");
-//                    List<Worm> enemy = countEnemy(currentWorm.position);
-//                    if (enemy.size() > 0) {
-//                        if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
-//                            for (Worm w : enemy) {
-//                                if (frozenUntil(true, w.id) > 0) {
-//                                    //return retreat();
-//                                    return ImprovedDigAndMoveTo(currentWorm.position, power);
-//                                }
-//                                if (getCurrentWorm(gameState).snowballs.count > 0) {
-//                                    PairBomb pb = maxFrozen(currentWorm.position);
-//                                    if (pb.pos != null && pb.damage > 0) {
-//                                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-//                                    }
-//                                }
-//                                //return retreat();
-//                                return ImprovedDigAndMoveTo(currentWorm.position, power);
-//                            }
-//                        }
-//                        if (shotPosition(resolveToPosition(currentWorm.position, power)) != null) {
-//                            if (getCurrentWorm(gameState).snowballs.count > 0) {
-//                                PairBomb pb = maxFrozen(currentWorm.position);
-//                                if (pb.pos != null && pb.damage > 0) {
-//                                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-//                                }
-//                            }
-//                            System.out.println("3-3");
-//                            return ImprovedDigAndMoveTo(currentWorm.position, power);
-//                        }
+//        int countEnemyAlive = countEnemyAlive();
+//        System.out.println("--1--");
+//        Worm[] listPlayerWorms = gameState.myPlayer.worms;
+//        if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
+//            System.out.println("--2--");
+//            if (currentWorm.id == 2) { // Bomber
+//                if (currentWorm.bananaBomb.count > 0) {
+//                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+//                    if (pb.pos != null && pb.damage > 0) {
+//                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
 //                    }
-//                    System.out.println("3-4");
-//                    return ImprovedDigAndMoveTo(currentWorm.position, power);
 //                }
-
-//                if (onBattle(1)) {
-//                    if (gameState.myPlayer.token > 2) { // Ganti orang
-//                        return new UseToken(1,basicShot(1));
+//            } else if (currentWorm.id == 3) {  // Snowballer
+//                if (getCurrentWorm(gameState).snowballs.count > 0) {
+//                    PairBomb pb = maxFrozen(currentWorm.position);
+//                    if (pb.pos != null && pb.damage > 0) {
+//                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+//                    }
+//                }
+//            }
+//        } // KALAU CURRENT GA SEKARAT
+//        if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 30 && frozenUntil(false,listPlayerWorms[1].id) == 0) {
+//            System.out.println("--3--");
+//            if (gameState.myPlayer.token > 0) { // Ganti orang
+//                if (listPlayerWorms[1].bananaBomb.count > 0) {
+//                    PairBomb pb = maxDamageFromBomb(listPlayerWorms[1].position);
+//                    if (pb.pos != null && pb.damage > 0) {
+//                        return new UseToken(2,new ThrowBananaCommand(pb.pos.x, pb.pos.y));
+//                    }
+//                }
+//            }
+//        }
+//        if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20 && frozenUntil(false,listPlayerWorms[2].id) == 0) {
+//            System.out.println("--4--");
+//            if (gameState.myPlayer.token > 0) { // Ganti orang
+//                if (listPlayerWorms[2].snowballs.count > 0) {
+//                    PairBomb pb = maxFrozen(listPlayerWorms[2].position);
+//                    if (pb.pos != null && pb.damage > 0) {
+//                        return new UseToken(3,new ThrowSnowballCommand(pb.pos.x, pb.pos.y));
+//                    }
+//                }
+//            }
+//        }
+//        if(isWar()){
+//            if (currentWorm.id == 1) {
+//                System.out.println("--5--");
+//                Command cmd = basicShot();
+//                if (cmd != null) {
+//                    return cmd;
+//                } else {
+//                    return positioning();
+//                }
+//            } if (currentWorm.id == 2) {
+//                System.out.println("--6--");
+//                if (currentWorm.bananaBomb.count > 0) {
+//                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+//                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+//                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+//                    }
+//                }
+//                Command cmd = basicShot();
+//                if (cmd != null) {
+//                    return cmd;
+//                } else {
+//                    return positioning();
+//                }
 //
+//            } if (currentWorm.id == 3) {  // Snowballer
+//                System.out.println("--7--");
+//                if (getCurrentWorm(gameState).snowballs.count > 0) {
+//                    PairBomb pb = maxFrozen(currentWorm.position);
+//                    if (pb.pos != null && pb.damage > countEnemyAlive/2) {
+//                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
 //                    }
 //                }
-
-                List<Position> powerPos =  getPowerUp();
-                if (!powerPos.isEmpty()) {
-                    for (int i = 0; i < powerPos.size(); i++) {
-                        if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) < 2)) {
-                            System.out.println("Cari power");
-                            Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
-                            return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
-                        }
-                    }
-                }
-
-
-
-                if (currentWorm.bananaBomb.count > 0) {
-                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
-                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
-                    }
-                }
-                if(isGroup()){
-                    return HuntAndKill();
-                }
-                return Regroup();
-            }
-        }
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        return new DoNothingCommand();
+//                Command cmd = basicShot();
+//                if (cmd != null) {
+//                    return cmd;
+//                } else {
+//                    return positioning();
+//                }
+//
+//            }
+//            System.out.println("Something error in War");
+//            System.out.println("Something error in War");
+//            System.out.println("Something error in War");
+//            return HuntAndKill();
+//        }
+//        else {  // NOT IN WAR
+//            if (getCurrentWorm(gameState).id == 1 || getCurrentWorm(gameState).id == 3) { //commander && tech
+//                if(currentWorm.id == 3){
+//                    // EDIT YANG INI
+//                    if (onBattle(1)  || euclideanDistance(currentWorm.position.x,currentWorm.position.y,opponent.worms[1].position.x,opponent.worms[1].position.y) < 6) {
+//                        if (getCurrentWorm(gameState).snowballs.count > 3) {
+//                            PairBomb pb = maxFrozen(currentWorm.position);
+//                            if (pb.pos != null && pb.damage > 0) {
+//                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+//                            }
+//                        }
+//                    }
+//                }
+//                System.out.println("-2-----------");
+//                Command com = basicShot();
+//                System.out.println("-1-----------");
+//                if (com != null) {
+//                    System.out.println("-0.5-----------");
+//                    return com;
+//                }
+//                System.out.println("0-----------");
+//                if (GetEnemyPos(2) != null) {
+//                    System.out.println("Execute improved dig and move to");
+//                    return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(2));
+//                }
+//                System.out.println("1-----------");
+//                if (isGroup()) { // harusnya grouping
+//                    System.out.println("2-----------");
+//                    if(currentWorm.id == 3){
+//
+//                        if (getCurrentWorm(gameState).snowballs.count > 0) {
+//                            PairBomb pb = maxFrozen(currentWorm.position);
+//                            if (pb.pos != null && pb.damage > 0) {
+//                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+//                            }
+//                        }
+//                    }
+//                    return HuntAndKill();
+//                }
+//                System.out.println("3-----------");
+//                return Regroup();
+//            } else if (getCurrentWorm(gameState).id == 2) { //bomber
+//                // nyari power up, misal di variabel power
+//                //Position temp = new Position(currentWorm.position.x, currentWorm.position.y);
+////                Position power = GetMinDistanceFromArray(shortestRoute(gameState.map, currentWorm.position), getPowerUp());
+////                System.out.println("masuk");
+////                System.out.println(currentWorm.position.x);
+////                System.out.println(currentWorm.position.y);
+////                if(power.x != -1 && power.y != -1){
+////                    System.out.println("3-1");
+////                    List<Worm> enemy = countEnemy(currentWorm.position);
+////                    if (enemy.size() > 0) {
+////                        if (enemy.contains(opponent.worms[2]) || enemy.size() > 1) {
+////                            for (Worm w : enemy) {
+////                                if (frozenUntil(true, w.id) > 0) {
+////                                    //return retreat();
+////                                    return ImprovedDigAndMoveTo(currentWorm.position, power);
+////                                }
+////                                if (getCurrentWorm(gameState).snowballs.count > 0) {
+////                                    PairBomb pb = maxFrozen(currentWorm.position);
+////                                    if (pb.pos != null && pb.damage > 0) {
+////                                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+////                                    }
+////                                }
+////                                //return retreat();
+////                                return ImprovedDigAndMoveTo(currentWorm.position, power);
+////                            }
+////                        }
+////                        if (shotPosition(resolveToPosition(currentWorm.position, power)) != null) {
+////                            if (getCurrentWorm(gameState).snowballs.count > 0) {
+////                                PairBomb pb = maxFrozen(currentWorm.position);
+////                                if (pb.pos != null && pb.damage > 0) {
+////                                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+////                                }
+////                            }
+////                            System.out.println("3-3");
+////                            return ImprovedDigAndMoveTo(currentWorm.position, power);
+////                        }
+////                    }
+////                    System.out.println("3-4");
+////                    return ImprovedDigAndMoveTo(currentWorm.position, power);
+////                }
+//
+////                if (onBattle(1)) {
+////                    if (gameState.myPlayer.token > 2) { // Ganti orang
+////                        return new UseToken(1,basicShot(1));
+////
+////                    }
+////                }
+//
+//                List<Position> powerPos =  getPowerUp();
+//                if (!powerPos.isEmpty()) {
+//                    for (int i = 0; i < powerPos.size(); i++) {
+//                        if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) < 2)) {
+//                            System.out.println("Cari power");
+//                            Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
+//                            return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
+//                        }
+//                    }
+//                }
+//
+//
+//
+//                if (currentWorm.bananaBomb.count > 0) {
+//                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+//                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
+//                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+//                    }
+//                }
+//                if(isGroup()){
+//                    return HuntAndKill();
+//                }
+//                return Regroup();
+//            }
+//        }
+//        System.out.println("------------------------MASIH SALAH------------------------------");
+//        System.out.println("------------------------MASIH SALAH------------------------------");
+//        System.out.println("------------------------MASIH SALAH------------------------------");
+//        System.out.println("------------------------MASIH SALAH------------------------------");
+//        System.out.println("------------------------MASIH SALAH------------------------------");
+//        return new DoNothingCommand();
         /**
         Worm enemyWorm = getFirstWormInRange();
         if (enemyWorm != null) {
