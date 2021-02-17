@@ -186,7 +186,7 @@ public class Bot {
                     System.out.println("2-----------");
                     if(currentWorm.id == 3){
                         if (onBattle(1) || onBattle(2) || onBattle(3)) {
-                            if (getCurrentWorm(gameState).snowballs.count > 0 && frozenUntil(false,currentWorm.id) == 0) {
+                            if (getCurrentWorm(gameState).snowballs.count > 0) {
                                 PairBomb pb = maxFrozen(currentWorm.position);
                                 if (pb.pos != null && pb.damage > 0) {
                                     return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
@@ -195,7 +195,7 @@ public class Bot {
                         }
                     }
                     if (currentWorm.id == 2) {
-                        if (currentWorm.bananaBomb.count > 0 && frozenUntil(false,currentWorm.id) == 0) {
+                        if (currentWorm.bananaBomb.count > 0) {
                             PairBomb pb = maxDamageFromBomb(currentWorm.position);
                             if (pb.pos != null && pb.damage >= 10 * countEnemyAlive) {
                                 return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
@@ -220,6 +220,19 @@ public class Bot {
                             return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
                         }
                     }
+                }
+
+                Command com = basicShot();
+                if (com != null) {
+                    System.out.println("tembak!");
+                    return com;
+                }
+
+                int idEnemyLain = 2;
+                System.out.println("Gank Target Lain");
+                if (GetEnemyPos(idEnemyLain) != null) {
+                    System.out.println("Execute improved dig and move to");
+                    return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(idEnemyLain));
                 }
 
 //                if (currentWorm.bananaBomb.count > 0) {
