@@ -546,6 +546,8 @@ public class Bot {
         Position dif = new Position();
         dif.x = b_pos.x - a_pos.x;
         dif.y = b_pos.y - a_pos.y;
+        System.out.println(a_pos.x);
+        System.out.println(a_pos.y);
 
         Position dir = normalizeVector(dif);
 
@@ -566,6 +568,9 @@ public class Bot {
                     }
                 }
             }
+            System.out.println(c_pos.x);
+            System.out.println(c_pos.y);
+            System.out.println(isThere);
 
             c_pos.x += dir.x;
             c_pos.y += dir.y;
@@ -760,8 +765,8 @@ public class Bot {
            }
            if (possibleCell.isEmpty()) {        // Kalau ga gerak random aja
                System.out.println("Call DoNothing");
-//               return HuntAndKill();
-               return Regroup();
+               return HuntAndKill();
+//               return Regroup();
 //               return new DoNothingCommand();
            } else {
                int i = rand.nextInt(possibleCell.size());
@@ -796,8 +801,8 @@ public class Bot {
                int i = rand.nextInt(isGoodCell.size());
                cellPos.x = isGoodCell.get(i).x;
                cellPos.y = isGoodCell.get(i).y;
-//               System.out.println(cellPos.x);
-//               System.out.println(cellPos.y);
+               System.out.println(cellPos.x);
+               System.out.println(cellPos.y);
                return digAndMoveTo(currentWorm.position,cellPos);
            }
        }
