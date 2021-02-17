@@ -252,7 +252,9 @@ public class Bot {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
                 }
-
+                if(isGroup()){
+                    return HuntAndKill();
+                }
                 return Regroup();
             }
         }
