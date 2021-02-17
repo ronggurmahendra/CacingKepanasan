@@ -897,10 +897,10 @@ public class Bot {
                 }
 
 
-               Position coordinate = new Position(pos.x, pos.y);
-               if (isCellOccupied(coordinate)) {
-                   break;
-               }
+//               Position coordinate = new Position(pos.x, pos.y);
+//               if (isCellOccupied(coordinate)) {
+//                   break;
+//               }
 
                 if (euclideanDistance(pos.x, pos.y, coordinateX, coordinateY) > range) {
                     break;
