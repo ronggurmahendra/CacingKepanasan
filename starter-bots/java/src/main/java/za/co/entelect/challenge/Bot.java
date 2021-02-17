@@ -1138,7 +1138,12 @@ public class Bot {
                 PosAlly.add(gameState.myPlayer.worms[i].position);
             }
         }
-
+        //List<Position> PosEnemy = new ArrayList<Position>();
+        for(int i = 0;i< gameState.opponents[0].worms.length;i++){
+            if(gameState.opponents[0].worms[i].alive()){
+                PosAlly.add(gameState.opponents[0].worms[i].position);
+            }
+        }
         do{
             //System.out.println(ToBeVisited.size());
             //initialize source nya
