@@ -11,7 +11,10 @@ public class UseToken implements Command {
 
     @Override
     public String render() {
-        return String.format("select %d;%s", ID,cmd.render());
+        if (this.cmd != null) {
+            return String.format("select %d;%s", ID,cmd.render());
+        }
+        return String.format("nothing");
     }
 
 }
