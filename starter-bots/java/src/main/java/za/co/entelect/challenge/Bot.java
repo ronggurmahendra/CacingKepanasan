@@ -1273,7 +1273,7 @@ public class Bot {
         return temp;
     }
     public Command HuntAndKill(){
-        System.out.println("HuntandKill");
+        System.out.println("HuntAndKill");
         Command command =  basicShot();
         if(command == null){
             List<Position> EnemyinRange = new ArrayList<Position>();
