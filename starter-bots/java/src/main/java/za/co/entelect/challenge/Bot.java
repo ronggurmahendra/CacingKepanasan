@@ -232,12 +232,26 @@ public class Bot {
 //                    }
 //                }
 
+                List<Position> powerPos =  getPowerUp();
+                if (!powerPos.isEmpty()) {
+                    for (int i = 0; i < powerPos.size(); i++) {
+                        if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) < 2)) {
+                            System.out.println("Cari power");
+                            Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
+                            return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
+                        }
+                    }
+                }
+
+
+
                 if (currentWorm.bananaBomb.count > 1) {
                     PairBomb pb = maxDamageFromBomb(currentWorm.position);
                     if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
                 }
+
 
 
                 return Regroup();
@@ -550,34 +564,27 @@ public class Bot {
     
     // Cek apakah ada dirt sepanjang jarak tembak
     private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
-        Position dif = new Position();
-        dif.x = b_pos.x - a_pos.x;
-        dif.y = b_pos.y - a_pos.y;
-        System.out.println("---");
-        System.out.println(a_pos.x);
-        System.out.println(a_pos.y);
-        System.out.println("x^y>");
-        System.out.println(b_pos.x);
-        System.out.println(b_pos.y);
-        System.out.println("---");
-
-        Position dir = normalizeVector(dif);
+//        Position dif = new Position();
+//        dif.x = b_pos.x - a_pos.x;
+//        dif.y = b_pos.y - a_pos.y;
+//
+//        Position dir = normalizeVector(dif);
 
         Position c_pos = new Position();
         c_pos = resolveToPosition(a_pos,b_pos);
 //        c_pos.x = a_pos.x + dir.x;
 //        c_pos.y = a_pos.y + dir.y;
         boolean isThere = false;
-        System.out.println("---");
-        System.out.println(a_pos.x);
-        System.out.println(a_pos.y);
-        System.out.println("x^y>");
-        System.out.println(b_pos.x);
-        System.out.println(b_pos.y);
-        System.out.println("x^y>");
-        System.out.println(c_pos.x);
-        System.out.println(c_pos.y);
-        System.out.println("---");
+//        System.out.println("---");
+//        System.out.println(a_pos.x);
+//        System.out.println(a_pos.y);
+//        System.out.println("x^y>");
+//        System.out.println(b_pos.x);
+//        System.out.println(b_pos.y);
+//        System.out.println("x^y>");
+//        System.out.println(c_pos.x);
+//        System.out.println(c_pos.y);
+//        System.out.println("---");
 
         Worm[] listFriendWorms = gameState.myPlayer.worms;
         while ((c_pos.x != b_pos.x || c_pos.y != b_pos.y) && !isThere) {
@@ -764,13 +771,17 @@ public class Bot {
            isGood = true;
            for (int j = 0; j < friendWormsPos.size() && isGood; j++) {
                int distance = euclideanDistance(surroundCell.get(i).x,surroundCell.get(i).y,friendWormsPos.get(j).x,friendWormsPos.get(j).y);
-                if (distance < 2 || surroundCell.get(i).type == CellType.DIRT) {
-                    isGood = false;
-                }
+//                if (distance < 2 || surroundCell.get(i).type == CellType.DIRT) {
+//                    isGood = false;
+//                }
+               if (distance < 2) {
+                   isGood = false;
+               }
            }
            if (isGood) {
-//               System.out.println(surroundCell.get(i).x);
-//               System.out.println(surroundCell.get(i).y);
+               System.out.println("Add possible cell");
+               System.out.println(surroundCell.get(i).x);
+               System.out.println(surroundCell.get(i).y);
                possibleCell.add(surroundCell.get(i));
            }
        }
@@ -791,7 +802,15 @@ public class Bot {
                System.out.println("Call DoNothing");
                return HuntAndKill();
 //               return Regroup();
+//
+//               Worm[] enemyWorms = opponent.worms;
+//               for (int i = 0; i < enemyWorms.length; i++) {
+//                   if (enemyWorms[i].alive()) {
+//                       return digAndMoveTo(currentWorm.position,resolveToPosition(currentWorm.position,enemyWorms[i].position));
+//                   }
+//               }
 //               return new DoNothingCommand();
+
            } else {
                int i = rand.nextInt(possibleCell.size());
                cellPos.x = possibleCell.get(i).x;
@@ -812,9 +831,9 @@ public class Bot {
            }
            if (isGoodCell.isEmpty()) {  // Kalau ga ada yang ideal
                System.out.println("Call Random");
-               int i = rand.nextInt(possibleCell.size());
-               cellPos.x = possibleCell.get(i).x;
-               cellPos.y = possibleCell.get(i).y;
+//               int i = rand.nextInt(possibleCell.size());
+//               cellPos.x = possibleCell.get(i).x;
+//               cellPos.y = possibleCell.get(i).y;
 //               System.out.println(cellPos.x);
 //               System.out.println(cellPos.y);
 //               return digAndMoveTo(currentWorm.position,cellPos);
@@ -877,6 +896,11 @@ public class Bot {
                 if (!isValidCoordinate(coordinateX, coordinateY)) {
                     break;
                 }
+
+//                Position coordinate = new Position(pos.x, pos.y);
+//                if (isCellOccupied(coordinate)) {
+//                    break;
+//                }
 
                 if (euclideanDistance(pos.x, pos.y, coordinateX, coordinateY) > range) {
                     break;
