@@ -1089,25 +1089,27 @@ public class Bot {
         }
         int max = 0, range = 5, tempMax, x = pos.x, y = pos.y, i, j;
         Position e = null;
-        for(int b = 0; b<3; b++){
+        for(int b = 0; b<3; b++){ // prioritas lempar tepat ke posisi musuh
             i = gameState.opponents[0].worms[b].position.x;
             j = gameState.opponents[0].worms[b].position.y;
-            tempMax = 0;
-            for(int a = 1; a < 4; a++){
-                if(GetEnemyPos(a) != null){
-                    if(euclideanDistance(GetEnemyPos(a).x, GetEnemyPos(a).y, i, j) < 2 && frozenUntil(true, a) == 0) {
-                        tempMax += 1;
+            if(gameState.opponents[0].worms[b].alive() && (euclideanDistance(pos.x, pos.y, i, j) <= range)){
+                tempMax = 0;
+                for(int a = 1; a < 4; a++){
+                    if(GetEnemyPos(a) != null){
+                        if(euclideanDistance(GetEnemyPos(a).x, GetEnemyPos(a).y, i, j) < 2 && frozenUntil(true, a) == 0) {
+                            tempMax += 1;
+                        }
+                    }
+                    if(GetWormPos(a) != null){
+                        if(euclideanDistance(GetWormPos(a).x, GetWormPos(a).y, i, j) < 2 && frozenUntil(false, a) == 0) {
+                            tempMax -= 1;
+                        }
                     }
                 }
-                if(GetWormPos(a) != null){
-                    if(euclideanDistance(GetWormPos(a).x, GetWormPos(a).y, i, j) < 2 && frozenUntil(false, a) == 0) {
-                        tempMax -= 1;
-                    }
+                if (tempMax > max) {
+                    e = new Position(i, j);
+                    max = tempMax;
                 }
-            }
-            if (tempMax > max) {
-                e = new Position(i, j);
-                max = tempMax;
             }
         }
         for (i = x - 5; i <= x + 5; i++) {
@@ -1335,14 +1337,14 @@ public class Bot {
         System.out.println("getmindistance");
         if(EnemyinRange.size() > 0){
             System.out.println("size > 0");
-            int min = Map[getShortestFirstRoute(Map,EnemyinRange.get(0)).x][ getShortestFirstRoute(Map,EnemyinRange.get(0)).y].distance;
-            Position Result = new Position(getShortestFirstRoute(Map,EnemyinRange.get(0)).x,getShortestFirstRoute(Map,EnemyinRange.get(0)).y);
+            int min = Map[EnemyinRange.get(0).x][EnemyinRange.get(0).y].distance;
+            Position Result = new Position(EnemyinRange.get(0).x,EnemyinRange.get(0).y);
             for(int i = 1;i<EnemyinRange.size();i++){
-                int tempmin = Map[getShortestFirstRoute(Map,EnemyinRange.get(i)).x][ getShortestFirstRoute(Map,EnemyinRange.get(i)).y].distance;
+                int tempmin = Map[EnemyinRange.get(i).x][EnemyinRange.get(i).y].distance;
                 if(tempmin < min){
                     min = tempmin;
-                    Result.x = getShortestFirstRoute(Map,EnemyinRange.get(i)).x;
-                    Result.y = getShortestFirstRoute(Map,EnemyinRange.get(i)).y;
+                    Result.x = EnemyinRange.get(i).x;
+                    Result.y = EnemyinRange.get(i).y;
                 }
             }
 //            System.out.println(Result.x);
