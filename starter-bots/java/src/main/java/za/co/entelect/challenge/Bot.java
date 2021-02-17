@@ -56,49 +56,49 @@ public class Bot {
 
     public Command run(){
         int countEnemyAlive = countEnemyAlive();
+        System.out.println("--1--");
+        Worm[] listPlayerWorms = gameState.myPlayer.worms;
+        if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
+            System.out.println("--2--");
+            if (currentWorm.id == 2) { // Bomber
+                if (currentWorm.bananaBomb.count > 0) {
+                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
+                    if (pb.pos != null && pb.damage > 0) {
+                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
+                    }
+                }
+            } else if (currentWorm.id == 3) {  // Snowballer
+                if (getCurrentWorm(gameState).snowballs.count > 0) {
+                    PairBomb pb = maxFrozen(currentWorm.position);
+                    if (pb.pos != null && pb.damage > 0) {
+                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                    }
+                }
+            }
+        } // KALAU CURRENT GA SEKARAT
+        if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 30 && frozenUntil(false,listPlayerWorms[1].id) == 0) {
+            System.out.println("--3--");
+            if (gameState.myPlayer.token > 0) { // Ganti orang
+                if (listPlayerWorms[1].bananaBomb.count > 0) {
+                    PairBomb pb = maxDamageFromBomb(listPlayerWorms[1].position);
+                    if (pb.pos != null && pb.damage > 0) {
+                        return new UseToken(2,new ThrowBananaCommand(pb.pos.x, pb.pos.y));
+                    }
+                }
+            }
+        }
+        if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20 && frozenUntil(false,listPlayerWorms[2].id) == 0) {
+            System.out.println("--4--");
+            if (gameState.myPlayer.token > 0) { // Ganti orang
+                if (listPlayerWorms[2].snowballs.count > 0) {
+                    PairBomb pb = maxFrozen(listPlayerWorms[2].position);
+                    if (pb.pos != null && pb.damage > 0) {
+                        return new UseToken(3,new ThrowSnowballCommand(pb.pos.x, pb.pos.y));
+                    }
+                }
+            }
+        }
         if(isWar()){
-            System.out.println("--1--");
-            Worm[] listPlayerWorms = gameState.myPlayer.worms;
-            if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
-                System.out.println("--2--");
-                if (currentWorm.id == 2) { // Bomber
-                    if (currentWorm.bananaBomb.count > 0) {
-                        PairBomb pb = maxDamageFromBomb(currentWorm.position);
-                        if (pb.pos != null && pb.damage > 0) {
-                            return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
-                        }
-                    }
-                } else if (currentWorm.id == 3) {  // Snowballer
-                    if (getCurrentWorm(gameState).snowballs.count > 0) {
-                        PairBomb pb = maxFrozen(currentWorm.position);
-                        if (pb.pos != null && pb.damage > 0) {
-                            return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-                        }
-                    }
-                }
-            } // KALAU CURRENT GA SEKARAT
-            if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 30 && frozenUntil(false,listPlayerWorms[1].id) == 0) {
-                System.out.println("--3--");
-                if (gameState.myPlayer.token > 0) { // Ganti orang
-                    if (listPlayerWorms[1].bananaBomb.count > 0) {
-                        PairBomb pb = maxDamageFromBomb(listPlayerWorms[1].position);
-                        if (pb.pos != null && pb.damage > 0) {
-                            return new UseToken(2,new ThrowBananaCommand(pb.pos.x, pb.pos.y));
-                        }
-                    }
-                }
-            }
-            if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20 && frozenUntil(false,listPlayerWorms[2].id) == 0) {
-                System.out.println("--4--");
-                if (gameState.myPlayer.token > 0) { // Ganti orang
-                    if (listPlayerWorms[2].snowballs.count > 0) {
-                        PairBomb pb = maxFrozen(listPlayerWorms[2].position);
-                        if (pb.pos != null && pb.damage > 0) {
-                            return new UseToken(3,new ThrowSnowballCommand(pb.pos.x, pb.pos.y));
-                        }
-                    }
-                }
-            }
             if (currentWorm.id == 1) {
                 System.out.println("--5--");
                 Command cmd = basicShot();
