@@ -185,15 +185,17 @@ public class Bot {
                 if (isGroup()) { // harusnya grouping
                     System.out.println("2-----------");
                     if(currentWorm.id == 3){
-                        if (getCurrentWorm(gameState).snowballs.count > 0) {
-                            PairBomb pb = maxFrozen(currentWorm.position);
-                            if (pb.pos != null && pb.damage > 0) {
-                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                        if (onBattle(1) || onBattle(2) || onBattle(3)) {
+                            if (getCurrentWorm(gameState).snowballs.count > 0 && frozenUntil(false,currentWorm.id) == 0) {
+                                PairBomb pb = maxFrozen(currentWorm.position);
+                                if (pb.pos != null && pb.damage > 0) {
+                                    return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                                }
                             }
                         }
                     }
                     if (currentWorm.id == 2) {
-                        if (currentWorm.bananaBomb.count > 0) {
+                        if (currentWorm.bananaBomb.count > 0 && frozenUntil(false,currentWorm.id) == 0) {
                             PairBomb pb = maxDamageFromBomb(currentWorm.position);
                             if (pb.pos != null && pb.damage >= 10 * countEnemyAlive) {
                                 return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
