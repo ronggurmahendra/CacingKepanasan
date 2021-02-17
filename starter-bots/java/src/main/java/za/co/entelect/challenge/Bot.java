@@ -77,7 +77,7 @@ public class Bot {
                     }
                 }
             } // KALAU CURRENT GA SEKARAT
-            if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 20) {
+            if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 30) {
                 System.out.println("--3--");
                 if (gameState.myPlayer.token > 0) { // Ganti orang
                     if (listPlayerWorms[1].bananaBomb.count > 0) {
@@ -488,14 +488,13 @@ public class Bot {
             canMove = false;
         }
 
-        System.out.println(canMove);
         if (canMove) {
             Cell nextCell = findCell(nextPosition);
 //            Command cmd;
 //            System.out.println("can move");
 
             if (nextCell.type == CellType.AIR || nextCell.type == CellType.LAVA) {
-                System.out.println(nextCell.type);
+//                System.out.println(nextCell.type);
                 return new MoveCommand(nextPosition.x,nextPosition.y);
             } else if (nextCell.type == CellType.DIRT) {
                 return new DigCommand(nextPosition.x,nextPosition.y);
@@ -598,7 +597,7 @@ public class Bot {
 
 
             }
-            System.out.println(isOn);
+//            System.out.println(isOn);
         }
         return isOn;
     }
@@ -738,13 +737,13 @@ public class Bot {
            isGood = true;
            for (int j = 0; j < friendWormsPos.size() && isGood; j++) {
                int distance = euclideanDistance(surroundCell.get(i).x,surroundCell.get(i).y,friendWormsPos.get(j).x,friendWormsPos.get(j).y);
-                if (distance < 1 || surroundCell.get(i).type == CellType.DIRT) {
+                if (distance < 2 || surroundCell.get(i).type == CellType.DIRT) {
                     isGood = false;
                 }
            }
            if (isGood) {
-               System.out.println(surroundCell.get(i).x);
-               System.out.println(surroundCell.get(i).y);
+//               System.out.println(surroundCell.get(i).x);
+//               System.out.println(surroundCell.get(i).y);
                possibleCell.add(surroundCell.get(i));
            }
        }
@@ -777,8 +776,8 @@ public class Bot {
                cellPos.x = possibleCell.get(i).x;
                cellPos.y = possibleCell.get(i).y;
                if (isOnEnemyLineOfSight(cellPos)) {  // Lebih ideal lagi kalau ada di lineofsightmusuh
-                   System.out.println(cellPos.x);
-                   System.out.println(cellPos.y);
+//                   System.out.println(cellPos.x);
+//                   System.out.println(cellPos.y);
                    isGoodCell.add(possibleCell.get(i));
                }
            }
@@ -787,8 +786,8 @@ public class Bot {
                int i = rand.nextInt(possibleCell.size());
                cellPos.x = possibleCell.get(i).x;
                cellPos.y = possibleCell.get(i).y;
-               System.out.println(cellPos.x);
-               System.out.println(cellPos.y);
+//               System.out.println(cellPos.x);
+//               System.out.println(cellPos.y);
 //               return digAndMoveTo(currentWorm.position,cellPos);
                return HuntAndKill();
            } else { // Kalau ini ideal banget
@@ -797,8 +796,8 @@ public class Bot {
                int i = rand.nextInt(isGoodCell.size());
                cellPos.x = isGoodCell.get(i).x;
                cellPos.y = isGoodCell.get(i).y;
-               System.out.println(cellPos.x);
-               System.out.println(cellPos.y);
+//               System.out.println(cellPos.x);
+//               System.out.println(cellPos.y);
                return digAndMoveTo(currentWorm.position,cellPos);
            }
        }
@@ -1062,11 +1061,11 @@ public class Bot {
                 Result[i][j].deepCopy(GameMap[j][i].x,GameMap[j][i].y, source.x,source.y,false,Integer.MAX_VALUE,GameMap[j][i].type);
             }
         }
-        System.out.println("Generating Map1");
+//        System.out.println("Generating Map1");
         Result[source.x][source.y].distance = 0;
         List<Position> ToBeVisited = new ArrayList<Position>();
         List<Position> TempToBeVisited = new ArrayList<Position>();
-        System.out.println("Generating Map2");
+//        System.out.println("Generating Map2");
         List<Position> PosAlly = new ArrayList<Position>();
         for(int i = 0;i< gameState.myPlayer.worms.length;i++){
             if(gameState.myPlayer.worms[i].alive()){
@@ -1107,8 +1106,8 @@ public class Bot {
             source.y = ToBeVisited.get(idx).y;
             ToBeVisited.remove(idx);
         }while(ToBeVisited.size()>0);
-        System.out.println(source.x);
-        System.out.println(source.y);
+//        System.out.println(source.x);
+//        System.out.println(source.y);
         /*for(int i = 0;i<ToBeVisited.size();i++) {//initialize ynag pertama
             int CurridxX = ToBeVisited.get(i).x;
             int CurridxY = ToBeVisited.get(i).y;
