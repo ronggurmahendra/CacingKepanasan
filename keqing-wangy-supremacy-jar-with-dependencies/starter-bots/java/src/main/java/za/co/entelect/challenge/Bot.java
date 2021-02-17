@@ -148,7 +148,7 @@ public class Bot {
                 if(currentWorm.id == 3){
                     // EDIT YANG INI
                     if (onBattle(1)  || euclideanDistance(currentWorm.position.x,currentWorm.position.y,opponent.worms[1].position.x,opponent.worms[1].position.y) < 6) {
-                        if (getCurrentWorm(gameState).snowballs.count > 3) {
+                        if (getCurrentWorm(gameState).snowballs.count > 0) {
                             PairBomb pb = maxFrozen(currentWorm.position);
                             if (pb.pos != null && pb.damage > 0) {
                                 return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
@@ -246,7 +246,7 @@ public class Bot {
 
 
 
-                if (currentWorm.bananaBomb.count > 0) {
+                if (currentWorm.bananaBomb.count > 1) {
                     PairBomb pb = maxDamageFromBomb(currentWorm.position);
                     if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
@@ -597,9 +597,9 @@ public class Bot {
                     }
                 }
             }
-//            System.out.println(c_pos.x);
-//            System.out.println(c_pos.y);
-//            System.out.println(isThere);
+            System.out.println(c_pos.x);
+            System.out.println(c_pos.y);
+            System.out.println(isThere);
 
             c_pos = resolveToPosition(c_pos,b_pos);
         }
@@ -778,9 +778,9 @@ public class Bot {
                }
            }
            if (isGood) {
-//               System.out.println("Add possible cell");
-//               System.out.println(surroundCell.get(i).x);
-//               System.out.println(surroundCell.get(i).y);
+               System.out.println("Add possible cell");
+               System.out.println(surroundCell.get(i).x);
+               System.out.println(surroundCell.get(i).y);
                possibleCell.add(surroundCell.get(i));
            }
        }
@@ -791,8 +791,8 @@ public class Bot {
            for (int i = 0; i < surroundCell.size(); i++) {  // Cari yang ada di lineOfSightMusuh
                cellPos.x = surroundCell.get(i).x;
                cellPos.y = surroundCell.get(i).y;
-//               System.out.println("Check occupied");
-//               System.out.println(isCellOccupied(cellPos));
+               System.out.println("Check occupied");
+               System.out.println(isCellOccupied(cellPos));
                if (isOnEnemyLineOfSight(cellPos) && !isCellOccupied(cellPos)) {
                    possibleCell.add(surroundCell.get(i));
                }
@@ -1105,15 +1105,18 @@ public class Bot {
                 }
             }
         }
+//<<<<<<< HEAD
         PairBomb pb = new PairBomb(e, max);
         return pb;
     }
 
-
+//>>>>>>> d1e3a3023d4ff109786a3a41c0083c775e6a9504
+//        return max;
+//    }
 
     public modifiedCell[][] shortestRoute(Cell[][] GameMap, Position Source){
         Position source = new Position(Source.x, Source.y);
-//        System.out.println("Generating Map");
+        System.out.println("Generating Map");
         //initialize
         modifiedCell[][] Result = new modifiedCell[GameMap.length][GameMap[0].length];
         for(int i = 0; i < GameMap.length;i++ ){
@@ -1130,7 +1133,7 @@ public class Bot {
         List<Position> ToBeVisited = new ArrayList<Position>();
         List<Position> TempToBeVisited = new ArrayList<Position>();
 
-//       System.out.println("Generating Map2");
+       System.out.println("Generating Map2");
 
         List<Position> PosAlly = new ArrayList<Position>();
         for(int i = 0;i< gameState.myPlayer.worms.length;i++){
@@ -1138,12 +1141,7 @@ public class Bot {
                 PosAlly.add(gameState.myPlayer.worms[i].position);
             }
         }
-        //List<Position> PosEnemy = new ArrayList<Position>();
-        for(int i = 0;i< gameState.opponents[0].worms.length;i++){
-            if(gameState.opponents[0].worms[i].alive()){
-                PosAlly.add(gameState.opponents[0].worms[i].position);
-            }
-        }
+
         do{
             //System.out.println(ToBeVisited.size());
             //initialize source nya
@@ -1315,8 +1313,8 @@ public class Bot {
                     Result.y = getShortestFirstRoute(Map,EnemyinRange.get(i)).y;
                 }
             }
-//            System.out.println(Result.x);
-//            System.out.println(Result.y);
+            System.out.println(Result.x);
+            System.out.println(Result.y);
             return Result;
         }
         System.out.println("Pos : -1 -1");
