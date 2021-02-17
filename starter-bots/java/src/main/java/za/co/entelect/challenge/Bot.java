@@ -231,7 +231,7 @@ public class Bot {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
                 }
-                
+
 
                 return Regroup();
             }
@@ -452,12 +452,20 @@ public class Bot {
     private boolean isCellOccupied(Position pos) {
         boolean occupied = false;
         Worm[] listPlayerWorms = gameState.myPlayer.worms;
+        Worm[] listEnemyWorms = opponent.worms;
 
         for (int i = 0; i < listPlayerWorms.length && !occupied; i++) {
             if (pos.x == listPlayerWorms[i].position.x && pos.y == listPlayerWorms[i].position.y) {
                 occupied = true;
             }
         }
+        for (int i = 0; i < listEnemyWorms.length && !occupied; i++) {
+            if (pos.x == listEnemyWorms[i].position.x && pos.y == listEnemyWorms[i].position.y) {
+                occupied = true;
+            }
+        }
+
+
         return occupied;
     }
 
