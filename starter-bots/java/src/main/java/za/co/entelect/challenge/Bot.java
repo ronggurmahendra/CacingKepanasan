@@ -294,7 +294,7 @@ public class Bot {
         Worm[] friendWorms = gameState.myPlayer.worms;
         boolean on = false;
         if (friendWorms[ID - 1].alive()) {
-            Command cmd = basicShot();
+            Command cmd = basicShot(ID);
             if (cmd != null) {
                 on = true;
             }
