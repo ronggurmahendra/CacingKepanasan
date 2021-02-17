@@ -59,7 +59,7 @@ public class Bot {
         if(isWar()){
             System.out.println("--1--");
             Worm[] listPlayerWorms = gameState.myPlayer.worms;
-            if (currentWorm.health <= 20) {  // Sekarat?
+            if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
                 System.out.println("--2--");
                 if (currentWorm.id == 2) { // Bomber
                     if (currentWorm.bananaBomb.count > 0) {
@@ -77,7 +77,7 @@ public class Bot {
                     }
                 }
             } // KALAU CURRENT GA SEKARAT
-            if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 30) {
+            if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 30 && frozenUntil(false,listPlayerWorms[1].id) == 0) {
                 System.out.println("--3--");
                 if (gameState.myPlayer.token > 0) { // Ganti orang
                     if (listPlayerWorms[1].bananaBomb.count > 0) {
@@ -88,7 +88,7 @@ public class Bot {
                     }
                 }
             }
-            if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20) {
+            if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20 && frozenUntil(false,listPlayerWorms[2].id) == 0) {
                 System.out.println("--4--");
                 if (gameState.myPlayer.token > 0) { // Ganti orang
                     if (listPlayerWorms[2].snowballs.count > 0) {
@@ -225,7 +225,14 @@ public class Bot {
 //                    System.out.println("3-4");
 //                    return ImprovedDigAndMoveTo(currentWorm.position, power);
 //                }
-                if (currentWorm.bananaBomb.count > 0) {
+//                if (onBattle(1)) {
+//                    if (gameState.myPlayer.token > 2) { // Ganti orang
+//                        return new UseToken(1,basicShot(1));
+//
+//                    }
+//                }
+
+                if (currentWorm.bananaBomb.count > 1) {
                     PairBomb pb = maxDamageFromBomb(currentWorm.position);
                     if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
@@ -546,18 +553,34 @@ public class Bot {
         Position dif = new Position();
         dif.x = b_pos.x - a_pos.x;
         dif.y = b_pos.y - a_pos.y;
+        System.out.println("---");
         System.out.println(a_pos.x);
         System.out.println(a_pos.y);
+        System.out.println("x^y>");
+        System.out.println(b_pos.x);
+        System.out.println(b_pos.y);
+        System.out.println("---");
 
         Position dir = normalizeVector(dif);
 
         Position c_pos = new Position();
-        c_pos.x = a_pos.x + dir.x;
-        c_pos.y = a_pos.y + dir.y;
+        c_pos = resolveToPosition(a_pos,b_pos);
+//        c_pos.x = a_pos.x + dir.x;
+//        c_pos.y = a_pos.y + dir.y;
         boolean isThere = false;
+        System.out.println("---");
+        System.out.println(a_pos.x);
+        System.out.println(a_pos.y);
+        System.out.println("x^y>");
+        System.out.println(b_pos.x);
+        System.out.println(b_pos.y);
+        System.out.println("x^y>");
+        System.out.println(c_pos.x);
+        System.out.println(c_pos.y);
+        System.out.println("---");
 
         Worm[] listFriendWorms = gameState.myPlayer.worms;
-        while ((c_pos.x != b_pos.x) && (c_pos.y != b_pos.y) && !isThere) {
+        while ((c_pos.x != b_pos.x || c_pos.y != b_pos.y) && !isThere) {
             if (findCell(c_pos).type == CellType.DIRT) {
                 isThere = true;
             }
@@ -572,8 +595,7 @@ public class Bot {
             System.out.println(c_pos.y);
             System.out.println(isThere);
 
-            c_pos.x += dir.x;
-            c_pos.y += dir.y;
+            c_pos = resolveToPosition(c_pos,b_pos);
         }
         return isThere;
     }
@@ -759,6 +781,8 @@ public class Bot {
            for (int i = 0; i < surroundCell.size(); i++) {  // Cari yang ada di lineOfSightMusuh
                cellPos.x = surroundCell.get(i).x;
                cellPos.y = surroundCell.get(i).y;
+               System.out.println("Check occupied");
+               System.out.println(isCellOccupied(cellPos));
                if (isOnEnemyLineOfSight(cellPos) && !isCellOccupied(cellPos)) {
                    possibleCell.add(surroundCell.get(i));
                }
@@ -799,8 +823,10 @@ public class Bot {
                System.out.println("Call Ideal");
 //               return Regroup();
                int i = rand.nextInt(isGoodCell.size());
+
                cellPos.x = isGoodCell.get(i).x;
                cellPos.y = isGoodCell.get(i).y;
+               System.out.println(isOnEnemyLineOfSight(cellPos));
                System.out.println(cellPos.x);
                System.out.println(cellPos.y);
                return digAndMoveTo(currentWorm.position,cellPos);
@@ -926,6 +952,18 @@ public class Bot {
 
     private Command basicShot(){
         Position pos = currentWorm.position;
+        Position target = shotPosition(pos);
+        if(target != null){
+            if(!isFriendlyFire(pos, target)){
+                Direction dir = resolveDirection(pos, target);
+                return new ShootCommand(dir);
+            }
+        }
+        return null;
+    }
+
+    private Command basicShot(int ID){
+        Position pos = gameState.myPlayer.worms[ID-1].position;
         Position target = shotPosition(pos);
         if(target != null){
             if(!isFriendlyFire(pos, target)){
