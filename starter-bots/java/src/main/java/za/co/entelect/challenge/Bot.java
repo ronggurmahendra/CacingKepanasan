@@ -228,7 +228,7 @@ public class Bot {
                     return com;
                 }
 
-                int idEnemyLain = 2;
+                int idEnemyLain = 3;
                 System.out.println("Gank Target Lain");
                 if (GetEnemyPos(idEnemyLain) != null) {
                     System.out.println("Execute improved dig and move to");
