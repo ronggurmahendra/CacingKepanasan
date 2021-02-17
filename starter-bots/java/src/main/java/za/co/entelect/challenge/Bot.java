@@ -148,7 +148,7 @@ public class Bot {
                 if(currentWorm.id == 3){
                     // EDIT YANG INI
                     if (onBattle(1)  || euclideanDistance(currentWorm.position.x,currentWorm.position.y,opponent.worms[1].position.x,opponent.worms[1].position.y) < 6) {
-                        if (getCurrentWorm(gameState).snowballs.count > 0) {
+                        if (getCurrentWorm(gameState).snowballs.count > 1) {
                             PairBomb pb = maxFrozen(currentWorm.position);
                             if (pb.pos != null && pb.damage > 0) {
                                 return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
@@ -1138,7 +1138,12 @@ public class Bot {
                 PosAlly.add(gameState.myPlayer.worms[i].position);
             }
         }
-
+        //List<Position> PosEnemy = new ArrayList<Position>();
+        for(int i = 0;i< gameState.opponents[0].worms.length;i++){
+            if(gameState.opponents[0].worms[i].alive()){
+                PosAlly.add(gameState.opponents[0].worms[i].position);
+            }
+        }
         do{
             //System.out.println(ToBeVisited.size());
             //initialize source nya
