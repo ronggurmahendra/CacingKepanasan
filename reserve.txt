@@ -33,3 +33,21 @@
 //                    return com;
 //                }
 //                return digAndMoveTo(currentWorm.position, GetWormPos(1));
+
+
+
+
+                if(isGroup()){
+                    if(getCurrentWorm(gameState).snowballs.count>0){
+                        PairBomb pb = maxFrozen(currentWorm.position);
+                        if (pb.pos != null && pb.damage > 0) {
+                            return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                        }
+                    }
+                }
+                if(getCurrentWorm(gameState).snowballs.count>0){
+                    PairBomb pb = maxFrozen(currentWorm.position);
+                    if (pb.pos != null && pb.damage > 1) {
+                        return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                    }
+                }

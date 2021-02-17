@@ -225,6 +225,7 @@ public class Bot {
 //                    System.out.println("3-4");
 //                    return ImprovedDigAndMoveTo(currentWorm.position, power);
 //                }
+
 //                if (onBattle(1)) {
 //                    if (gameState.myPlayer.token > 2) { // Ganti orang
 //                        return new UseToken(1,basicShot(1));
@@ -251,8 +252,6 @@ public class Bot {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
                 }
-
-
 
                 return Regroup();
             }
@@ -897,10 +896,11 @@ public class Bot {
                     break;
                 }
 
-//                Position coordinate = new Position(pos.x, pos.y);
-//                if (isCellOccupied(coordinate)) {
-//                    break;
-//                }
+
+               Position coordinate = new Position(pos.x, pos.y);
+               if (isCellOccupied(coordinate)) {
+                   break;
+               }
 
                 if (euclideanDistance(pos.x, pos.y, coordinateX, coordinateY) > range) {
                     break;
@@ -1132,7 +1132,9 @@ public class Bot {
         Result[source.x][source.y].distance = 0;
         List<Position> ToBeVisited = new ArrayList<Position>();
         List<Position> TempToBeVisited = new ArrayList<Position>();
-//        System.out.println("Generating Map2");
+
+       System.out.println("Generating Map2");
+
         List<Position> PosAlly = new ArrayList<Position>();
         for(int i = 0;i< gameState.myPlayer.worms.length;i++){
             if(gameState.myPlayer.worms[i].alive()){
