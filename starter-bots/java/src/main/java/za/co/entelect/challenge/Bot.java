@@ -25,16 +25,13 @@ public class Bot {
     }
 
     private MyWorm getCurrentWorm(GameState gameState) {
-//        return Arrays.stream(gameState.myPlayer.worms)
-//                .filter(myWorm -> myWorm.id == gameState.currentWormId)
-//                .findFirst()
-//                .get();
+        // Mengembalikan worm yang akan beraksi
         return gameState.myPlayer.worms[gameState.currentWormId-1];
     }
 
     public Position GetWormPos(int ID){
+        // Mengembalikan posisi worm pemain berdasarkan ID nya
         Worm worm = gameState.myPlayer.worms[ID-1];
-
         if(worm.health > 0){
             return worm.position;
         }else{
@@ -43,11 +40,9 @@ public class Bot {
     }
 
     public Position GetEnemyPos(int ID){
+        // Mengembalikan posisi worm musuh berdasarkan ID nya
         Worm Enemyworm = gameState.opponents[0].worms[ID-1];
-
         if(Enemyworm.health > 0){
-            //System.out.println(Enemyworm.position.x);
-            //System.out.println(Enemyworm.position.y);
             return Enemyworm.position;
         }else{
             return null;
@@ -55,9 +50,16 @@ public class Bot {
     }
 
     public Command run(){
-        int countEnemyAlive = countEnemyAlive();
-        System.out.println("--1--");
-        Worm[] listPlayerWorms = gameState.myPlayer.worms;
+        /*
+         Bagian utama pemainan, segala aksi dilakukan disini
+         Merupakan fungsi solusi
+         */
+
+        int countEnemyAlive = countEnemyAlive();            // Hitung banyaknya musuh yang masih hidup
+        Worm[] listPlayerWorms = gameState.myPlayer.worms;  // List semua worm pemain
+
+        /* Daftar fungsi seleksi */
+        
         if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
             System.out.println("--2--");
             if (currentWorm.id == 2) { // Bomber
