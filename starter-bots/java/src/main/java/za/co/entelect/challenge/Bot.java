@@ -150,16 +150,16 @@ public class Bot {
             if (getCurrentWorm(gameState).id == 2 || getCurrentWorm(gameState).id == 3) {
                 // EDIT YANG INI
                 if(currentWorm.id == 3){
-//                    if (onBattle(2)  || euclideanDistance(currentWorm.position.x,currentWorm.position.y,opponent.worms[idEnemy-1].position.x,opponent.worms[idEnemy-1].position.y) < 6) {
-//                        if (currentWorm.snowballs.count > 3) {
-//                            PairBomb pb = maxFrozen(currentWorm.position);
-//                            if (pb.pos != null && pb.damage > 0) {
-//                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
-//                            }
-//                        }
-//                    }
+                   if (onBattle(1) || onBattle(2) || onBattle(3) ) {
+                       if (currentWorm.snowballs.count > 3 || (countEnemyAlive() == 1 && currentWorm.snowballs.count > 0)) {
+                           PairBomb pb = maxFrozen(currentWorm.position);
+                           if (pb.pos != null && pb.damage > 0) {
+                               return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
+                           }
+                       }
+                   }
                 }
-                if (getCurrentWorm(gameState).id == 2) {
+                if (currentWorm.id == 2) {
                     if (currentWorm.bananaBomb.count > 0) {
                         PairBomb pb = maxDamageFromBomb(currentWorm.position);
                         if (pb.pos != null && pb.damage >= 10 * countEnemyAlive) {
