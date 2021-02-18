@@ -1013,54 +1013,7 @@ public class Bot {
             source.x = ToBeVisited.get(idx).x;
             source.y = ToBeVisited.get(idx).y;
             ToBeVisited.remove(idx);
-        }while(ToBeVisited.size()>0);
-//        System.out.println(source.x);
-//        System.out.println(source.y);
-        /*for(int i = 0;i<ToBeVisited.size();i++) {//initialize ynag pertama
-            int CurridxX = ToBeVisited.get(i).x;
-            int CurridxY = ToBeVisited.get(i).y;
-            Result[CurridxX][CurridxY].prev.x = source.x; //initialize prev nya
-            Result[CurridxX][CurridxY].prev.y = source.y;
-            if (Result[CurridxX][CurridxY].cell.type == CellType.AIR) {
-                Result[CurridxX][CurridxY].distance = Result[Result[CurridxX][CurridxY].prev.x][Result[CurridxX][CurridxY].prev.y].distance + 1;
-            } else if (Result[CurridxX][CurridxY].cell.type == CellType.DIRT) {
-                Result[CurridxX][CurridxY].distance = Result[Result[CurridxX][CurridxY].prev.x][Result[CurridxX][CurridxY].prev.y].distance + 2;
-            }else{ //deep space
-                Result[CurridxX][CurridxY].distance = Integer.MAX_VALUE;//asumsikan infinite
-            }
-        }
-        while(ToBeVisited.size() > 0){
-            System.out.println(ToBeVisited.size());
-            int idx = getMinDist(ToBeVisited,Result); //ambil yang distancenya minimal
-            int CurrX = ToBeVisited.get(idx).x;
-            int CurrY = ToBeVisited.get(idx).y;
-            Result[CurrX][CurrY].visit = true; //ini di visit
-
-            if (Result[CurrX][CurrY].cell.type == CellType.AIR) { //masukin distancenya
-                Result[CurrX][CurrY].distance = Result[Result[CurrX][CurrY].prev.x][Result[CurrX][CurrY].prev.y].distance + 1;
-            } else if (Result[CurrX][CurrY].cell.type == CellType.DIRT) {
-                Result[CurrX][CurrY].distance = Result[Result[CurrX][CurrY].prev.x][Result[CurrX][CurrY].prev.y].distance + 2;
-            }else{ //deep space
-                Result[CurrX][CurrY].distance = Integer.MAX_VALUE;//asumsikan infinite
-            }
-            //ToBeVisited.get(idx) = null; //kalkulasi buat cell ini selesai
-            ToBeVisited.remove(idx);
-            List<Position> TempToBeVisited = new ArrayList<Position>();
-            TempToBeVisited = getAdjacentCell(CurrX,CurrY,Result); //ambil semua cell yg adj dg curr cell
-            for(int i = 0;i<TempToBeVisited.size();i++) {
-                int idxNextX = TempToBeVisited.get(i).x;
-                int idxNextY = TempToBeVisited.get(i).y;
-                Result[idxNextX][idxNextY].prev.x = TempToBeVisited.get(i).x; //initialize prev nya untuk cell yang adj dg currCell
-                Result[idxNextX][idxNextY].prev.y = TempToBeVisited.get(i).y;
-            }
-            for(int j = 0;j<TempToBeVisited.size();j++){
-                ToBeVisited.add(TempToBeVisited.get(j));
-                //Result[]
-            }
-
-            //ToBeVisited = append(ToBeVisited,getAdjacentCell(CurrX,CurrY,Result)); //nanti buat fungsi merge 2 array somehow
-        }*/
-
+        } while(ToBeVisited.size()>0);
         return Result;
     }
 
@@ -1113,6 +1066,7 @@ public class Bot {
         }
         return temp;
     }
+    
     public Command HuntAndKill(){
         System.out.println("HuntAndKill");
         Command command =  basicShot();
