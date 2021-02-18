@@ -59,7 +59,7 @@ public class Bot {
         Worm[] listPlayerWorms = gameState.myPlayer.worms;  // List semua worm pemain
 
         /* Daftar fungsi seleksi */
-        
+        /* */
         if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
             System.out.println("--2--");
             if (currentWorm.id == 2) { // Bomber
