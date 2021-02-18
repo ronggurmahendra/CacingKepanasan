@@ -954,7 +954,7 @@ public class Bot {
     }
 
 
-    /* Mengembalikan waktu beku yang bisa diberikan oleh snowball */
+    /* Mengembalikan suatu map array 2 dimensi moddified cell(moddified cell adalah sel yang mengandung atribut sel tersebut, posisi ssel sebelumnya, jarak ke sel tersebut, dan suatu boolean apakah sel tersebut sudah diiterasikan) */
     public modifiedCell[][] shortestRoute(Cell[][] GameMap, Position Source){
         Position source = new Position(Source.x, Source.y);
         //initialize
@@ -1016,11 +1016,8 @@ public class Bot {
         } while(ToBeVisited.size()>0);
         return Result;
     }
-
+    /*mengembalikan list yang adjacent, bukan deepspace,dan tidak terdapat worm (digunakna oleh fungsi shortestRoute)*/
     public  List<Position> getAdjacentCell(int x,int y , modifiedCell[][] map) {
-        //int x = src.cell.x;
-        //int y = src.cell.y;
-        //int a[][] = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y - 1}, {x, y + 1}, {x, y - 1}, {x - 1, y + 1}, {x - 1, y}, {x - 1, y - 1}};
         List<Position> a = new ArrayList<Position>();
         a.add(new Position(x+1,y+1));
         a.add(new Position(x+1,y));
@@ -1041,7 +1038,7 @@ public class Bot {
         }
         return Result;
     }
-
+    /*Mengembalikan jarak minimum dari suatu list posisi dari suatu map modified map() (digunakna oleh fungsi shortestRoute)*/
     public int getMinDist(List<Position> ToBeVisited,modifiedCell[][] map){
         int min = map[ToBeVisited.get(0).x][ToBeVisited.get(0).y].distance;
         int idxmin = 0;
@@ -1053,22 +1050,9 @@ public class Bot {
         }
         return idxmin;
     }
-
-    public int[][] removeElmt(int[][] ToBeVisited,int index){
-        int[][] temp = new int[ToBeVisited.length-1][2];
-        int j = 0;
-        for(int i = 0;i<ToBeVisited.length;i++){
-            if(i != index){
-                temp[j][0] = ToBeVisited[i][0];
-                temp[j][1] = ToBeVisited[i][1];
-                j++;
-            }
-        }
-        return temp;
-    }
-    
+    /*mengembalikan suatu perintah jika bisa menembak maka akan menembak jika tidak bisa akan pergi menuju sel dimana sel tersebut bisa menembak musuh*/
     public Command HuntAndKill(){
-        System.out.println("HuntAndKill");
+        //System.out.println("HuntAndKill");
         Command command =  basicShot();
         if(command == null){
             List<Position> EnemyinRange = new ArrayList<Position>();
@@ -1080,8 +1064,8 @@ public class Bot {
                     }
                 }
             }
-            System.out.print("enemy size: ");
-            System.out.println(EnemyinRange.size());
+            //System.out.print("enemy size: ");
+            //System.out.println(EnemyinRange.size());
             modifiedCell[][] Map = shortestRoute(gameState.map,getCurrentWorm(gameState).position);
             Position GoTo = GetMinDistanceFromArray(Map,EnemyinRange);
             return ImprovedDigAndMoveTo(getCurrentWorm(gameState).position,GoTo);
@@ -1091,7 +1075,7 @@ public class Bot {
 
 
     }
-
+    //mengembalikan suatu posisi ynag terdekat dari array posisi berdasarkan modified map()(digunakna oleh fungsi hunt and kill)
     public Position GetMinDistanceFromArray(modifiedCell[][] Map, List<Position> EnemyinRange){
         System.out.println("getmindistance");
         if(EnemyinRange.size() > 0){
@@ -1110,42 +1094,43 @@ public class Bot {
 //            System.out.println(Result.y);
             return Result;
         }
-        System.out.println("Pos : -1 -1");
+        // error
+        //System.out.println("Pos : -1 -1");
         return new Position(-1, -1);
     }
 
-
+    //mengembalikan posisi akan di tuju berdasarkan modified map
     public Position getShortestFirstRoute(modifiedCell[][] Map, Position Target){
         int XTarget = Target.x;
         int YTarget = Target.y;
         modifiedCell currCell = new modifiedCell();
         currCell.deepCopy(Map[XTarget][YTarget]);
-        System.out.print("Generating Best Route : ");
+//        System.out.print("Generating Best Route : ");
 
-        System.out.print(" x:");
-        System.out.print(currCell.cell.x);
-        System.out.print(" y:");
-        System.out.print(currCell.cell.y);
+//        System.out.print(" x:");
+//        System.out.print(currCell.cell.x);
+//        System.out.print(" y:");
+//        System.out.print(currCell.cell.y);
         while(Map[currCell.prev.x][currCell.prev.y].distance != 0){
 
             currCell = Map[currCell.prev.x][currCell.prev.y];
-            System.out.print(" <- ");
-            System.out.print(" x:");
-            System.out.print(currCell.prev.x);
-            System.out.print(" y:");
-            System.out.print(currCell.prev.y);
+//            System.out.print(" <- ");
+//            System.out.print(" x:");
+//            System.out.print(currCell.prev.x);
+//            System.out.print(" y:");
+//            System.out.print(currCell.prev.y);
 
         }
-        System.out.println();
-        System.out.print("So Go To");
-        System.out.print(" x:");
-        System.out.print(currCell.cell.x);
-        System.out.print(" y: ");
-        System.out.print(currCell.cell.y);
-        System.out.println();
+//        System.out.println();
+//        System.out.print("So Go To");
+//        System.out.print(" x:");
+//        System.out.print(currCell.cell.x);
+//        System.out.print(" y: ");
+//        System.out.print(currCell.cell.y);
+//        System.out.println();
         return new Position(currCell.cell.x,currCell.cell.y);
     }
-
+    //mengembalikan perintah untuk mendig ke destination dalam garis lurus
     public Command ImprovedDigAndMoveTo(Position origin, Position destination){
         modifiedCell[][] Map = shortestRoute(gameState.map, origin);
         Position nextPosition = getShortestFirstRoute(Map,destination);
@@ -1165,7 +1150,7 @@ public class Bot {
         //return digAndMoveTo(origin, goTo);
     }
 
-
+    //mengembalikan lisy posisi yang terdapat power up
     public List<Position> getPowerUp(){
         List<Position> powerUp = new ArrayList<Position>();
         for (int i = 0;i<gameState.mapSize;i++){
@@ -1177,7 +1162,7 @@ public class Bot {
         }
         return powerUp;
     }
-
+    //mengembalikan true jika worm kami sudah berkumpul dan false jika belum berkumpul
     private boolean isGroup(){
         int radius = 3;
         Position f1 = GetWormPos(1), f2 = GetWormPos(2), f3 = GetWormPos(3);
@@ -1210,7 +1195,7 @@ public class Bot {
         }
         return group;
     }
-
+// mengembalikan perintah bagi worm untuk berkumpul berdasarkan jarak terjauh minimal yang semua worrm harus lalui
     public Command Regroup(){
         System.out.println("Regroup!");
         Position e1 = GetWormPos(1), e2 = GetWormPos(2), e3 = GetWormPos(3);
