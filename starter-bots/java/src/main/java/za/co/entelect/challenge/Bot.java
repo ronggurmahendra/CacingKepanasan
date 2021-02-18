@@ -146,6 +146,19 @@ public class Bot {
             return HuntAndKill();
         }
         else {  // NOT IN WAR
+            // Ambil Power Kalau Deket
+            List<Position> powerPos =  getPowerUp();
+            if (!powerPos.isEmpty()) {
+                for (int i = 0; i < powerPos.size(); i++) {
+                    if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) <= 1)) {
+                        System.out.println("Cari power");
+                        Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
+                        return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
+                    }
+                }
+            }
+
+            // Tim Gank
             int idEnemy = 1;
             if (getCurrentWorm(gameState).id == 2 || getCurrentWorm(gameState).id == 3) {
                 // EDIT YANG INI
@@ -167,23 +180,23 @@ public class Bot {
                         }
                     }
                 }
-                System.out.println("-2-----------");
+//
 
                 Command com = basicShot();
                 if (com != null) {
-                    System.out.println("-0.5-----------");
+                    System.out.println("Tembak Target");
                     return com;
                 }
 
-                System.out.println("Gank Target");
+
                 if (GetEnemyPos(idEnemy) != null) {
-                    System.out.println("Execute improved dig and move to");
+                    System.out.println("Gank Target");
                     return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(idEnemy));
                 }
 
-                System.out.println("1-----------");
+//                System.out.println("1-----------");
                 if (isGroup()) { // harusnya grouping
-                    System.out.println("2-----------");
+                    System.out.println("Already Grouping");
                     if(currentWorm.id == 3){
                         if (onBattle(1) || onBattle(2) || onBattle(3)) {
                             if (getCurrentWorm(gameState).snowballs.count > 0 && frozenUntil(false,currentWorm.id) == 0) {
@@ -204,23 +217,22 @@ public class Bot {
                     }
                     return HuntAndKill();
                 }
-                System.out.println("3-----------");
 
                 return Regroup();
 
             } else if (getCurrentWorm(gameState).id == 1) { // Yang ketengah
 
 
-                List<Position> powerPos =  getPowerUp();
-                if (!powerPos.isEmpty()) {
-                    for (int i = 0; i < powerPos.size(); i++) {
-                        if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) < 2)) {
-                            System.out.println("Cari power");
-                            Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
-                            return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
-                        }
-                    }
-                }
+//                List<Position> powerPos =  getPowerUp();
+//                if (!powerPos.isEmpty()) {
+//                    for (int i = 0; i < powerPos.size(); i++) {
+//                        if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) < 2)) {
+//                            System.out.println("Cari power");
+//                            Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
+//                            return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
+//                        }
+//                    }
+//                }
 
 //                if (currentWorm.bananaBomb.count > 0) {
 //                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
@@ -1377,6 +1389,7 @@ public class Bot {
     }
 
     private boolean isGroup(){
+        int radius = 4;
         Position f1 = GetWormPos(1), f2 = GetWormPos(2), f3 = GetWormPos(3);
         int total = 0, totalX = 0, totalY = 0;
         if(f1 != null){
@@ -1396,19 +1409,20 @@ public class Bot {
         }
         Position center = new Position(totalX/total, totalY/total);
         boolean group = true;
-        if(f1 != null && euclideanDistance(f1.x, f1.y, center.x, center.y) > 2){
+        if(f1 != null && euclideanDistance(f1.x, f1.y, center.x, center.y) > radius){
             group = false;
         }
-        if(f2 != null && euclideanDistance(f2.x, f2.y, center.x, center.y) > 2){
+        if(f2 != null && euclideanDistance(f2.x, f2.y, center.x, center.y) > radius){
             group = false;
         }
-        if(f3 != null && euclideanDistance(f3.x, f3.y, center.x, center.y) > 2){
+        if(f3 != null && euclideanDistance(f3.x, f3.y, center.x, center.y) > radius){
             group = false;
         }
         return group;
     }
 
     public Command Regroup(){
+        System.out.println("Regroup!");
         Position e1 = GetWormPos(1), e2 = GetWormPos(2), e3 = GetWormPos(3);
         List<modifiedCell[][]> mC = new ArrayList<>();
         if(e1 != null){
