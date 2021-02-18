@@ -1361,7 +1361,7 @@ public class Bot {
         Position nextPosition = getShortestFirstRoute(Map,destination);
         Cell nextCell = gameState.map[nextPosition.y][nextPosition.x];
 
-        if (nextCell.type == CellType.AIR) {
+        if (nextCell.type == CellType.AIR || nextCell.type == CellType.LAVA) {
             System.out.println(nextCell.type);
             return new MoveCommand(nextPosition.x,nextPosition.y);
         } else if (nextCell.type == CellType.DIRT) {
