@@ -1066,7 +1066,7 @@ public class Bot {
         }
         return temp;
     }
-    
+
     public Command HuntAndKill(){
         System.out.println("HuntAndKill");
         Command command =  basicShot();

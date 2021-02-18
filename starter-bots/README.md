@@ -2,7 +2,7 @@
 Entelect will provide starter bots for the following languages:
 
 * .Net Core (C#)
-* Python 
+* Python
 * Javascript
 * Java
 
