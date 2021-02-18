@@ -24,13 +24,13 @@ public class Bot {
         this.currentWorm = getCurrentWorm(gameState);
     }
 
+    /* Mengembalikan worm yang akan beraksi */
     private MyWorm getCurrentWorm(GameState gameState) {
-        // Mengembalikan worm yang akan beraksi
         return gameState.myPlayer.worms[gameState.currentWormId-1];
     }
 
+    /* Mengembalikan posisi worm pemain berdasarkan ID nya */
     public Position GetWormPos(int ID){
-        // Mengembalikan posisi worm pemain berdasarkan ID nya
         Worm worm = gameState.myPlayer.worms[ID-1];
         if(worm.health > 0){
             return worm.position;
@@ -39,8 +39,8 @@ public class Bot {
         }
     }
 
+    /* Mengembalikan posisi worm musuh berdasarkan ID nya */
     public Position GetEnemyPos(int ID){
-        // Mengembalikan posisi worm musuh berdasarkan ID nya
         Worm Enemyworm = gameState.opponents[0].worms[ID-1];
         if(Enemyworm.health > 0){
             return Enemyworm.position;
@@ -49,27 +49,30 @@ public class Bot {
         }
     }
 
+    /*
+     Bagian utama pemainan, segala aksi dilakukan disini
+     Merupakan fungsi solusi
+     */
     public Command run(){
-        /*
-         Bagian utama pemainan, segala aksi dilakukan disini
-         Merupakan fungsi solusi
-         */
-
         int countEnemyAlive = countEnemyAlive();            // Hitung banyaknya musuh yang masih hidup
         Worm[] listPlayerWorms = gameState.myPlayer.worms;  // List semua worm pemain
 
         /* Daftar fungsi seleksi */
-        /* */
-        if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {  // Sekarat?
-            System.out.println("--2--");
-            if (currentWorm.id == 2) { // Bomber
+
+        /* Fungsi seleksi, pilih jika worm sekarang sedang sekarat dan tidak beku */
+        if (currentWorm.health <= 20 && frozenUntil(false,currentWorm.id) == 0) {
+
+            /* Fungsi kelayakan, jika yang sekarat adalah agent dan masih memiliki bananaBomb */
+            if (currentWorm.id == 2) {
                 if (currentWorm.bananaBomb.count > 0) {
                     PairBomb pb = maxDamageFromBomb(currentWorm.position);
                     if (pb.pos != null && pb.damage > 0) {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
                 }
-            } else if (currentWorm.id == 3) {  // Snowballer
+            }
+            /* Fungsi kelayakan, jika yang sekarat adalah technologist dan masih memiliki snowballs */
+            else if (currentWorm.id == 3) {
                 if (getCurrentWorm(gameState).snowballs.count > 0) {
                     PairBomb pb = maxFrozen(currentWorm.position);
                     if (pb.pos != null && pb.damage > 0) {
@@ -77,10 +80,12 @@ public class Bot {
                     }
                 }
             }
-        } // KALAU CURRENT GA SEKARAT
+        }
+
+        /* Fungsi seleksi, pilih jika worm pemain bertipe agent sedang sekarat dan tidak beku */
         if (listPlayerWorms[1].alive() && listPlayerWorms[1].health <= 30 && frozenUntil(false,listPlayerWorms[1].id) == 0) {
-            System.out.println("--3--");
-            if (gameState.myPlayer.token > 0) { // Ganti orang
+            /* Fungsi kelayakan, jika masih memiliki token seleksi dan masih memiliki bananaBomb*/
+            if (gameState.myPlayer.token > 0) {
                 if (listPlayerWorms[1].bananaBomb.count > 0) {
                     PairBomb pb = maxDamageFromBomb(listPlayerWorms[1].position);
                     if (pb.pos != null && pb.damage > 0) {
@@ -89,9 +94,11 @@ public class Bot {
                 }
             }
         }
+
+        /* Fungsi seleksi, pilih jika worm pemain bertipe agent sedang sekarat dan tidak beku */
         if (listPlayerWorms[2].alive() && listPlayerWorms[2].health <= 20 && frozenUntil(false,listPlayerWorms[2].id) == 0) {
-            System.out.println("--4--");
-            if (gameState.myPlayer.token > 0) { // Ganti orang
+            /* Fungsi kelayakan, jika masih memiliki token seleksi dan masih memiliki snowballs */
+            if (gameState.myPlayer.token > 0) {
                 if (listPlayerWorms[2].snowballs.count > 0) {
                     PairBomb pb = maxFrozen(listPlayerWorms[2].position);
                     if (pb.pos != null && pb.damage > 0) {
@@ -100,32 +107,38 @@ public class Bot {
                 }
             }
         }
-        if(isWar()){    // SEDANG PERANG
+
+        /* Fungsi seleksi, pilih jika keadaan pemain sedang perang */
+        if(isWar()){
+            /* Fungsi kelayakan, pilih jika worm sekarang commander */
             if (currentWorm.id == 1) {
-                System.out.println("--5--");
                 Command cmd = basicShot();
                 if (cmd != null) {
                     return cmd;
                 } else {
                     return positioning();
                 }
-            } if (currentWorm.id == 2) {
-                System.out.println("--6--");
+            }
+            /* Fungsi kelayakan, pilih jika worm sekarang agent */
+            if (currentWorm.id == 2) {
+                /* Fungsi obyektif, masih terdapat bananaBomb */
                 if (currentWorm.bananaBomb.count > 0) {
                     PairBomb pb = maxDamageFromBomb(currentWorm.position);
                     if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
                         return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
                     }
                 }
+                /* Fungsi obyektif, tidak tersisa terdapat bananaBomb maka tembak biasa */
                 Command cmd = basicShot();
                 if (cmd != null) {
                     return cmd;
                 } else {
                     return positioning();
                 }
-
-            } if (currentWorm.id == 3) {  // Snowballer
-                System.out.println("--7--");
+            }
+            /* Fungsi kelayakan, pilih jika worm sekarang technologist */
+            if (currentWorm.id == 3) {
+                /* Fungsi obyektif, masih terdapat snowballs */
                 if (getCurrentWorm(gameState).snowballs.count > 0) {
                     if (onBattle(1) || onBattle(2) || onBattle(3)) {
                         PairBomb pb = maxFrozen(currentWorm.position);
@@ -134,36 +147,43 @@ public class Bot {
                         }
                     }
                 }
+                /* Fungsi obyektif, tidak tersisa terdapat bananaBomb maka tembak biasa */
                 Command cmd = basicShot();
                 if (cmd != null) {
                     return cmd;
                 } else {
                     return positioning();
                 }
-
             }
-            System.out.println("Something error in War");
-            System.out.println("Something error in War");
-            System.out.println("Something error in War");
+
+            System.out.println("---Something error in War---");
+            System.out.println("---Something error in War---");
+            System.out.println("---Something error in War---");
+            /* Default jika terjadi error */
             return HuntAndKill();
         }
-        else {  // NOT IN WAR
-            // Ambil Power Kalau Deket
+
+        /* Fungsi seleksi, pilih jika keadaan pemain sedang tidak berperang */
+        else {
+            /* Fungsi kelayakan, ambil powerup jika ada di dekat worm pemain sekarang */
             List<Position> powerPos =  getPowerUp();
             if (!powerPos.isEmpty()) {
                 for (int i = 0; i < powerPos.size(); i++) {
+                    /* Fungsi objektif, ambil powerup terdekat (berjarak 1 blok) */
                     if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) <= 1)) {
-                        System.out.println("Cari power");
                         Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
                         return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
                     }
                 }
             }
 
-            // Tim Gank
-            int idEnemy = 1;
+
+            int idEnemy = 1;    // Id worm musuh yang akan di gank (commander)
+            /* Fungsi kelayakan, kejar musuh dengan id = idEnemy dengan worm agent dan technologist */
             if (getCurrentWorm(gameState).id == 2 || getCurrentWorm(gameState).id == 3) {
-                // EDIT YANG INI
+
+                /* Fungsi objektif, jika worm sekarang techologist maka lempar snowball pada saat keadaan bertarung
+                atau mengejar musuh yang tinggal sendiri */
                 if(currentWorm.id == 3){
                    if (onBattle(1) || onBattle(2) || onBattle(3) ) {
                        if (countEnemyAlive() == 1 && currentWorm.snowballs.count > 0) {
@@ -174,6 +194,9 @@ public class Bot {
                        }
                    }
                 }
+
+                /* Fungsi objektif, jika worm sekarang agent maka lempar bananaBomb pada saat memberikan
+                damage maksimum, yaitu 10*jumlah musuh yang masih hidup */
                 if (currentWorm.id == 2) {
                     if (currentWorm.bananaBomb.count > 0) {
                         PairBomb pb = maxDamageFromBomb(currentWorm.position);
@@ -184,21 +207,20 @@ public class Bot {
                 }
 //
 
+                /* Fungsi objektif, jika ada musuh yang bisa ditembak, maka langsung tembak */
                 Command com = basicShot();
                 if (com != null) {
-                    System.out.println("Tembak Target");
                     return com;
                 }
 
-
+                /* Fungsi objektif, jika tidak ada musuh didekat kita, maka kejar musuh dengan id = idEnemy */
                 if (GetEnemyPos(idEnemy) != null) {
-                    System.out.println("Gank Target");
                     return ImprovedDigAndMoveTo(currentWorm.position, GetEnemyPos(idEnemy));
                 }
 
-//                System.out.println("1-----------");
-                if (isGroup()) { // harusnya grouping
-                    System.out.println("Already Grouping");
+                /* Fungsi objektif, keadaan worm sudah berkumpul */
+                if (isGroup()) {
+                    /* Jika worm sekarang technologist, masih memiliki snowball, dan tidak beku, lempar saat bertarung */
                     if(currentWorm.id == 3){
                         if (onBattle(1) || onBattle(2) || onBattle(3)) {
                             if (getCurrentWorm(gameState).snowballs.count > 0 && frozenUntil(false,currentWorm.id) == 0) {
@@ -209,6 +231,7 @@ public class Bot {
                             }
                         }
                     }
+                    /* Jika worm sekarang agent, masih memiliki bananaBomb, dan tidak beku, lempar diposisi damage terbesar */
                     if (currentWorm.id == 2) {
                         if (currentWorm.bananaBomb.count > 0 && frozenUntil(false,currentWorm.id) == 0) {
                             PairBomb pb = maxDamageFromBomb(currentWorm.position);
@@ -217,49 +240,35 @@ public class Bot {
                             }
                         }
                     }
+                    /* Default jika tidak ada yang dapat dibomb atau snowball (bakal cari musuh dan menyerang)*/
                     return HuntAndKill();
                 }
 
+                /* Fungsi objektif, keadaan worm belum berkumpul */
                 return Regroup();
 
-            } else if (getCurrentWorm(gameState).id == 1) { // Yang ketengah
-
-
-//                List<Position> powerPos =  getPowerUp();
-//                if (!powerPos.isEmpty()) {
-//                    for (int i = 0; i < powerPos.size(); i++) {
-//                        if ((euclideanDistance(currentWorm.position.x,currentWorm.position.y, powerPos.get(i).x, powerPos.get(i).y) < 2)) {
-//                            System.out.println("Cari power");
-//                            Position pwPos = new Position(powerPos.get(i).x,powerPos.get(i).y);
-//                            return ImprovedDigAndMoveTo(currentWorm.position, pwPos);
-//                        }
-//                    }
-//                }
-
-//                if (currentWorm.bananaBomb.count > 0) {
-//                    PairBomb pb = maxDamageFromBomb(currentWorm.position);
-//                    if (pb.pos != null && pb.damage >= 10*countEnemyAlive) {
-//                        return new ThrowBananaCommand(pb.pos.x, pb.pos.y);
-//                    }
-//                }
+            }
+            /* Fungsi kelayakan, worm commander bergerak mendekati teman untuk berkumpul */
+            else if (getCurrentWorm(gameState).id == 1) {
+                /* Fungsi objektif jika sudah berkumpul*/
                 if(isGroup()){
                     return HuntAndKill();
                 }
                 return Regroup();
             }
         }
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
-        System.out.println("------------------------MASIH SALAH------------------------------");
+
+        System.out.println("---Something error---");
+        System.out.println("---Something error---");
+        System.out.println("---Something error---");
+        /* Default jika ada error */
         return new DoNothingCommand();
     }
 
+    /* Menghitung banyaknya worm musuh yang masih hidup */
     private int countEnemyAlive() {
         Worm[] listEnemyWorms = opponent.worms;
         int countAlive = 0;
-
         for (int i = 0; i < listEnemyWorms.length; i++) {
             if (listEnemyWorms[i].alive()) {
                 countAlive++;
@@ -268,13 +277,14 @@ public class Bot {
         return countAlive;
     }
 
+    /* Mencari tau apakah ada worm pemain atau lawan didekat worm sekarang */
     private boolean isThereAlliesEnemyNear() {
         Worm[] listEnemyWorms = opponent.worms;
         Worm[] listAlliesWorms = gameState.myPlayer.worms;
         boolean isThere1 = false;
         boolean isThere2 = false;
-        int distance = 6;
-        // Cek apakah ada musuh dekat?
+        int distance = 6; // inisialisasi
+        // Cek apakah ada musuh dekat di dekat kita
         for (int i = 0; i < listEnemyWorms.length && !isThere1; i++) {
             if (listEnemyWorms[i].alive()) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listEnemyWorms[i].position.x,listEnemyWorms[i].position.y);
@@ -283,8 +293,7 @@ public class Bot {
                 }
             }
         }
-
-        // Cek apakah ada teman dekat
+        // Cek apakah ada teman di dekat kita
         for (int i = 0; i < listAlliesWorms.length && !isThere2; i++) {
             if (listAlliesWorms[i].alive() && i+1 != currentWorm.id) {
                 distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listAlliesWorms[i].position.x,listAlliesWorms[i].position.y);
@@ -294,10 +303,9 @@ public class Bot {
             }
         }
         return isThere1 && isThere2;
-
     }
 
-
+    /* Mengembalikan apakah kondisi pemainan sedang berperang*/
     private boolean isWar() {
         //int countAlive = countEnemyAlive();
         boolean onWar = false;
@@ -308,6 +316,7 @@ public class Bot {
         return onWar;
     }
 
+    /* Mengembalikan apakah worm dengan ID tersebut sedang bertarung */
     private boolean onBattle(int ID) {
         Worm[] friendWorms = gameState.myPlayer.worms;
         boolean on = false;
