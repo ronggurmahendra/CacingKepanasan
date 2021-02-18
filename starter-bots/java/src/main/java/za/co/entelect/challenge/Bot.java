@@ -1389,7 +1389,7 @@ public class Bot {
     }
 
     private boolean isGroup(){
-        int radius = 4;
+        int radius = 3;
         Position f1 = GetWormPos(1), f2 = GetWormPos(2), f3 = GetWormPos(3);
         int total = 0, totalX = 0, totalY = 0;
         if(f1 != null){
