@@ -839,32 +839,7 @@ public class Bot {
         return null;
     }
 
-    private List<Worm> countEnemy(Position pos) {
-        int max = 0, range = 5, tempMax, x = pos.x, y = pos.y, count = 0;
-        Position e = null, e1 = GetEnemyPos(1), e2 = GetEnemyPos(2), e3 = GetEnemyPos(3);
-        List<Worm> worm = new ArrayList<>();
-        for (int i = x - 5; i <= x + 5; i++) {
-            for (int j = y - 5; j <= y + 5; j++) {
-                // Don't include the current position
-                if (i != x && j != y && isValidCoordinate(i, j) && (euclideanDistance(pos.x, pos.y, i, j) <= range)) {
-                    if (e1 != null && e1.x == i && e1.y == j) {
-                        //count += 1;
-                        worm.add(gameState.opponents[0].worms[0]);
-                    }
-                    if (e2 != null && e2.x == i && e2.y == j) {
-                        //count += 1;
-                        worm.add(gameState.opponents[0].worms[1]);
-                    }
-                    if (e3 != null && e3.x == i && e3.y == j) {
-                        //count += 1;
-                        worm.add(gameState.opponents[0].worms[2]);
-                    }
-                }
-            }
-        }
-        return worm;
-    }
-
+    /* Menghitung damage yang diberikan bananaBomb */
     private int bombDamage (Position e3,int i, int j){
         if (e3.x == i && e3.y == j) {
             return 20;
@@ -879,6 +854,7 @@ public class Bot {
         }
     }
 
+    /* Menghitung damage total yang diberikan bananaBomb */
     private PairBomb maxDamageFromBomb(Position pos) {
         if(frozenUntil(false, 2) > 0){
             return new PairBomb(null, 0);
@@ -909,6 +885,7 @@ public class Bot {
         return new PairBomb(e, max);
     }
 
+    /* Mengembalikan banyaknya ronde hingga worm berhenti membeku */
     private int frozenUntil(boolean enemy, int ID){
         if(enemy){
             return gameState.opponents[0].worms[ID-1].frozen;
@@ -918,10 +895,7 @@ public class Bot {
         }
     }
 
-    private boolean frozen(Position pos,int ID, int i, int j){
-        return euclideanDistance(pos.x, pos.y, i, j) < 2 && frozenUntil(true, ID) == 0;
-    }
-
+    /* Mengembalikan waktu beku yang bisa diberikan oleh snowball */
     private PairBomb maxFrozen(Position pos){
         if(frozenUntil(false, 3) > 0){
             return new PairBomb(null, 0);
@@ -980,24 +954,17 @@ public class Bot {
     }
 
 
-
+    /* Mengembalikan waktu beku yang bisa diberikan oleh snowball */
     public modifiedCell[][] shortestRoute(Cell[][] GameMap, Position Source){
         Position source = new Position(Source.x, Source.y);
-//        System.out.println("Generating Map");
         //initialize
         modifiedCell[][] Result = new modifiedCell[GameMap.length][GameMap[0].length];
         for(int i = 0; i < GameMap.length;i++ ){
             for(int j = 0; j<GameMap[0].length;j++){
                 Result[i][j] = new modifiedCell();
-                //System.out.println(i);
-                //System.out.println(GameMap[i][j].x);
-                //System.out.println(GameMap[i][j].type);
                 Result[i][j].deepCopy(GameMap[j][i].x,GameMap[j][i].y, source.x,source.y,false,Integer.MAX_VALUE,GameMap[j][i].type);
             }
         }
-
-//        System.out.println("Generating Map1");
-//       System.out.println("Generating Map2");
 
         List<Position> PosAlly = new ArrayList<Position>();
         for(int i = 0;i< gameState.myPlayer.worms.length;i++){
@@ -1005,7 +972,7 @@ public class Bot {
                 PosAlly.add(gameState.myPlayer.worms[i].position);
             }
         }
-        //List<Position> PosEnemy = new ArrayList<Position>();
+
         for(int i = 0;i< gameState.opponents[0].worms.length;i++){
             if(gameState.opponents[0].worms[i].alive()){
                 PosAlly.add(gameState.opponents[0].worms[i].position);
@@ -1016,7 +983,6 @@ public class Bot {
         List<Position> ToBeVisited = new ArrayList<Position>();
         List<Position> TempToBeVisited = new ArrayList<Position>();
         do{
-            //System.out.println(ToBeVisited.size());
             //initialize source nya
             Result[source.x][source.y].visit = true;
             //starting dijstra
