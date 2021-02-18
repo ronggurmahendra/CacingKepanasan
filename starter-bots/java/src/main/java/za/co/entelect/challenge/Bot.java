@@ -151,7 +151,7 @@ public class Bot {
                 // EDIT YANG INI
                 if(currentWorm.id == 3){
                    if (onBattle(1) || onBattle(2) || onBattle(3) ) {
-                       if (currentWorm.snowballs.count > 3 || (countEnemyAlive() == 1 && currentWorm.snowballs.count > 0)) {
+                       if (countEnemyAlive() == 1 && currentWorm.snowballs.count > 0) {
                            PairBomb pb = maxFrozen(currentWorm.position);
                            if (pb.pos != null && pb.damage > 0) {
                                return new ThrowSnowballCommand(pb.pos.x, pb.pos.y);
