@@ -329,54 +329,7 @@ public class Bot {
         return on;
     }
 
-    private Worm getFirstWormInRange() {
-
-        Set<String> cells = constructFireDirectionLines(currentWorm.weapon.range)
-                .stream()
-                .flatMap(Collection::stream)
-                .map(cell -> String.format("%d_%d", cell.x, cell.y))
-                .collect(Collectors.toSet());
-
-        for (Worm enemyWorm : opponent.worms) {
-            String enemyPosition = String.format("%d_%d", enemyWorm.position.x, enemyWorm.position.y);
-            if (cells.contains(enemyPosition)) {
-                return enemyWorm;
-            }
-        }
-
-        return null;
-    }
-    // ini kayaknya line of sight
-    private List<List<Cell>> constructFireDirectionLines(int range) {
-        List<List<Cell>> directionLines = new ArrayList<>();
-        for (Direction direction : Direction.values()) {
-            List<Cell> directionLine = new ArrayList<>();
-            for (int directionMultiplier = 1; directionMultiplier <= range; directionMultiplier++) {
-
-                int coordinateX = currentWorm.position.x + (directionMultiplier * direction.x);
-                int coordinateY = currentWorm.position.y + (directionMultiplier * direction.y);
-
-                if (!isValidCoordinate(coordinateX, coordinateY)) {
-                    break;
-                }
-
-                if (euclideanDistance(currentWorm.position.x, currentWorm.position.y, coordinateX, coordinateY) > range) {
-                    break;
-                }
-
-                Cell cell = gameState.map[coordinateY][coordinateX];
-                if (cell.type != CellType.AIR) {
-                    break;
-                }
-
-                directionLine.add(cell);
-            }
-            directionLines.add(directionLine);
-        }
-
-        return directionLines;
-    }
-
+    /* Mengembalikan daftar cell yang berada di samping posisi tertentu */
     private List<Cell> getSurroundingCells(int x, int y) {
         ArrayList<Cell> cells = new ArrayList<>();
         for (int i = x - 1; i <= x + 1; i++) {
@@ -387,24 +340,27 @@ public class Bot {
                 }
             }
         }
-
         return cells;
     }
 
+    /* Menghitung jarak eclidean dari suatu titik ke titik lain */
     private int euclideanDistance(int aX, int aY, int bX, int bY) {
         return (int) (Math.sqrt(Math.pow(aX - bX, 2) + Math.pow(aY - bY, 2)));
     }
 
+    /* Mengembalikan apakah suatu koordinat valid */
     private boolean isValidCoordinate(int x, int y) {
         return x >= 0 && x < gameState.mapSize
                 && y >= 0 && y < gameState.mapSize;
     }
 
+    /* Mengembalikan apakah suatu koordinat merupakan deep space atau lava */
     private boolean isNotLavaOrSpace(int x, int y) {
         return (gameState.map[y][x].type != CellType.DEEP_SPACE) &&
                 (gameState.map[y][x].type != CellType.LAVA);
     }
 
+    /* Mengembalikan arah mata angin (tujuan) dari posisi a ke b */
     private Direction resolveDirection(Position a, Position b) {
         StringBuilder builder = new StringBuilder();
 
@@ -426,6 +382,7 @@ public class Bot {
         return Direction.valueOf(builder.toString());
     }
 
+    /* Mengembalikan posisi yang harus dituju jika ingin bergerak dari posisi a ke b */
     private Position resolveToPosition(Position origin, Position destination) {
         Position toPosition = new Position(origin.x, origin.y);
 
@@ -447,10 +404,12 @@ public class Bot {
         return toPosition;
     }
 
+    /* Mengembalikan cell pada posisi tertentu */
     private Cell findCell(Position nextPosition) {
         return gameState.map[nextPosition.y][nextPosition.x];
     }
 
+    /* Mengembalikan apakah cell pada posisi tertentu ada yang mengisi */
     private boolean isCellOccupied(Position pos) {
         boolean occupied = false;
         Worm[] listPlayerWorms = gameState.myPlayer.worms;
@@ -466,25 +425,17 @@ public class Bot {
                 occupied = true;
             }
         }
-
-
         return occupied;
     }
 
+    /* Mengembalikan perintah untuk bergerak ke suatu tempat atau menggali suatu dirt */
     private Command digAndMoveTo(Position origin, Position destination) {
         if(origin == null || destination == null){
             return new DoNothingCommand();
         }
+
         Position nextPosition = resolveToPosition(origin,destination);
-
-        MyWorm[] worms = gameState.myPlayer.worms;
         boolean canMove = !isCellOccupied(nextPosition);
-
-//        for (int i = 0; i < worms.length; i++) {
-//            if (worms[i].position.equals(nextPosition)) {
-//                canMove = false;
-//            }
-//        }
 
         if (!isValidCoordinate(nextPosition.x, nextPosition.y)) {
             canMove = false;
@@ -492,11 +443,7 @@ public class Bot {
 
         if (canMove) {
             Cell nextCell = findCell(nextPosition);
-//            Command cmd;
-//            System.out.println("can move");
-
             if (nextCell.type == CellType.AIR || nextCell.type == CellType.LAVA) {
-//                System.out.println(nextCell.type);
                 return new MoveCommand(nextPosition.x,nextPosition.y);
             } else if (nextCell.type == CellType.DIRT) {
                 return new DigCommand(nextPosition.x,nextPosition.y);
@@ -504,12 +451,12 @@ public class Bot {
                 return new DoNothingCommand();
             }
         }
-//        System.out.println("can't move");
+        System.out.println("Can't move");
         return new DoNothingCommand();
 
     }
 
-    // Ini buat normalisasi vektor
+    /* Menormalisasi vektor posisi (tidak digunakan) */
     private Position normalizeVector(Position vectorPos) {
         Position dir = new Position();
 
@@ -543,31 +490,13 @@ public class Bot {
         return dir;
     }
     
-    // Cek apakah ada dirt sepanjang jarak tembak
+    /* Mencek apakah pada arah dari satu posisi ke posisi lain terdapat penghalang */
     private boolean isThereAnyObstacle (Position a_pos, Position b_pos) {
-//        Position dif = new Position();
-//        dif.x = b_pos.x - a_pos.x;
-//        dif.y = b_pos.y - a_pos.y;
-//
-//        Position dir = normalizeVector(dif);
 
-        Position c_pos = new Position();
-        c_pos = resolveToPosition(a_pos,b_pos);
-//        c_pos.x = a_pos.x + dir.x;
-//        c_pos.y = a_pos.y + dir.y;
-        boolean isThere = false;
-//        System.out.println("---");
-//        System.out.println(a_pos.x);
-//        System.out.println(a_pos.y);
-//        System.out.println("x^y>");
-//        System.out.println(b_pos.x);
-//        System.out.println(b_pos.y);
-//        System.out.println("x^y>");
-//        System.out.println(c_pos.x);
-//        System.out.println(c_pos.y);
-//        System.out.println("---");
-
+        Position c_pos = resolveToPosition(a_pos,b_pos);
         Worm[] listFriendWorms = gameState.myPlayer.worms;
+        boolean isThere = false;
+
         while ((c_pos.x != b_pos.x || c_pos.y != b_pos.y) && !isThere) {
             if (findCell(c_pos).type == CellType.DIRT) {
                 isThere = true;
@@ -579,22 +508,17 @@ public class Bot {
                     }
                 }
             }
-//            System.out.println(c_pos.x);
-//            System.out.println(c_pos.y);
-//            System.out.println(isThere);
-
             c_pos = resolveToPosition(c_pos,b_pos);
         }
         return isThere;
     }
 
-    // Cek apakah posisi tersebut aman, tidak mengecek apakah sel tersebut dirt/air
+    /* Cek apakah posisi tersebut berada dalam lineOfSight musuh, tidak mengecek apakah sel tersebut dirt/air */
     private boolean isOnEnemyLineOfSight(Position pos) {
         Worm[] listEnemyWorms = opponent.worms;
         boolean isOn = false;
         for (int i = 0; i < listEnemyWorms.length && !isOn; i++) {
-
-            if (listEnemyWorms[i].alive()) { // Cek masih hidup saja
+            if (listEnemyWorms[i].alive()) { // Cek yang masih hidup saja
                 Position enemyPos = listEnemyWorms[i].position;
                 int distance = euclideanDistance(pos.x,pos.y,enemyPos.x,enemyPos.y);
 
@@ -605,30 +529,27 @@ public class Bot {
                 } else if (x_dif == 0 || y_dif == 0) { // Ada di vertikal atau horizontal?
                     isOn = true;
                 }
-                int range = 4;  // Asumsi
+                int range = 4;  // Batas tembak musuh
                 if (distance > range || isThereAnyObstacle(pos,enemyPos)) { // Cek lagi bakal kena ga
                     isOn = false;
                 }
-
-
             }
-//            System.out.println(isOn);
         }
         return isOn;
     }
 
+    /* Mengembalikan apakah suatu posisi aman dari serangan musuh */
     private boolean isSaveToEscape(Position movePos) {
         return !isOnEnemyLineOfSight(movePos) && findCell(movePos).type != CellType.DIRT;
     }
 
-    // Pastikan musuh sudah banyak didekat kita
+    /* Mengembalikan perintah untuk mundur (tidak digunakan)*/
     private Command retreat() {
-        System.out.println("Retreat");
         List<Position> vectorPos = new ArrayList<Position>();
         Worm[] listEnemyWorms = opponent.worms;
         Position pos = currentWorm.position;
 
-        // Tambah Vektor Posisi musuh ke kita (biar bisa langsung dijumlahin)
+        // Tambah Vektor Posisi musuh ke kita
         for (int i = 0; i < listEnemyWorms.length; i++) {
             Position enemyPos = listEnemyWorms[i].position;
             if (listEnemyWorms[i].alive()) {
@@ -638,28 +559,6 @@ public class Bot {
                 vectorPos.add(vectorPosEnemy);
             }
         }
-
-//        // Tambah Vektor Posisi teman terdekat
-//        int distance = 999999;
-//        int idx = -1;
-//        Worm[] listPlayerWorms = gameState.myPlayer.worms;
-//        for (int i = 0; i < listPlayerWorms.length; i++) {
-//            if (currentWorm.id != listPlayerWorms[i].id) {  // Bukan worm sekarang
-//                if (listPlayerWorms[i].alive()) {
-//                    int c_distance = euclideanDistance(currentWorm.position.x,currentWorm.position.y,listPlayerWorms[i].position.x,listPlayerWorms[i].position.y);
-//                    if (c_distance < distance) {
-//                        distance = c_distance;
-//                        idx = i;
-//                    }
-//                }
-//            }
-//        }
-//        if (idx != -1) {
-//            Position vectorPosFriend = new Position();
-//            vectorPosFriend.x = listPlayerWorms[idx].position.x - pos.x;
-//            vectorPosFriend.y = listPlayerWorms[idx].position.y - pos.y;
-//            vectorPos.add(vectorPosFriend);
-//        }
 
         // Tambah Vektor Kecenderungan Bergerak Memutar
         Position vectorPosCenterMap = new Position();
@@ -682,7 +581,6 @@ public class Bot {
 
         // Normalisasi totalPosVector
         Position totalDir = normalizeVector(totalVectorPos);
-
         Position movePos = new Position();
         movePos.x = pos.x + totalDir.x;
         movePos.y = pos.y + totalDir.y;
@@ -692,7 +590,6 @@ public class Bot {
             return digAndMoveTo(pos,movePos);
         } else {    // Ternyata tidak beruntung
             List<Cell> surroundCell = getSurroundingCells(pos.x, pos.y);
-            // Harusnya bikin PrioQueue
             // Cari posisi yang aman dulu aja
             Position alterMovePos = new Position();
             List<Cell> cellAman = new ArrayList<>();
@@ -710,8 +607,6 @@ public class Bot {
                 alterMovePos.y = cellAman.get(i).y;
                 return digAndMoveTo(pos,alterMovePos);
             } else {    // ga ada yang aman, gas aja kesana deh
-//                return digAndMoveTo(pos,movePos);
-
                 for (int i = 0; i < surroundCell.size(); i++) {
                     alterMovePos.x = surroundCell.get(i).x;
                     alterMovePos.y = surroundCell.get(i).y;
@@ -729,14 +624,13 @@ public class Bot {
                     alterMovePos.x = surroundCell.get(i).x;
                     alterMovePos.y = surroundCell.get(i).y;
                     return digAndMoveTo(pos,alterMovePos);
-//                    return digAndMoveTo(pos,movePos);
                 }
             }
         }
     }
 
+    /* Mengembalikan perintah untuk positioning, yaitu mencari posisi yang bisa menembak musuh */
    private Command positioning() {
-       System.out.println("Calling positioning");
        Worm[] listPlayerWorms = gameState.myPlayer.worms;
        List<Position> friendWormsPos = new ArrayList<Position>();
        for (int i = 0; i < listPlayerWorms.length; i++) {
@@ -760,38 +654,21 @@ public class Bot {
                }
            }
            if (isGood) {
-//               System.out.println("Add possible cell");
-//               System.out.println(surroundCell.get(i).x);
-//               System.out.println(surroundCell.get(i).y);
                possibleCell.add(surroundCell.get(i));
            }
        }
        Position cellPos = new Position();
        Random rand = new Random();
        if (possibleCell.isEmpty()) {    // Ternyata semua cell jaraknya 2 dari temen
-           System.out.println("---p1----");
            for (int i = 0; i < surroundCell.size(); i++) {  // Cari yang ada di lineOfSightMusuh
                cellPos.x = surroundCell.get(i).x;
                cellPos.y = surroundCell.get(i).y;
-//               System.out.println("Check occupied");
-//               System.out.println(isCellOccupied(cellPos));
                if (isOnEnemyLineOfSight(cellPos) && !isCellOccupied(cellPos)) {
                    possibleCell.add(surroundCell.get(i));
                }
            }
            if (possibleCell.isEmpty()) {        // Kalau ga gerak random aja
-               System.out.println("Call DoNothing");
                return HuntAndKill();
-//               return Regroup();
-//
-//               Worm[] enemyWorms = opponent.worms;
-//               for (int i = 0; i < enemyWorms.length; i++) {
-//                   if (enemyWorms[i].alive()) {
-//                       return digAndMoveTo(currentWorm.position,resolveToPosition(currentWorm.position,enemyWorms[i].position));
-//                   }
-//               }
-//               return new DoNothingCommand();
-
            } else {
                int i = rand.nextInt(possibleCell.size());
                cellPos.x = possibleCell.get(i).x;
@@ -799,42 +676,27 @@ public class Bot {
                return digAndMoveTo(currentWorm.position,cellPos);
            }
        } else { // Ada yang jaraknya 2 nih
-           System.out.println("---p2----");
            List<Cell> isGoodCell = new ArrayList<Cell>();
            for (int i = 0; i < possibleCell.size(); i++) {
                cellPos.x = possibleCell.get(i).x;
                cellPos.y = possibleCell.get(i).y;
                if (isOnEnemyLineOfSight(cellPos)) {  // Lebih ideal lagi kalau ada di lineofsightmusuh
-//                   System.out.println(cellPos.x);
-//                   System.out.println(cellPos.y);
                    isGoodCell.add(possibleCell.get(i));
                }
            }
            if (isGoodCell.isEmpty()) {  // Kalau ga ada yang ideal
-               System.out.println("Call Random");
-//               int i = rand.nextInt(possibleCell.size());
-//               cellPos.x = possibleCell.get(i).x;
-//               cellPos.y = possibleCell.get(i).y;
-//               System.out.println(cellPos.x);
-//               System.out.println(cellPos.y);
-//               return digAndMoveTo(currentWorm.position,cellPos);
                return HuntAndKill();
            } else { // Kalau ini ideal banget
-               System.out.println("Call Ideal");
-//               return Regroup();
                int i = rand.nextInt(isGoodCell.size());
-
                cellPos.x = isGoodCell.get(i).x;
                cellPos.y = isGoodCell.get(i).y;
-               System.out.println(isOnEnemyLineOfSight(cellPos));
-               System.out.println(cellPos.x);
-               System.out.println(cellPos.y);
                return digAndMoveTo(currentWorm.position,cellPos);
            }
        }
 
    }
 
+   /* Mengembalikan list berisi lineOfSight*/
     private List<Position> lineOfSight(Position pos) {
         int range = 4;
         List<Position> directionLine = new ArrayList<>();
@@ -863,6 +725,7 @@ public class Bot {
         return directionLine;
     }
 
+    /* Mengembalikan list berisi lineOfSight yang lebih baik*/
     private List<Position> modifiedLineOfSight(Position pos) {
         int range = 4;
         boolean obs = false;
@@ -877,13 +740,10 @@ public class Bot {
                 if (!isValidCoordinate(coordinateX, coordinateY)) {
                     break;
                 }
-
-
 //               Position coordinate = new Position(pos.x, pos.y);
 //               if (isCellOccupied(coordinate)) {
 //                   break;
 //               }
-
                 if (euclideanDistance(pos.x, pos.y, coordinateX, coordinateY) > range) {
                     break;
                 }
@@ -907,6 +767,7 @@ public class Bot {
         return directionLine;
     }
 
+    /* Mengembalikan posisi musuh untuk ditembak */
     private Position shotPosition(Position pos){
         List<Position> sight = lineOfSight(pos);
         boolean w1 = false, w2 = false, w3 = false;
@@ -936,26 +797,23 @@ public class Bot {
         }
         return e;
     }
-    // asumsi a_pos sama b_pos udah lurus
+
+    /* Cek apakah akan terjadi friendly fire*/
     private boolean isFriendlyFire (Position a_pos, Position b_pos) {
-        //System.out.println(String.format("a pos: %d %d", a_pos.x, a_pos.y));
-        //System.out.println(String.format("b pos: %d %d", b_pos.x, b_pos.y));
         Position c_pos = resolveToPosition(a_pos, b_pos);
         boolean isThere = false;
         while (!c_pos.equals(b_pos) && !isThere) {
-            //System.out.println(String.format("c pos: %d %d", c_pos.x, c_pos.y));
             if (c_pos.equals(GetWormPos(1)) || c_pos.equals(GetWormPos(2)) || c_pos.equals(GetWormPos(3))) {
-                //System.out.println("found");
                 isThere = true;
             }
             else{
-                //System.out.println("not found");
                 c_pos = resolveToPosition(c_pos, b_pos);
             }
         }
         return isThere;
     }
 
+    /* Mengembalikan perintah untuk menembak musuh */
     private Command basicShot(){
         Position pos = currentWorm.position;
         Position target = shotPosition(pos);
@@ -968,6 +826,7 @@ public class Bot {
         return null;
     }
 
+    /* Mengembalikan perintah untuk menembak musuh oleh worm dengan id tertentu */
     private Command basicShot(int ID){
         Position pos = gameState.myPlayer.worms[ID-1].position;
         Position target = shotPosition(pos);
