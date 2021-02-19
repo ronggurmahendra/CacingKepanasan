@@ -21,7 +21,7 @@ Jika worm *commander* lawan sudah mati, maka semua worm yang tersisa akan membur
 
 ## Executing
 - Buka file `game-runner-config.json` pada folder pemainan Worm
-- Ubah nilai parameter `"player.a"` menjadi alamat folder java dalam src, contoh :`"player-a": "./Tubes1_13519008/src/java" `
+- Ubah nilai parameter `"player.a"` menjadi alamat folder java di dalam folder src, contoh :`"player-a": "./Tubes1_13519008/src/java" `
 - Alternatif, ubah nilai parameter `"player.a"` menjadi alamat folder src di dalam bot ini, contoh :`"player-a": "./Tubes1_13519008/bin"
 - Jalankan permainan worm
 

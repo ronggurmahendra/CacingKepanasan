@@ -1,0 +1,71 @@
+function run(gameState : GameState) -> Himpunan_Solusi
+{ Mengembalikan Command terbaik untuk dilakukan bergantung pada Command dan GameState saat ini}
+    Deklarasi
+        cmd : Himpunan_Solusi
+
+    Algoritma
+        if (WormSekarangSekarat dan TidakBeku) then
+            if (wormId = 2 and tersediaBananaBomb) then
+                cmd <- lemparBananaBomb
+            if (wormId = 3 and tersediaSnowballs) then
+                cmd <- lemparSnowballs
+        if (WormLainSekarat dan TidakBeku) then
+            if (wormLainId = 2 and tersediaBananaBomb) then
+                cmd <- selectWormIniDanLemparBananaBomb
+            if (wormLainId = 3 and tersediaSnowballs) then
+                cmd <- selectWormIniDanLemparSnowballs  
+
+
+        if (SedangBerperang) then
+            if (wormId = 1) then
+                if (musuhDalamAreaTembak) then
+                    cmd <- tembakMusuh
+                else
+                    cmd <- positioning
+            if (wormId = 2) then
+                if (tersediaBananaBomb) then
+                    cmd <- lemparBananaBomb
+                else
+                    if (musuhDalamAreaTembak) then
+                        cmd <- tembakMusuh
+                    else
+                        cmd <- positioning
+            if (wormId = 3) then
+                if (tersediaSnowballs) then
+                    cmd <- lemparStersediaSnowballs
+                else
+                    if (musuhDalamAreaTembak) then
+                        cmd <- tembakMusuh
+                    else
+                        cmd <- positioning
+        else    { tidak berperang }
+            if (adaPowerUpDiDekatWorm) then
+                cmd <- ambilPowerUp
+
+            if (wormId = 2 or wormId = 3) then
+                if (wormId = 2 and tersediaBananaBomb) then
+                    cmd <- lemparBananaBomb
+                if (wormId = 3 and tersediaSnowballs) then
+                    cmd <- lemparSnowballs
+
+                if (musuhDalamAreaTembak) then
+                        cmd <- tembakMusuh
+                if (musuhHuntMasihHidup)
+                    cmd <- hunt(CommanderMusuh)
+                
+                if (wormPemainBerkumpul) then
+                    if (wormId = 2 and tersediaBananaBomb) then
+                        cmd <- lemparBananaBomb
+                    else if (wormId = 3 and tersediaSnowballs) then
+                        cmd <- lemparSnowballs
+                    else
+                        cmd <- huntAndKill
+
+                else
+                    cmd <- regroup
+
+            else {wormId = 1}
+                cmd <- regroup
+                
+
+                
